@@ -4,8 +4,8 @@ A zero-AI-footprint, high-performance tactical macOS console built on native
 Swift 6 actors. `TacticalHypervisor` arbitrates deterministic safety state via a
 hardware interlock gate, bridges containerized tooling through Apple's
 `Virtualization.framework` and a Docker ScreenEnv MCP stdio pipe, renders
-avionics-style synthetic voice alerts through CoreAudio, and drives a real-time
-MetalKit telemetry viewport.
+avionics-style synthetic voice alerts through CoreAudio (elevenlabs integration being 
+considered), and drives a real-time MetalKit telemetry viewport.
 
 The design intent is determinism and privacy: no conversational AI layer, no
 telemetry exfiltration, and no nondeterministic shared mutable state. Every
