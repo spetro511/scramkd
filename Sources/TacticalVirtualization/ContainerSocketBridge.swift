@@ -44,6 +44,9 @@ public actor ContainerSocketBridge {
         let inPipe = Pipe()
         let outPipe = Pipe()
 
+        // Prevent SIGPIPE process termination when writing to a closed child pipe on Darwin
+        _ = fcntl(inPipe.fileHandleForWriting.fileDescriptor, F_SETNOSIGPIPE, 1)
+
         process.standardInput = inPipe
         process.standardOutput = outPipe
 
@@ -65,9 +68,45 @@ public actor ContainerSocketBridge {
             throw HardwareInterlockError.subsystemFailure(reason: "Container stdio bridge handles uninitialized")
         }
 
-        // Write line-delimited JSON-RPC to container stdio
-        try stdinHandle.write(contentsOf: payload)
-        try stdinHandle.write(contentsOf: Data([0x0A]))
+        // Write line-delimited JSON-RPC to container stdio.
+        // For payloads exceeding the kernel pipe buffer (64 KiB on macOS), drain stdout
+        // concurrently while streaming chunks so echo/loopback processes cannot deadlock.
+        let chunkSize = 16_384
+        if payload.count > chunkSize {
+            var accumulated = Data()
+            var offset = 0
+            do {
+                while offset < payload.count {
+                    let end = min(offset + chunkSize, payload.count)
+                    try stdinHandle.write(contentsOf: payload.subdata(in: offset..<end))
+                    offset = end
+                    let drained = stdoutHandle.availableData
+                    if !drained.isEmpty {
+                        accumulated.append(drained)
+                    }
+                }
+                try stdinHandle.write(contentsOf: Data([0x0A]))
+            } catch let writeError as NSError {
+                throw HardwareInterlockError.subsystemFailure(
+                    reason: "Container stdin write failed: \(writeError.localizedDescription) (\(writeError.domain) \(writeError.code))"
+                )
+            }
+            if accumulated.isEmpty {
+                accumulated.append(stdoutHandle.availableData)
+            }
+            return accumulated
+        }
+
+        // Catch broken-pipe and other I/O faults (POSIX EPIPE, NSFileHandleOperationException)
+        // so they are always surfaced as a typed subsystemFailure rather than raw Foundation errors.
+        do {
+            try stdinHandle.write(contentsOf: payload)
+            try stdinHandle.write(contentsOf: Data([0x0A]))
+        } catch let writeError as NSError {
+            throw HardwareInterlockError.subsystemFailure(
+                reason: "Container stdin write failed: \(writeError.localizedDescription) (\(writeError.domain) \(writeError.code))"
+            )
+        }
 
         // Read response payload from stdio handle
         let responseData = stdoutHandle.availableData
