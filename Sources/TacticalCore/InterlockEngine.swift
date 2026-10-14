@@ -22,7 +22,7 @@ public struct InterlockTransitionRecord: Sendable, Hashable, Codable {
 }
 
 /// Thread-safe wrapper ensuring exactly-once resumption of checked continuations.
-private final class ContinuationWaiter: Sendable {
+final class ContinuationWaiter: Sendable {
     private let lock: OSAllocatedUnfairLock<CheckedContinuation<Void, any Error>?>
 
     init(continuation: CheckedContinuation<Void, any Error>) {
@@ -54,21 +54,33 @@ private final class ContinuationWaiter: Sendable {
     }
 }
 
+/// Atomic state tracking cancellation racing against continuation initialization.
+enum WaiterCancellationState: Sendable {
+    case pending
+    case waiting(ContinuationWaiter)
+    case cancelled
+}
+
 /// Actor enforcing deterministic hardware interlock safety transitions and permissive grant queues.
 public actor HardwareInterlockGate {
     private var status: InterlockStatus
     private var history: [InterlockTransitionRecord]
     private var waiters: [UUID: ContinuationWaiter]
+    private var subscribers: [UUID: AsyncStream<InterlockTransitionRecord>.Continuation]
 
     public init(initialStatus: InterlockStatus = .locked) {
         self.status = initialStatus
         self.history = []
         self.waiters = [:]
+        self.subscribers = [:]
     }
 
     deinit {
         for waiter in waiters.values {
             _ = waiter.resume(throwing: HardwareInterlockError.gateLocked)
+        }
+        for subscriber in subscribers.values {
+            subscriber.finish()
         }
     }
 
@@ -85,6 +97,11 @@ public actor HardwareInterlockGate {
     /// Number of callers currently suspended awaiting permissive grant.
     public var pendingWaitersCount: Int {
         waiters.count
+    }
+
+    /// Number of active transition stream subscribers.
+    public var activeSubscribersCount: Int {
+        subscribers.count
     }
 
     /// Arm the gate from locked state.
@@ -200,18 +217,43 @@ public actor HardwareInterlockGate {
         }
 
         let id = UUID()
-        let waiterHolder = OSAllocatedUnfairLock<ContinuationWaiter?>(initialState: nil)
+        let waiterHolder = OSAllocatedUnfairLock<WaiterCancellationState>(initialState: .pending)
 
         try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
                 let waiter = ContinuationWaiter(continuation: continuation)
-                waiterHolder.withLock { $0 = waiter }
-                self.waiters[id] = waiter
+                let alreadyCancelled = waiterHolder.withLock { state -> Bool in
+                    switch state {
+                    case .pending:
+                        state = .waiting(waiter)
+                        return false
+                    case .cancelled:
+                        return true
+                    case .waiting:
+                        return false
+                    }
+                }
+                if alreadyCancelled {
+                    waiter.resume(throwing: HardwareInterlockError.taskCancelled)
+                } else {
+                    self.waiters[id] = waiter
+                }
             }
         } onCancel: {
-            let waiter = waiterHolder.withLock { $0 }
-            if let waiter {
-                _ = waiter.resume(throwing: HardwareInterlockError.taskCancelled)
+            let waiterToResume = waiterHolder.withLock { state -> ContinuationWaiter? in
+                switch state {
+                case .pending:
+                    state = .cancelled
+                    return nil
+                case .waiting(let waiter):
+                    state = .cancelled
+                    return waiter
+                case .cancelled:
+                    return nil
+                }
+            }
+            if let waiterToResume {
+                _ = waiterToResume.resume(throwing: HardwareInterlockError.taskCancelled)
             }
             Task {
                 await self.removeWaiter(id: id)
@@ -239,6 +281,23 @@ public actor HardwareInterlockGate {
         }
     }
 
+    /// Subscribe to real-time gate state transitions via an AsyncStream.
+    public func subscribeTransitions() -> AsyncStream<InterlockTransitionRecord> {
+        let id = UUID()
+        return AsyncStream { continuation in
+            continuation.onTermination = { [weak self] _ in
+                Task { [weak self] in
+                    await self?.unsubscribe(id: id)
+                }
+            }
+            self.subscribers[id] = continuation
+        }
+    }
+
+    private func unsubscribe(id: UUID) {
+        subscribers.removeValue(forKey: id)
+    }
+
     private func transition(to target: InterlockStatus, reason: String) {
         let record = InterlockTransitionRecord(
             timestampNanoseconds: DispatchTime.now().uptimeNanoseconds,
@@ -248,6 +307,16 @@ public actor HardwareInterlockGate {
         )
         status = target
         history.append(record)
+        var terminatedIDs: [UUID] = []
+        for (id, subscriber) in subscribers {
+            let result = subscriber.yield(record)
+            if case .terminated = result {
+                terminatedIDs.append(id)
+            }
+        }
+        for id in terminatedIDs {
+            subscribers.removeValue(forKey: id)
+        }
     }
 }
 

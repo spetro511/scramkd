@@ -52,11 +52,15 @@ let package = Package(
         ),
         .testTarget(
             name: "TacticalCoreTests",
-            dependencies: ["TacticalCore"]
+            dependencies: ["TacticalCore", "TacticalAudioSVS"]
         ),
         .testTarget(
             name: "TacticalVirtualizationTests",
             dependencies: ["TacticalVirtualization", "TacticalCore"]
+        ),
+        .testTarget(
+            name: "TacticalAudioSVSTests",
+            dependencies: ["TacticalAudioSVS", "TacticalCore"]
         ),
     ],
     swiftLanguageModes: [.v6]
