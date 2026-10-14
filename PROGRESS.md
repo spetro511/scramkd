@@ -9,9 +9,9 @@ Historical audit record of build progress, state verification, and roadmap for
 | --- | --- |
 | Language mode | Swift 6 (`.v6`), macOS 14 target |
 | Strict concurrency build | `swift build -Xswiftc -strict-concurrency=complete` → **0 errors, 0 warnings** |
-| Unit tests | **19 / 19 passing**, 0 failures, 0 unexpected |
-| Test breakdown | `HardwareInterlockGateTests` 11 · `TelemetryFrameTests` 2 · `ContainerSocketBridgeTests` 6 |
-| Targets | 4 library targets + 2 test targets (SPM multi-target) |
+| Unit & stress tests | **45 / 45 passing**, 0 failures, 0 unexpected (`swift test -Xswiftc -strict-concurrency=complete`) |
+| Test breakdown | `HardwareInterlockGateTests` 11 · `HardwareInterlockGateStressTests` 8 · `StreamLeakAuditorTests` 8 · `TelemetryFrameTests` 2 · `ContainerSocketBridgeTests` 6 · `ContainerSocketBridgeFaultTests` 5 · `SVSBridgeTests` 5 |
+| Targets | 4 library targets + 3 test targets (SPM multi-target) |
 
 > Note: `ContainerSocketBridgeTests` includes a live Docker handshake case that
 > gracefully skips when `screenenv_container` is unavailable, preserving a green

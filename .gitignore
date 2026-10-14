@@ -4,3 +4,5 @@ Packages/
 *.xcodeproj
 *.xcworkspace
 .DS_Store
+application_default_credentials.json
+service.json
