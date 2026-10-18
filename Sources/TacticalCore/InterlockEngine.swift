@@ -67,6 +67,7 @@ public actor HardwareInterlockGate {
     private var history: [InterlockTransitionRecord]
     private var waiters: [UUID: ContinuationWaiter]
     private var subscribers: [UUID: AsyncStream<InterlockTransitionRecord>.Continuation]
+    private var observationSubscribers: [UUID: AsyncStream<InterlockObservedTransition>.Continuation] = [:]
 
     public init(initialStatus: InterlockStatus = .locked) {
         self.status = initialStatus
@@ -80,6 +81,9 @@ public actor HardwareInterlockGate {
             _ = waiter.resume(throwing: HardwareInterlockError.gateLocked)
         }
         for subscriber in subscribers.values {
+            subscriber.finish()
+        }
+        for subscriber in observationSubscribers.values {
             subscriber.finish()
         }
     }
@@ -101,7 +105,72 @@ public actor HardwareInterlockGate {
 
     /// Number of active transition stream subscribers.
     public var activeSubscribersCount: Int {
-        subscribers.count
+        subscribers.count + observationSubscribers.count
+    }
+
+    /// Capture status and a bounded suffix after a caller's last applied cursor.
+    /// This method does not suspend or change gate state.
+    public func observationSnapshot(
+        after cursor: UInt64 = 0,
+        historyLimit: Int = 256
+    ) -> InterlockObservationSnapshot {
+        let boundary = UInt64(history.count)
+        let available = boundary - min(cursor, boundary)
+        let retained = min(available, UInt64(max(0, historyLimit)))
+        let firstIndex = history.count - Int(retained)
+        let transitions = history.suffix(Int(retained)).enumerated().map { offset, record in
+            InterlockObservedTransition(cursor: UInt64(firstIndex + offset) + 1, record: record)
+        }
+        return InterlockObservationSnapshot(
+            currentStatus: status,
+            cursor: boundary,
+            transitions: transitions,
+            omittedTransitionCount: available - retained
+        )
+    }
+
+    /// Install the future stream and capture its bootstrap boundary without suspension.
+    /// Neither subscription nor reconciliation creates a transition.
+    public func observeTransitions(
+        after cursor: UInt64 = 0,
+        historyLimit: Int = 256,
+        bufferingLimit: Int = 128
+    ) -> InterlockObservation {
+        observeTransitions(
+            after: cursor, historyLimit: historyLimit, bufferingLimit: bufferingLimit,
+            terminationCleanup: nil
+        )
+    }
+
+    /// Internal completion handshake for deterministic termination-cleanup tests.
+    /// The public API executes this same path without a completion callback.
+    func observeTransitions(
+        after cursor: UInt64,
+        historyLimit: Int,
+        bufferingLimit: Int,
+        terminationCleanup: (@Sendable () -> Void)?
+    ) -> InterlockObservation {
+        let id = UUID()
+        let pair = AsyncStream<InterlockObservedTransition>.makeStream(
+            bufferingPolicy: .bufferingNewest(max(1, bufferingLimit))
+        )
+        pair.continuation.onTermination = { [weak self] _ in
+            Task { [weak self] in
+                await self?.unsubscribeObservation(id: id)
+                terminationCleanup?()
+            }
+        }
+        observationSubscribers[id] = pair.continuation
+        return InterlockObservation(
+            id: id,
+            snapshot: observationSnapshot(after: cursor, historyLimit: historyLimit),
+            transitions: pair.stream
+        )
+    }
+
+    /// Release only this observation, including a stream that was never iterated.
+    public func unsubscribeObservation(id: UUID) {
+        observationSubscribers.removeValue(forKey: id)?.finish()
     }
 
     /// Arm the gate from locked state.
@@ -307,6 +376,16 @@ public actor HardwareInterlockGate {
         )
         status = target
         history.append(record)
+        let observation = InterlockObservedTransition(cursor: UInt64(history.count), record: record)
+        var terminatedObservations: [UUID] = []
+        for (id, subscriber) in observationSubscribers {
+            if case .terminated = subscriber.yield(observation) {
+                terminatedObservations.append(id)
+            }
+        }
+        for id in terminatedObservations {
+            observationSubscribers.removeValue(forKey: id)
+        }
         var terminatedIDs: [UUID] = []
         for (id, subscriber) in subscribers {
             let result = subscriber.yield(record)

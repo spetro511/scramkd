@@ -32,6 +32,10 @@ let package = Package(
             name: "TacticalUI",
             targets: ["TacticalUI"]
         ),
+        .executable(
+            name: "TacticalApp",
+            targets: ["TacticalApp"]
+        ),
     ],
     targets: [
         .target(
@@ -48,7 +52,17 @@ let package = Package(
         ),
         .target(
             name: "TacticalUI",
-            dependencies: ["TacticalCore"]
+            dependencies: ["TacticalCore"],
+            resources: [.process("Resources")]
+        ),
+        .executableTarget(
+            name: "TacticalApp",
+            dependencies: [
+                "TacticalCore",
+                "TacticalVirtualization",
+                "TacticalAudioSVS",
+                "TacticalUI"
+            ]
         ),
         .testTarget(
             name: "TacticalCoreTests",
@@ -61,6 +75,10 @@ let package = Package(
         .testTarget(
             name: "TacticalAudioSVSTests",
             dependencies: ["TacticalAudioSVS", "TacticalCore"]
+        ),
+        .testTarget(
+            name: "TacticalUITests",
+            dependencies: ["TacticalUI", "TacticalCore"]
         ),
     ],
     swiftLanguageModes: [.v6]
