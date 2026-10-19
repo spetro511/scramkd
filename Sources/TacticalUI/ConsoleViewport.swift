@@ -1,5 +1,6 @@
 import SwiftUI
 import TacticalCore
+import TacticalVirtualization
 
 @MainActor
 struct ConsoleViewport: View {
@@ -7,7 +8,11 @@ struct ConsoleViewport: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            ConsoleViewportHeader(activeBay: controller.activeBay)
+            ConsoleViewportHeader(
+                activeBay: controller.activeBay,
+                bridgeState: BridgePresentation.connection(controller.bridgeConnectionState,
+                    configured: controller.isBridgeConfigured, observing: controller.isObserving)
+            )
                 .frame(height: 32)
             HStack(spacing: 0) {
                 ForEach(0..<11) { tick in
@@ -47,7 +52,9 @@ struct ConsoleViewport: View {
                     ConsoleViewportOverlay(
                         status: controller.currentStatus,
                         isObserving: controller.isObserving,
-                        activeBay: controller.activeBay
+                        activeBay: controller.activeBay,
+                        bridgeSnapshot: controller.bridgeSnapshot,
+                        isBridgeConfigured: controller.isBridgeConfigured
                     )
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -56,14 +63,12 @@ struct ConsoleViewport: View {
             .frame(maxHeight: .infinity)
 
             HStack(spacing: 14) {
-                Text("SHM_BUFFER: --").monospacedDigit()
-                Text("|").foregroundStyle(DesignTokens.slateBorder)
-                Text("PAGE_FAULTS: --").monospacedDigit()
+                Text(BridgePresentation.transfer(controller.latestBridgeTransfer)).monospacedDigit()
                 Spacer(minLength: 4)
-                Text("GUEST FEED: NOT CONNECTED").font(DesignTokens.Font.labelSm)
+                Text("FRAMEBUFFER: UNBOUND").font(DesignTokens.Font.labelSm)
                     .foregroundStyle(DesignTokens.textDim)
             }
-            .font(DesignTokens.Font.labelSm)
+            .font(DesignTokens.Font.mono(8))
             .foregroundStyle(DesignTokens.textMuted)
             .padding(.horizontal, 12)
             .frame(height: 28)
@@ -78,6 +83,7 @@ struct ConsoleViewport: View {
 
 private struct ConsoleViewportHeader: View {
     let activeBay: String
+    let bridgeState: String
 
     var body: some View {
         HStack(spacing: 8) {
@@ -85,9 +91,9 @@ private struct ConsoleViewportHeader: View {
                 .accessibilityHidden(true)
             Text("CONTAINER VIEWPORT").font(DesignTokens.Font.mono(11, weight: "Bold"))
                 .tracking(0.5)
-            Text("[NOT CONNECTED]").foregroundStyle(DesignTokens.textMuted)
+            Text("[MCP: \(bridgeState)]").foregroundStyle(DesignTokens.textMuted)
             Spacer(minLength: 4)
-            Text("[ MTKVIEW // STATE VIEW ]")
+            Text("[ FRAMEBUFFER: UNBOUND // MTKVIEW STATE ]")
                 .font(DesignTokens.Font.labelSm)
                 .foregroundStyle(DesignTokens.textDim)
                 .padding(.horizontal, 6)
@@ -100,7 +106,7 @@ private struct ConsoleViewportHeader: View {
         .background(DesignTokens.chromeDark)
         .overlay(alignment: .bottom) { ConsoleRule() }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Container viewport, \(activeBay), guest display not connected. Native gate-state visualization.")
+        .accessibilityLabel("Container viewport, \(activeBay). MCP bridge \(bridgeState). Framebuffer unbound; native gate-state visualization only. Bridge attachment is not a guest display or containment proof.")
     }
 }
 
@@ -108,6 +114,8 @@ private struct ConsoleViewportOverlay: View {
     let status: InterlockStatus
     let isObserving: Bool
     let activeBay: String
+    let bridgeSnapshot: BridgeSnapshot?
+    let isBridgeConfigured: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -124,7 +132,8 @@ private struct ConsoleViewportOverlay: View {
             Spacer(minLength: 0)
             HStack(alignment: .top, spacing: 12) {
                 if activeBay == ConsoleBay.overview.rawValue {
-                    ConsoleInterceptCard(status: status, isObserving: isObserving)
+                    ConsoleInterceptCard(status: status, isObserving: isObserving,
+                        bridgeSnapshot: bridgeSnapshot, isBridgeConfigured: isBridgeConfigured)
                         .frame(maxWidth: 650)
                 } else {
                     ConsoleUnboundBayCard(bay: ConsoleBay(rawValue: activeBay))
@@ -137,7 +146,7 @@ private struct ConsoleViewportOverlay: View {
             .padding(.horizontal, 16)
             Spacer(minLength: 0)
             HStack {
-                Text("LOCAL GATE STATE ONLY // NO GUEST DISPLAY TRANSPORT")
+                Text("NATIVE STATE GEOMETRY // FRAMEBUFFER UNBOUND")
                     .font(DesignTokens.Font.mono(8))
                     .foregroundStyle(DesignTokens.textMuted)
                 Spacer(minLength: 0)
@@ -155,6 +164,8 @@ private struct ConsoleViewportOverlay: View {
 private struct ConsoleInterceptCard: View {
     let status: InterlockStatus
     let isObserving: Bool
+    let bridgeSnapshot: BridgeSnapshot?
+    let isBridgeConfigured: Bool
 
     var body: some View {
         let presentation = ConsoleGatePresentation(status: status, isObserving: isObserving)
@@ -162,9 +173,10 @@ private struct ConsoleInterceptCard: View {
             HStack(spacing: 8) {
                 Rectangle().fill(presentation.color).frame(width: 7, height: 7)
                     .accessibilityHidden(true)
-                Text("gate@local:/operator/clearance").foregroundStyle(DesignTokens.textDim)
+                Text("MCP BRIDGE: \(BridgePresentation.connection(bridgeSnapshot?.connectionState ?? .detached, configured: isBridgeConfigured, observing: isObserving))")
+                    .foregroundStyle(DesignTokens.textDim)
                 Spacer(minLength: 0)
-                Text("GUEST: UNBOUND").foregroundStyle(DesignTokens.textMuted)
+                Text("DISPLAY: UNBOUND").foregroundStyle(DesignTokens.textMuted)
                     .font(DesignTokens.Font.labelSm)
             }
             .font(DesignTokens.Font.labelMd)
@@ -174,6 +186,18 @@ private struct ConsoleInterceptCard: View {
             .overlay(alignment: .bottom) { ConsoleRule() }
 
             VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(bridgeSnapshot?.serverInfo.map {
+                        "SERVER ADVERTISED: \(BridgeDisplayText.escaped($0.advertisedName, limit: 28)) // \(BridgeDisplayText.escaped($0.advertisedVersion, limit: 16))"
+                    } ?? "SERVER ADVERTISED: UNBOUND")
+                    Text(bridgeSnapshot?.serverInfo.map {
+                        "MCP PROTOCOL: \(BridgeDisplayText.escaped($0.protocolVersion, limit: 24)) // IDENTITY: NOT VERIFIED"
+                    } ?? "MCP PROTOCOL: UNBOUND // PEER IDENTITY: UNKNOWN")
+                }
+                .font(DesignTokens.Font.mono(8))
+                .foregroundStyle(DesignTokens.textDim)
+                .lineLimit(2)
+                .accessibilityHint("Server name, version, and protocol are advertised values, not authenticated identity.")
                 Text("REFERENCE // NOT EXECUTED")
                     .font(DesignTokens.Font.labelSm)
                     .tracking(0.8)
@@ -197,13 +221,20 @@ private struct ConsoleInterceptCard: View {
                     }
                     .foregroundStyle(presentation.color)
                     ConsoleRule(color: presentation.color.opacity(0.3))
-                    Text(presentation.visibleDetail)
+                    Text(isBridgeConfigured
+                         ? BridgePresentation.gateDetail(status: status, phase: bridgeSnapshot?.pendingIntercept?.phase, observing: isObserving)
+                         : presentation.visibleDetail)
                         .font(DesignTokens.Font.labelMd)
                         .foregroundStyle(DesignTokens.textReadout)
                     Text("INSTRUCTION POINTER: UNBOUND | SYSCALL: UNBOUND | KERNEL HOOK: NOT CONNECTED")
                         .font(DesignTokens.Font.labelSm)
                         .foregroundStyle(DesignTokens.textDim)
                         .fixedSize(horizontal: false, vertical: true)
+                    if isBridgeConfigured {
+                        Text("MCP INTERCEPT: \(BridgePresentation.phase(bridgeSnapshot?.pendingIntercept?.phase))")
+                            .font(DesignTokens.Font.labelSm)
+                            .foregroundStyle(DesignTokens.textDim)
+                    }
                 }
                 .padding(10)
                 .background(presentation.color.opacity(0.07))
@@ -212,7 +243,8 @@ private struct ConsoleInterceptCard: View {
                 HStack(alignment: .top, spacing: 7) {
                     Text(">>>").foregroundStyle(presentation.color)
                         .font(DesignTokens.Font.mono(10, weight: "Bold"))
-                    Text(isObserving ? "\(presentation.compactDetail) // \(ConsoleBay.overview.rawValue)" : "OBSERVATION PENDING // NO COMMAND")
+                    Text(!isObserving ? "OBSERVATION PENDING // NO COMMAND"
+                         : (isBridgeConfigured ? "APP-ONLY BOUNDARY // FULL WRITE RELOCKS CORE" : "\(presentation.compactDetail) // \(ConsoleBay.overview.rawValue)"))
                         .font(DesignTokens.Font.labelSm)
                         .foregroundStyle(DesignTokens.textDim)
                     Spacer(minLength: 0)

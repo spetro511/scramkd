@@ -1,5 +1,6 @@
 import XCTest
 import TacticalCore
+import TacticalVirtualization
 @testable import TacticalUI
 
 final class ConsoleKeyboardPolicyTests: XCTestCase {
@@ -291,6 +292,202 @@ final class ConsoleKeyboardPolicyTests: XCTestCase {
                 input.isRepeat = true
                 XCTAssertFalse(ConsoleKeyboardPolicy.suppressesRepeatedShortcut(input))
             }
+        }
+    }
+
+    func testBridgeAttachRequiresLockedDetachedOrFailedState() {
+        for state in bridgeStates {
+            for status in statuses {
+                let input = bridgeContext(state: state, status: status)
+                XCTAssertEqual(
+                    ConsoleBridgeMenuPolicy.isAvailable(.attach, context: input),
+                    status == .locked && (state == .detached || state == .failed)
+                )
+            }
+        }
+    }
+
+    func testBridgeAttachDoesNotQueueBehindOperationsOrPendingIntercepts() {
+        var input = bridgeContext(state: .detached, status: .locked)
+        for operation in bridgeCommands {
+            input.activeOperation = operation
+            XCTAssertFalse(ConsoleBridgeMenuPolicy.isAvailable(.attach, context: input))
+        }
+        input.activeOperation = nil
+        input.hasPendingIntercept = true
+        XCTAssertFalse(ConsoleBridgeMenuPolicy.isAvailable(.attach, context: input))
+    }
+
+    func testBridgeDetachRemainsIndependentOfToolOrAttachWaits() {
+        for operation in [ConsoleBridgeMenuCommand.attach, .listTools, .submitTool] {
+            var input = bridgeContext(state: .attached, status: .emergencyAbort)
+            input.activeOperation = operation
+            input.hasPendingIntercept = true
+            XCTAssertTrue(ConsoleBridgeMenuPolicy.isAvailable(.detach, context: input))
+        }
+        var notYetStarted = bridgeContext(state: .detached, status: .locked)
+        notYetStarted.activeOperation = .attach
+        XCTAssertTrue(ConsoleBridgeMenuPolicy.isAvailable(.detach, context: notYetStarted))
+        notYetStarted.activeOperation = nil
+        XCTAssertFalse(ConsoleBridgeMenuPolicy.isAvailable(.detach, context: notYetStarted))
+    }
+
+    func testBridgeDetachCannotRepeatWhileAlreadyDetaching() {
+        var input = bridgeContext(state: .detaching, status: .locked)
+        XCTAssertFalse(ConsoleBridgeMenuPolicy.isAvailable(.detach, context: input))
+        input.connectionState = .attached
+        input.activeOperation = .detach
+        XCTAssertFalse(ConsoleBridgeMenuPolicy.isAvailable(.detach, context: input))
+    }
+
+    func testBridgeToolSubmissionRequiresFreshManualArmAndIdleAttachedClient() {
+        for state in bridgeStates {
+            for status in statuses {
+                let input = bridgeContext(state: state, status: status)
+                XCTAssertEqual(ConsoleBridgeMenuPolicy.isAvailable(.submitTool, context: input), state == .attached && status == .armed)
+            }
+        }
+        var input = bridgeContext(state: .attached, status: .armed)
+        input.hasPendingIntercept = true
+        XCTAssertFalse(ConsoleBridgeMenuPolicy.isAvailable(.submitTool, context: input))
+        input.hasPendingIntercept = false
+        input.activeOperation = .listTools
+        XCTAssertFalse(ConsoleBridgeMenuPolicy.isAvailable(.submitTool, context: input))
+    }
+
+    func testBridgeMetadataListingDoesNotRequireAnArmedGate() {
+        var input = bridgeContext(state: .attached, status: .locked)
+        XCTAssertTrue(ConsoleBridgeMenuPolicy.isAvailable(.listTools, context: input))
+        input.connectionState = .detached
+        XCTAssertFalse(ConsoleBridgeMenuPolicy.isAvailable(.listTools, context: input))
+        input.connectionState = .attached
+        input.hasPendingIntercept = true
+        XCTAssertFalse(ConsoleBridgeMenuPolicy.isAvailable(.listTools, context: input))
+        input.hasPendingIntercept = false
+        input.keyboard.currentStatus = .emergencyAbort
+        XCTAssertFalse(ConsoleBridgeMenuPolicy.isAvailable(.listTools, context: input))
+    }
+
+    func testBridgeMenuAvailabilityPreservesActiveWindowObservationAndSheetBoundaries() {
+        let required: [WritableKeyPath<ConsoleKeyboardContext, Bool>] = [
+            \.isApplicationActive, \.isConsoleKeyWindow, \.isAcceptingCommands
+        ]
+        let blockers: [WritableKeyPath<ConsoleKeyboardContext, Bool>] = [\.hasAttachedSheet, \.hasModalWindow]
+        for command in bridgeCommands {
+            let initial = availableBridgeContext(command)
+            for field in required {
+                var input = initial
+                input.keyboard[keyPath: field] = false
+                XCTAssertFalse(ConsoleBridgeMenuPolicy.isAvailable(command, context: input))
+            }
+            for field in blockers {
+                var input = initial
+                input.keyboard[keyPath: field] = true
+                XCTAssertFalse(ConsoleBridgeMenuPolicy.isAvailable(command, context: input))
+            }
+            var unconfigured = initial
+            unconfigured.isBridgeConfigured = false
+            XCTAssertFalse(ConsoleBridgeMenuPolicy.isAvailable(command, context: unconfigured))
+        }
+    }
+
+    func testBridgeShortcutsRequireExactOptionCommandModifiers() {
+        for rawValue in UInt8(0)...UInt8(15) {
+            let modifiers = ConsoleKeyboardContext.Modifiers(rawValue: rawValue)
+            let matches = modifiers == [.option, .command]
+            XCTAssertEqual(ConsoleBridgeMenuPolicy.shortcutCommand(characters: "a", modifiers: modifiers), matches ? .attach : nil)
+            XCTAssertEqual(ConsoleBridgeMenuPolicy.shortcutCommand(characters: "d", modifiers: modifiers), matches ? .detach : nil)
+        }
+        XCTAssertEqual(ConsoleBridgeMenuPolicy.shortcutCommand(characters: "A", modifiers: [.option, .command, .capsLock]), .attach)
+        XCTAssertNil(ConsoleBridgeMenuPolicy.shortcutCommand(characters: "g", modifiers: [.option, .command]))
+        XCTAssertNil(ConsoleMenuRoutingPolicy.shortcutCommand(characters: "a", modifiers: [.option, .command]))
+    }
+
+    func testBridgeEquivalentRepeatsAndDuplicateDeliveryDoNotDispatch() {
+        for (characters, command) in [("a", ConsoleBridgeMenuCommand.attach), ("d", .detach)] {
+            var input = availableBridgeContext(command)
+            input.keyboard.modifiers = [.command, .option]
+            XCTAssertEqual(ConsoleBridgeMenuPolicy.keyEquivalentCommand(
+                characters: characters, context: input, isDuplicateInvocation: false
+            ), command)
+            input.keyboard.isRepeat = true
+            XCTAssertNil(ConsoleBridgeMenuPolicy.keyEquivalentCommand(
+                characters: characters, context: input, isDuplicateInvocation: false
+            ))
+            input.keyboard.isRepeat = false
+            XCTAssertNil(ConsoleBridgeMenuPolicy.keyEquivalentCommand(
+                characters: characters, context: input, isDuplicateInvocation: true
+            ))
+        }
+    }
+
+    func testBridgeShortcutCannotRelaxEventWindowOrTextFocusChecks() {
+        for (characters, command) in [("a", ConsoleBridgeMenuCommand.attach), ("d", .detach)] {
+            var input = availableBridgeContext(command)
+            input.keyboard.modifiers = [.command, .option]
+            input.keyboard.eventBelongsToConsoleWindow = false
+            XCTAssertNil(ConsoleBridgeMenuPolicy.keyEquivalentCommand(
+                characters: characters, context: input, isDuplicateInvocation: false
+            ))
+            input.keyboard.eventBelongsToConsoleWindow = true
+            input.keyboard.isTextEntryFocused = true
+            XCTAssertNil(ConsoleBridgeMenuPolicy.keyEquivalentCommand(
+                characters: characters, context: input, isDuplicateInvocation: false
+            ))
+        }
+    }
+
+    func testOpenBridgeMenuAllowsExplicitActionsButPreservesTextShortcutExclusion() {
+        for command in bridgeCommands {
+            var input = availableBridgeContext(command)
+            input.keyboard.isMenuTracking = true
+            input.keyboard.isTextEntryFocused = true
+            XCTAssertTrue(ConsoleBridgeMenuPolicy.isAvailable(command, context: input))
+        }
+    }
+
+    func testBridgeShortcutsNeverAlsoDispatchThroughLocalKeyMonitor() {
+        for keyCode in shortcutKeyCodes {
+            var input = context(keyCode: keyCode)
+            input.modifiers = [.option, .command]
+            assertCommand(input, is: nil)
+            input.isRepeat = true
+            XCTAssertFalse(ConsoleKeyboardPolicy.suppressesRepeatedShortcut(input))
+        }
+    }
+
+    func testConfiguredBridgeGrantRequiresAnAwaitingApprovalIntercept() {
+        var input = context(keyCode: 49, status: .armed)
+        input.isBridgeConfigured = true
+        input.hasPendingApproval = false
+        assertCommand(input, is: nil)
+        XCTAssertFalse(ConsoleMenuRoutingPolicy.isAvailable(.grantPermissive, context: input))
+        input.hasPendingApproval = true
+        assertCommand(input, is: .grantPermissive)
+        XCTAssertTrue(ConsoleMenuRoutingPolicy.isAvailable(.grantPermissive, context: input))
+        input.isTextEntryFocused = true
+        assertCommand(input, is: nil)
+        input.isTextEntryFocused = false
+        input.isConsoleKeyWindow = false
+        assertCommand(input, is: nil)
+        XCTAssertFalse(ConsoleMenuRoutingPolicy.isAvailable(.grantPermissive, context: input))
+    }
+
+    private var bridgeStates: [BridgeConnectionState] { [.detached, .attaching, .attached, .detaching, .failed] }
+    private var bridgeCommands: [ConsoleBridgeMenuCommand] { [.attach, .detach, .listTools, .submitTool] }
+
+    private func bridgeContext(state: BridgeConnectionState, status: InterlockStatus) -> ConsoleBridgeMenuContext {
+        ConsoleBridgeMenuContext(
+            keyboard: context(keyCode: 0, status: status), connectionState: state,
+            isBridgeConfigured: true, hasPendingIntercept: false
+        )
+    }
+
+    private func availableBridgeContext(_ command: ConsoleBridgeMenuCommand) -> ConsoleBridgeMenuContext {
+        switch command {
+        case .attach: return bridgeContext(state: .detached, status: .locked)
+        case .submitTool: return bridgeContext(state: .attached, status: .armed)
+        case .detach, .listTools: return bridgeContext(state: .attached, status: .locked)
         }
     }
 

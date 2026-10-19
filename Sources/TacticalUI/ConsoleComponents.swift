@@ -1,5 +1,6 @@
 import SwiftUI
 import TacticalCore
+import TacticalVirtualization
 
 struct ConsoleRule: View {
     var color: Color = DesignTokens.slateBorder
@@ -96,6 +97,8 @@ struct ConsoleWindowChromeBar: View {
     let status: InterlockStatus
     let isObserving: Bool
     let countdownTTL: String
+    let bridgeSnapshot: BridgeSnapshot?
+    let isBridgeConfigured: Bool
 
     var body: some View {
         let presentation = ConsoleGatePresentation(status: status, isObserving: isObserving)
@@ -117,7 +120,10 @@ struct ConsoleWindowChromeBar: View {
                 ConsoleReadout(label: "FREQ:", value: "--")
                 ConsoleReadout(label: "IOPS:", value: "--")
                 ConsoleReadout(label: "GATE:", value: presentation.title, color: presentation.color)
-                ConsoleReadout(label: "NET:", value: "UNBOUND")
+                ConsoleReadout(label: "MCP:", value: BridgePresentation.connection(
+                    bridgeSnapshot?.connectionState ?? .detached,
+                    configured: isBridgeConfigured, observing: isObserving
+                ))
                 ConsoleReadout(label: "MEM:", value: "--")
             }
             Spacer(minLength: 4)
@@ -163,6 +169,9 @@ enum ConsoleBay: String, CaseIterable, Identifiable {
 
 struct ConsoleNavigationRail: View {
     @Binding var activeBay: String
+    let bridgeSnapshot: BridgeSnapshot?
+    let isBridgeConfigured: Bool
+    let isObserving: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -188,15 +197,19 @@ struct ConsoleNavigationRail: View {
             .focusSection()
             Spacer(minLength: 0)
             VStack(alignment: .leading, spacing: 7) {
-                Text("LINK INTEGRITY").font(DesignTokens.Font.labelSm).tracking(0.7)
+                Text("BRIDGE TRANSPORT").font(DesignTokens.Font.labelSm).tracking(0.7)
                     .foregroundStyle(DesignTokens.textMuted)
-                Text("UPLINK: UNBOUND").font(DesignTokens.Font.labelMd)
+                Text("MCP: \(BridgePresentation.connection(bridgeSnapshot?.connectionState ?? .detached, configured: isBridgeConfigured, observing: isObserving))")
+                    .font(DesignTokens.Font.labelMd)
                 HStack {
-                    Text("LATENCY:")
+                    Text("PIPE OUT:")
                     Spacer(minLength: 0)
-                    Text("--").monospacedDigit()
+                    Text(bridgeSnapshot?.latestTransfer.map { "\($0.bytesWritten) B" } ?? "--").monospacedDigit()
                 }
                 .font(DesignTokens.Font.labelMd)
+                Text(bridgeSnapshot?.latestTransfer.map { "WRITE CHUNKS: \($0.writeChunks)" } ?? "WRITE CHUNKS: --")
+                    .font(DesignTokens.Font.labelSm).monospacedDigit()
+                Text("FRAMEBUFFER: UNBOUND").font(DesignTokens.Font.mono(8))
                 Rectangle().fill(DesignTokens.slateBorder).frame(height: 3)
                     .accessibilityHidden(true)
             }

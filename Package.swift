@@ -52,7 +52,7 @@ let package = Package(
         ),
         .target(
             name: "TacticalUI",
-            dependencies: ["TacticalCore"],
+            dependencies: ["TacticalCore", "TacticalVirtualization"],
             resources: [.process("Resources")]
         ),
         .executableTarget(
@@ -78,7 +78,7 @@ let package = Package(
         ),
         .testTarget(
             name: "TacticalUITests",
-            dependencies: ["TacticalUI", "TacticalCore"]
+            dependencies: ["TacticalUI", "TacticalCore", "TacticalVirtualization"]
         ),
     ],
     swiftLanguageModes: [.v6]

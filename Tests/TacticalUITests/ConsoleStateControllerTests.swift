@@ -30,6 +30,10 @@ final class ConsoleStateControllerTests: XCTestCase {
         XCTAssertTrue(controller.auditRows.isEmpty)
         XCTAssertEqual(controller.currentStatus, .locked)
         XCTAssertEqual(controller.countdownTTL, "UNBOUND")
+        XCTAssertFalse(controller.isBridgeConfigured)
+        XCTAssertNil(controller.bridgeSnapshot)
+        XCTAssertNil(controller.pendingIntercept)
+        XCTAssertEqual(controller.bridgeConnectionState, .detached)
         let initialSubscribers = await gate.activeSubscribersCount
         XCTAssertEqual(initialSubscribers, 0)
         await controller.start()

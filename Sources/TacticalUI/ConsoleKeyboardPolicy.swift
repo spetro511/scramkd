@@ -1,4 +1,5 @@
 import TacticalCore
+import TacticalVirtualization
 
 /// Pure routing inputs. AppKit event/window objects remain in the composition root.
 public struct ConsoleKeyboardContext: Sendable {
@@ -30,6 +31,8 @@ public struct ConsoleKeyboardContext: Sendable {
     public var isTextEntryFocused: Bool
     public var isAcceptingCommands: Bool
     public var currentStatus: InterlockStatus
+    public var isBridgeConfigured: Bool
+    public var hasPendingApproval: Bool
 
     public init(
         keyCode: UInt16,
@@ -43,7 +46,9 @@ public struct ConsoleKeyboardContext: Sendable {
         isMenuTracking: Bool,
         isTextEntryFocused: Bool,
         isAcceptingCommands: Bool,
-        currentStatus: InterlockStatus = .locked
+        currentStatus: InterlockStatus = .locked,
+        isBridgeConfigured: Bool = false,
+        hasPendingApproval: Bool = false
     ) {
         self.keyCode = keyCode
         self.modifiers = modifiers
@@ -57,6 +62,102 @@ public struct ConsoleKeyboardContext: Sendable {
         self.isTextEntryFocused = isTextEntryFocused
         self.isAcceptingCommands = isAcceptingCommands
         self.currentStatus = currentStatus
+        self.isBridgeConfigured = isBridgeConfigured
+        self.hasPendingApproval = hasPendingApproval
+    }
+}
+
+/// App-owned bridge actions only; never an authorization or risk-classification contract.
+public enum ConsoleBridgeMenuCommand: Sendable, Equatable {
+    case attach
+    case detach
+    case listTools
+    case submitTool
+}
+
+public struct ConsoleBridgeMenuContext: Sendable {
+    public var keyboard: ConsoleKeyboardContext
+    public var connectionState: BridgeConnectionState
+    public var isBridgeConfigured: Bool
+    public var hasPendingIntercept: Bool
+    public var activeOperation: ConsoleBridgeMenuCommand?
+
+    public init(
+        keyboard: ConsoleKeyboardContext,
+        connectionState: BridgeConnectionState,
+        isBridgeConfigured: Bool,
+        hasPendingIntercept: Bool,
+        activeOperation: ConsoleBridgeMenuCommand? = nil
+    ) {
+        self.keyboard = keyboard
+        self.connectionState = connectionState
+        self.isBridgeConfigured = isBridgeConfigured
+        self.hasPendingIntercept = hasPendingIntercept
+        self.activeOperation = activeOperation
+    }
+}
+
+public enum ConsoleBridgeMenuPolicy {
+    public static func isAvailable(_ command: ConsoleBridgeMenuCommand, context: ConsoleBridgeMenuContext) -> Bool {
+        let keyboard = context.keyboard
+        guard context.isBridgeConfigured,
+              keyboard.isApplicationActive,
+              keyboard.isConsoleKeyWindow,
+              keyboard.isAcceptingCommands,
+              !keyboard.hasAttachedSheet,
+              !keyboard.hasModalWindow
+        else { return false }
+        switch command {
+        case .attach:
+            return (context.connectionState == .detached || context.connectionState == .failed)
+                && keyboard.currentStatus == .locked
+                && context.activeOperation == nil
+                && !context.hasPendingIntercept
+        case .detach:
+            // Detach must not queue behind an attach or an approval/response wait.
+            return context.connectionState != .detaching
+                && context.activeOperation != .detach
+                && (context.connectionState != .detached || context.activeOperation == .attach)
+        case .listTools:
+            return context.connectionState == .attached
+                && context.activeOperation == nil
+                && !context.hasPendingIntercept
+                && keyboard.currentStatus != .emergencyAbort
+        case .submitTool:
+            return context.connectionState == .attached
+                && context.activeOperation == nil
+                && !context.hasPendingIntercept
+                && keyboard.currentStatus == .armed
+        }
+    }
+
+    public static func shortcutCommand(
+        characters: String,
+        modifiers: ConsoleKeyboardContext.Modifiers
+    ) -> ConsoleBridgeMenuCommand? {
+        let significant: ConsoleKeyboardContext.Modifiers = [.command, .control, .option, .shift]
+        guard modifiers.intersection(significant) == [.command, .option] else { return nil }
+        switch characters.lowercased() {
+        case "a": return .attach
+        case "d": return .detach
+        default: return nil
+        }
+    }
+
+    public static func keyEquivalentCommand(
+        characters: String,
+        context: ConsoleBridgeMenuContext,
+        isDuplicateInvocation: Bool
+    ) -> ConsoleBridgeMenuCommand? {
+        let keyboard = context.keyboard
+        guard !keyboard.isRepeat,
+              !isDuplicateInvocation,
+              keyboard.eventBelongsToConsoleWindow,
+              !keyboard.isTextEntryFocused,
+              let command = shortcutCommand(characters: characters, modifiers: keyboard.modifiers),
+              isAvailable(command, context: context)
+        else { return nil }
+        return command
     }
 }
 
@@ -64,7 +165,9 @@ public enum ConsoleKeyboardPolicy {
     public static func command(for context: ConsoleKeyboardContext) -> ConsoleCommand? {
         guard isEligible(context), !context.isRepeat else { return nil }
         switch context.keyCode {
-        case 49: return context.currentStatus == .armed ? .grantPermissive : nil
+        case 49:
+            return context.currentStatus == .armed && (!context.isBridgeConfigured || context.hasPendingApproval)
+                ? .grantPermissive : nil
         case 53: return .emergencyAbort
         case 111: return .forceAirgapDump
         default: return nil
@@ -119,7 +222,8 @@ public enum ConsoleMenuRoutingPolicy {
             return context.currentStatus == .locked
                 && !context.isTextEntryFocused
                 && !hasSelectAllResponder
-        case .grantPermissive: return context.currentStatus == .armed
+        case .grantPermissive:
+            return context.currentStatus == .armed && (!context.isBridgeConfigured || context.hasPendingApproval)
         case .emergencyAbort: return context.currentStatus != .emergencyAbort
         case .resetEmergencyAbort: return context.currentStatus == .emergencyAbort
         case .forceAirgapDump: return true

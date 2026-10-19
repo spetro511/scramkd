@@ -30,7 +30,7 @@ struct ConsoleAuditLedger: View {
                 }
                 .focusSection()
                 Spacer(minLength: 0)
-                Text(isObserving ? "[ LOCAL GATE // OBSERVING ]" : "[ OBSERVATION: OFFLINE ]")
+                Text(isObserving ? "[ GATE + BRIDGE AUDIT // LOCAL ]" : "[ OBSERVATION: OFFLINE ]")
                     .font(DesignTokens.Font.labelSm)
                     .foregroundStyle(DesignTokens.textMuted)
                 Button { autoScroll.toggle() } label: {
@@ -110,6 +110,7 @@ private enum ConsoleAuditFilter: String, CaseIterable, Identifiable {
     case all
     case gate
     case commands
+    case bridge
 
     var id: Self { self }
 
@@ -118,16 +119,18 @@ private enum ConsoleAuditFilter: String, CaseIterable, Identifiable {
         case .all: "ALL EVENTS"
         case .gate: "GATE"
         case .commands: "COMMANDS"
+        case .bridge: "BRIDGE / STDIO"
         }
     }
 
     func includes(_ row: AuditLogRow) -> Bool {
         // Retention/gap diagnostics remain visible in every filter.
-        guard row.subsystem == "INTERLOCK" || row.subsystem == "COMMAND" else { return true }
+        guard !["OBSERVATION", "PRESENTATION"].contains(row.subsystem) else { return true }
         switch self {
         case .all: return true
         case .gate: return row.subsystem == "INTERLOCK"
         case .commands: return row.subsystem == "COMMAND"
+        case .bridge: return ["BRIDGE", "STDIO", "MCP", "PIPE"].contains(row.subsystem)
         }
     }
 }
@@ -174,13 +177,13 @@ private struct ConsoleAuditEventRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
-            Text(row.timestamp)
+            Text(BridgeDisplayText.escaped(row.timestamp, limit: 80))
                 .font(DesignTokens.Font.mono(8))
                 .monospacedDigit()
                 .foregroundStyle(contrast == .increased ? DesignTokens.textDim : DesignTokens.textMuted)
                 .frame(width: 110, alignment: .leading)
-                .help(row.timestamp)
-            Text(row.subsystem)
+                .help(BridgeDisplayText.escaped(row.timestamp, limit: 80))
+            Text(BridgeDisplayText.escaped(row.subsystem, limit: 24))
                 .font(DesignTokens.Font.mono(9, weight: "Bold"))
                 .foregroundStyle(row.isEmergency ? Color.white : color)
                 .padding(.horizontal, 5)
@@ -192,7 +195,7 @@ private struct ConsoleAuditEventRow: View {
                     Text("!").font(DesignTokens.Font.mono(10, weight: "ExtraBold"))
                         .accessibilityHidden(true)
                 }
-                Text(row.description)
+                Text(BridgeDisplayText.escaped(row.description, limit: 2048))
                     .font(DesignTokens.Font.mono(10, weight: row.isEmergency ? "Bold" : "Regular"))
                     .monospacedDigit()
                     .fixedSize(horizontal: false, vertical: true)
@@ -200,7 +203,7 @@ private struct ConsoleAuditEventRow: View {
             .foregroundStyle(row.isEmergency ? DesignTokens.red : DesignTokens.textReadout)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.trailing, 8)
-            Text(row.metric)
+            Text(BridgeDisplayText.escaped(row.metric, limit: 2048))
                 .font(DesignTokens.Font.mono(9, weight: "SemiBold"))
                 .monospacedDigit()
                 .foregroundStyle(color)
@@ -219,6 +222,6 @@ private struct ConsoleAuditEventRow: View {
         .overlay(alignment: .bottom) { ConsoleRule(color: DesignTokens.slateBorder.opacity(0.3)) }
         .onHover { isHovered = $0 }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(row.isEmergency ? "Emergency. " : "")\(row.timestamp). \(row.subsystem). \(row.description). \(row.metric)")
+        .accessibilityLabel("\(row.isEmergency ? "Emergency. " : "")\(BridgeDisplayText.escaped(row.timestamp, limit: 80)). \(BridgeDisplayText.escaped(row.subsystem, limit: 24)). \(BridgeDisplayText.escaped(row.description, limit: 2048)). \(BridgeDisplayText.escaped(row.metric, limit: 2048))")
     }
 }

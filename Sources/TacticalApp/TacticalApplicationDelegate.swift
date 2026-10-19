@@ -2,6 +2,7 @@ import AppKit
 import SwiftUI
 import TacticalCore
 import TacticalUI
+import TacticalVirtualization
 import os
 
 @MainActor
@@ -12,8 +13,13 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
     private var consoleWindow: NSWindow?
     private var keyboardMonitor: Any?
     private var lastMenuKeyEquivalentID: ConsoleMenuKeySnapshot.Identity?
+    private var lastBridgeKeyEquivalentID: ConsoleMenuKeySnapshot.Identity?
     private var lifecycleTask: Task<Void, Never>?
     private var commandTasks: [UUID: Task<Void, Never>] = [:]
+    private var bridgeTasks: [UUID: Task<Void, Never>] = [:]
+    private var activeBridgeOperation: (id: UUID, command: ConsoleBridgeMenuCommand)?
+    private var toolRequestSheet: BridgeToolRequestSheet?
+    private var bridgeResponseSheet: BridgeResponseSheet?
     private var windowGeneration: UInt64 = 0
     private var trackingMenus: Set<ObjectIdentifier> = []
     private var resourcesReady = false
@@ -21,9 +27,11 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
     private var terminationReplyPending = false
 
     override init() {
-        // The only live gate. No transport, VM, audio, microphone, or sample is started.
+        // One shared gate. Construction does not attach, launch a child process,
+        // connect to a service, or enable audio/microphone/VM capabilities.
         let gate = HardwareInterlockGate()
-        self.controller = ConsoleStateController(interlockGate: gate)
+        let bridge = ContainerSocketBridge(interlockGate: gate)
+        self.controller = ConsoleStateController(interlockGate: gate, bridge: bridge)
         super.init()
     }
 
@@ -63,6 +71,7 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
         guard !isTerminating else { return .terminateLater }
         isTerminating = true
         terminationReplyPending = true
+        dismissBridgeSheets()
         if let window = consoleWindow {
             consoleWindow = nil
             window.delegate = nil
@@ -80,6 +89,7 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
 
     func windowWillClose(_ notification: Notification) {
         guard let window = notification.object as? NSWindow, window === consoleWindow else { return }
+        dismissBridgeSheets()
         consoleWindow = nil
         // Release the hosting hierarchy even if AppKit retains the closed window.
         // This also tears down its Metal container and view-owned command tasks.
@@ -124,6 +134,8 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
         removeKeyboardMonitor()
         trackingMenus.removeAll()
         lastMenuKeyEquivalentID = nil
+        lastBridgeKeyEquivalentID = nil
+        dismissBridgeSheets()
         let previous = lifecycleTask
         previous?.cancel()
         let commands = Array(commandTasks.values)
@@ -131,13 +143,21 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
         for task in commands {
             task.cancel()
         }
+        let bridgeWork = Array(bridgeTasks.values)
+        bridgeTasks.removeAll()
+        activeBridgeOperation = nil
+        for task in bridgeWork { task.cancel() }
 
         lifecycleTask = Task { @MainActor [weak self, controller] in
-            // Cancellation is cooperative: settle old work before controller teardown.
+            // Controller stop revokes bridge admission before its first await.
+            // Never wait on an approval/response task before requesting teardown.
+            await controller.stop()
             await previous?.value
             for task in commands {
                 await task.value
             }
+            for task in bridgeWork { await task.value }
+            // Settle any older bootstrap that was already in progress at close.
             await controller.stop()
             guard replyToTermination, let self, self.terminationReplyPending else { return }
             self.terminationReplyPending = false
@@ -149,6 +169,7 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
         guard canDispatchCommands else { return }
         let id = UUID()
         let generation = windowGeneration
+        let request = controller.commandRequest(command)
         // Every command owns an independent task. Esc never waits in a grant queue.
         commandTasks[id] = Task { @MainActor [weak self, controller] in
             guard let self else { return }
@@ -157,7 +178,7 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
                   self.windowGeneration == generation,
                   self.canDispatchCommands
             else { return }
-            await controller.perform(command)
+            await controller.perform(request)
         }
     }
 
@@ -222,7 +243,9 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
             isMenuTracking: !trackingMenus.isEmpty,
             isTextEntryFocused: Self.isTextEntry(window.firstResponder),
             isAcceptingCommands: !isTerminating && controller.isObserving,
-            currentStatus: controller.currentStatus
+            currentStatus: controller.currentStatus,
+            isBridgeConfigured: controller.isBridgeConfigured,
+            hasPendingApproval: controller.pendingIntercept?.phase == .awaitingApproval
         )
     }
 
@@ -316,7 +339,9 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
         addSubmenu(appMenu, to: mainMenu)
 
         let editMenu = makeMenu(title: "Edit")
+        editMenu.addItem(withTitle: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
         editMenu.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
         editMenu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
         addSubmenu(editMenu, to: mainMenu)
 
@@ -334,6 +359,31 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
         reset.target = self
         reset.keyEquivalentModifierMask = [.command]
         addSubmenu(gateMenu, to: mainMenu)
+
+        let virtualizationMenu = makeMenu(title: "Virtualization")
+        let attach = virtualizationMenu.addItem(
+            withTitle: "Attach ScreenEnv Bridge", action: #selector(attachScreenEnvBridge(_:)), keyEquivalent: "a"
+        )
+        attach.target = self
+        attach.keyEquivalentModifierMask = [.command, .option]
+        let detach = virtualizationMenu.addItem(
+            withTitle: "Detach Bridge", action: #selector(detachScreenEnvBridge(_:)), keyEquivalent: "d"
+        )
+        detach.target = self
+        detach.keyEquivalentModifierMask = [.command, .option]
+        detach.toolTip = "Option-Command-D may be reserved by the system Dock shortcut. Use this menu item directly if preempted."
+        virtualizationMenu.addItem(.separator())
+        let list = virtualizationMenu.addItem(
+            withTitle: "List MCP Tools", action: #selector(listMCPTools(_:)), keyEquivalent: ""
+        )
+        list.target = self
+        list.toolTip = "App-owned tools/list metadata only. External client traffic is not intercepted."
+        let submit = virtualizationMenu.addItem(
+            withTitle: "Submit MCP Tool Request…", action: #selector(submitMCPToolRequest(_:)), keyEquivalent: ""
+        )
+        submit.target = self
+        submit.toolTip = "Attach, then arm manually before opening. Every tool request needs its own approval."
+        addSubmenu(virtualizationMenu, to: mainMenu)
 
         let windowMenu = makeMenu(title: "Window")
         let show = windowMenu.addItem(withTitle: "Show Console", action: #selector(showConsoleFromMenu(_:)), keyEquivalent: "")
@@ -377,6 +427,11 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
         showConsole()
     }
 
+    @objc private func attachScreenEnvBridge(_ sender: NSMenuItem) { handleBridgeMenu(.attach) }
+    @objc private func detachScreenEnvBridge(_ sender: NSMenuItem) { handleBridgeMenu(.detach) }
+    @objc private func listMCPTools(_ sender: NSMenuItem) { handleBridgeMenu(.listTools) }
+    @objc private func submitMCPToolRequest(_ sender: NSMenuItem) { handleBridgeMenu(.submitTool) }
+
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         switch menuItem.action {
         case #selector(armGate(_:)):
@@ -389,6 +444,14 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
             return menuCommandAvailable(.resetEmergencyAbort)
         case #selector(showConsoleFromMenu(_:)):
             return !isTerminating
+        case #selector(attachScreenEnvBridge(_:)):
+            return bridgeMenuAvailable(.attach)
+        case #selector(detachScreenEnvBridge(_:)):
+            return bridgeMenuAvailable(.detach)
+        case #selector(listMCPTools(_:)):
+            return bridgeMenuAvailable(.listTools)
+        case #selector(submitMCPToolRequest(_:)):
+            return bridgeMenuAvailable(.submitTool)
         default:
             return true
         }
@@ -404,6 +467,181 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
             command, context: context,
             hasSelectAllResponder: validatedSelectAllTarget(action: #selector(NSText.selectAll(_:))) != nil
         )
+    }
+
+    private func bridgeMenuContext(snapshot: ConsoleMenuKeySnapshot?) -> ConsoleBridgeMenuContext? {
+        guard let keyboard = routingContext(snapshot: snapshot) else { return nil }
+        return ConsoleBridgeMenuContext(
+            keyboard: keyboard, connectionState: controller.bridgeConnectionState,
+            isBridgeConfigured: controller.isBridgeConfigured,
+            hasPendingIntercept: controller.pendingIntercept != nil,
+            activeOperation: activeBridgeOperation?.command
+        )
+    }
+
+    private func bridgeMenuAvailable(_ command: ConsoleBridgeMenuCommand) -> Bool {
+        let snapshot = NSApplication.shared.currentEvent.map { ConsoleMenuKeySnapshot(event: $0) }
+        guard let context = bridgeMenuContext(snapshot: snapshot) else { return false }
+        return ConsoleBridgeMenuPolicy.isAvailable(command, context: context)
+    }
+
+    private func handleBridgeMenu(_ command: ConsoleBridgeMenuCommand) {
+        let snapshot = NSApplication.shared.currentEvent.map { ConsoleMenuKeySnapshot(event: $0) }
+        guard let context = bridgeMenuContext(snapshot: snapshot),
+              ConsoleBridgeMenuPolicy.isAvailable(command, context: context)
+        else { return }
+        if let snapshot, snapshot.isKeyDown {
+            guard !snapshot.isRepeat else { return }
+            if let equivalent = ConsoleBridgeMenuPolicy.shortcutCommand(
+                characters: snapshot.characters, modifiers: context.keyboard.modifiers
+            ) {
+                guard equivalent == command,
+                      ConsoleBridgeMenuPolicy.keyEquivalentCommand(
+                        characters: snapshot.characters, context: context,
+                        isDuplicateInvocation: lastBridgeKeyEquivalentID == snapshot.identity
+                      ) == command
+                else { return }
+                lastBridgeKeyEquivalentID = snapshot.identity
+            }
+        }
+        if command == .submitTool {
+            presentToolRequestForm()
+        } else {
+            startBridgeOperation(command, submission: nil)
+        }
+    }
+
+    private func presentToolRequestForm() {
+        guard let window = consoleWindow, toolRequestSheet == nil, bridgeResponseSheet == nil else { return }
+        let generation = windowGeneration
+        let connection = controller.bridgeSnapshot?.generation
+        let sheet = BridgeToolRequestSheet()
+        toolRequestSheet = sheet
+        sheet.present(on: window) { [weak self] submission in
+            guard let self else { return }
+            self.toolRequestSheet = nil
+            guard let submission, self.windowGeneration == generation,
+                  self.controller.bridgeSnapshot?.generation == connection,
+                  self.consoleWindow === window, self.canDispatchCommands
+            else { return }
+            guard self.bridgeMenuAvailable(.submitTool) else {
+                self.presentBridgeResponse(
+                    title: "REQUEST NOT DISPATCHED", summary: "Gate, bridge or request availability changed.", data: nil
+                )
+                return
+            }
+            self.startBridgeOperation(.submitTool, submission: submission)
+        }
+    }
+
+    private func startBridgeOperation(_ command: ConsoleBridgeMenuCommand, submission: BridgeToolSubmission?) {
+        guard bridgeMenuAvailable(command) else { return }
+        if command == .detach {
+            // Cancel without waiting; controller detach must revoke admission
+            // independently of an older approval/response or attach operation.
+            for task in bridgeTasks.values { task.cancel() }
+        }
+        let id = UUID()
+        let generation = windowGeneration
+        let connection = controller.bridgeSnapshot?.generation
+        activeBridgeOperation = (id, command)
+        bridgeTasks[id] = Task { @MainActor [weak self, controller] in
+            guard let self else { return }
+            defer {
+                self.bridgeTasks.removeValue(forKey: id)
+                if self.activeBridgeOperation?.id == id { self.activeBridgeOperation = nil }
+            }
+            guard !Task.isCancelled, self.windowGeneration == generation,
+                  self.activeBridgeOperation?.id == id, self.canDispatchCommands
+            else { return }
+            do {
+                let data: Data?
+                let title: String
+                let summary: String
+                switch command {
+                case .attach:
+                    try await controller.attachBridge()
+                    data = nil
+                    title = "BRIDGE ATTACH RESULT"
+                    summary = self.observedBridgeSummary()
+                case .detach:
+                    await controller.detachBridge()
+                    data = nil
+                    title = "BRIDGE DETACH RESULT"
+                    summary = self.observedBridgeSummary()
+                case .listTools:
+                    let request: [String: Any] = [
+                        "jsonrpc": "2.0", "id": UUID().uuidString,
+                        "method": "tools/list", "params": [String: String]()
+                    ]
+                    let payload = try JSONSerialization.data(withJSONObject: request, options: [.sortedKeys])
+                    data = try await controller.dispatchMCPCommand(payload)
+                    title = "MCP TOOLS // CORRELATED METADATA RESPONSE"
+                    summary = "App-owned tools/list. Application PID \(ProcessInfo.processInfo.processIdentifier). External client traffic is not intercepted."
+                case .submitTool:
+                    guard let submission else { return }
+                    let result = try await controller.submitTool(name: submission.name, argumentsJSON: submission.argumentsJSON)
+                    data = result.rawResponseData
+                    title = "MCP TOOL // PROTOCOL RESPONSE"
+                    let receipt = result.receipt
+                    summary = "Request \(receipt.requestID). Transmission \(receipt.transmissionStage.rawValue). "
+                        + "Written \(receipt.bytesWritten) bytes / \(receipt.writeChunks) chunks; "
+                        + "observed stdout \(receipt.bytesRead) bytes / \(receipt.readChunks) chunks; "
+                        + "elapsed \(receipt.elapsedNanoseconds) ns. Correlated response: \(receipt.hasCorrelatedResponse). "
+                        + "Outcome: \(String(describing: receipt.outcome)). No independent external-effect verification."
+                }
+                guard self.acceptsBridgeCompletion(id: id, generation: generation, command: command, connection: connection) else { return }
+                self.presentBridgeResponse(title: title, summary: summary, data: data)
+            } catch {
+                guard self.acceptsBridgeCompletion(id: id, generation: generation, command: command, connection: connection) else { return }
+                self.presentBridgeResponse(
+                    title: "BRIDGE OPERATION ERROR",
+                    summary: "\(command) rejected or failed. The controller owns the audited outcome; external effects are not inferred.",
+                    data: Data(String(describing: error).utf8)
+                )
+            }
+        }
+    }
+
+    private func acceptsBridgeCompletion(
+        id: UUID, generation: UInt64, command: ConsoleBridgeMenuCommand, connection: UUID?
+    ) -> Bool {
+        guard !Task.isCancelled, !isTerminating, windowGeneration == generation,
+              activeBridgeOperation?.id == id, canDispatchCommands
+        else { return false }
+        if command == .listTools || command == .submitTool {
+            return controller.bridgeSnapshot?.generation == connection
+        }
+        return true
+    }
+
+    private func observedBridgeSummary() -> String {
+        var summary = "Observed connection state: \(controller.bridgeConnectionState.rawValue). App-owned client only. "
+            + "No container destruction or external client protection is asserted."
+        if let server = controller.serverInfo {
+            summary += " Advertised server: \(server.advertisedName) / \(server.advertisedVersion); protocol \(server.protocolVersion). Advertised values are not peer authentication."
+        }
+        return summary
+    }
+
+    private func presentBridgeResponse(title: String, summary: String, data: Data?) {
+        guard canDispatchCommands, let window = consoleWindow,
+              bridgeResponseSheet == nil, toolRequestSheet == nil
+        else { return }
+        let generation = windowGeneration
+        let sheet = BridgeResponseSheet(title: title, summary: summary, data: data)
+        bridgeResponseSheet = sheet
+        sheet.present(on: window) { [weak self] in
+            guard let self, self.windowGeneration == generation else { return }
+            self.bridgeResponseSheet = nil
+        }
+    }
+
+    private func dismissBridgeSheets() {
+        toolRequestSheet?.dismiss()
+        toolRequestSheet = nil
+        bridgeResponseSheet?.dismiss()
+        bridgeResponseSheet = nil
     }
 
     func menuWillOpen(_ menu: NSMenu) {

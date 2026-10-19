@@ -4,126 +4,94 @@ import TacticalCore
 import XCTest
 
 final class ContainerSocketBridgeTests: XCTestCase {
-    func testHighRiskCommandRejectedWhenGateLocked() async {
-        let gate = HardwareInterlockGate(initialStatus: .locked)
-        let bridge = ContainerSocketBridge(interlockGate: gate)
-
-        let payload = Data("{\"method\":\"click\"}".utf8)
-        do {
-            _ = try await bridge.dispatchMCPCommand(payload, isHighRiskAction: true)
-            XCTFail("High-risk command must be rejected when gate is locked")
-        } catch let error as HardwareInterlockError {
-            XCTAssertEqual(error, .gateLocked)
-        } catch {
-            XCTFail("Unexpected error: \(error)")
+    func testHighRiskCommandRejectedWhenGateLocked() async throws {
+        try await BridgeFixture.withSession { session in
+            do {
+                _ = try await session.bridge.submitTool(name: "click", argumentsJSON: Data("{}".utf8), generation: session.info.generation)
+                XCTFail("Locked gate must reject every tool")
+            } catch let error as BridgeError {
+                guard case .gateRejected(.gateLocked, let receipt) = error else { return XCTFail("Unexpected error: \(error)") }
+                XCTAssertEqual(receipt?.bytesWritten, 0)
+                XCTAssertEqual(receipt?.transmissionStage, BridgeTransmissionStage.none)
+            }
         }
     }
 
-    func testHighRiskCommandRejectedWhenEmergencyAbort() async {
-        let gate = HardwareInterlockGate(initialStatus: .emergencyAbort)
-        let bridge = ContainerSocketBridge(interlockGate: gate)
-
-        let payload = Data("{\"method\":\"press_hotkey\"}".utf8)
-        do {
-            _ = try await bridge.dispatchMCPCommand(payload, isHighRiskAction: true)
-            XCTFail("High-risk command must be rejected during emergency abort")
-        } catch let error as HardwareInterlockError {
-            XCTAssertEqual(error, .emergencyAbortActive)
-        } catch {
-            XCTFail("Unexpected error: \(error)")
+    func testHighRiskCommandRejectedWhenEmergencyAbort() async throws {
+        try await BridgeFixture.withSession { session in
+            await session.gate.tripEmergencyAbort()
+            do {
+                _ = try await session.bridge.submitTool(name: "press_hotkey", argumentsJSON: Data("{}".utf8), generation: session.info.generation)
+                XCTFail("Abort must reject every tool")
+            } catch let error as BridgeError {
+                guard case .gateRejected(.emergencyAbortActive, let receipt) = error else { return XCTFail("Unexpected error: \(error)") }
+                XCTAssertEqual(receipt?.bytesWritten, 0)
+            }
         }
     }
 
     func testUninitializedBridgeThrowsSubsystemFailure() async throws {
-        let gate = HardwareInterlockGate()
-        try await gate.arm()
-        try await gate.grantPermissive()
-
-        let bridge = ContainerSocketBridge(interlockGate: gate)
-        let payload = Data("{\"method\":\"get_cursor_position\"}".utf8)
-
+        let bridge = ContainerSocketBridge(interlockGate: HardwareInterlockGate(), configuration: BridgeFixture.configuration())
         do {
-            _ = try await bridge.dispatchMCPCommand(payload, isHighRiskAction: false)
-            XCTFail("Dispatching on uninitialized bridge must throw subsystemFailure")
-        } catch let error as HardwareInterlockError {
-            XCTAssertEqual(error, .subsystemFailure(reason: "Container stdio bridge handles uninitialized"))
-        }
+            _ = try await bridge.dispatchMCPCommand(Data(#"{"jsonrpc":"2.0","id":1,"method":"ping"}"#.utf8))
+            XCTFail("Detached bridge must reject dispatch")
+        } catch let error as BridgeError { XCTAssertEqual(error, .detached) }
     }
 
     func testCommandExecutionUnderPermissiveGateState() async throws {
-        let gate = HardwareInterlockGate()
-        try await gate.arm()
-        try await gate.grantPermissive()
-
-        // Use standard cat process for deterministic stdio loopback testing
-        let bridge = ContainerSocketBridge(
-            interlockGate: gate,
-            arguments: ["cat"]
-        )
-
-        try await bridge.launchBridge()
-        let isActive = await bridge.isBridgeActive
-        XCTAssertTrue(isActive)
-
-        let payload = Data("{\"jsonrpc\":\"2.0\",\"id\":100,\"method\":\"ping\"}".utf8)
-        let response = try await bridge.dispatchMCPCommand(payload, isHighRiskAction: true)
-
-        let responseString = String(decoding: response, as: UTF8.self)
-        XCTAssertTrue(responseString.contains("ping"))
-
-        await bridge.terminateBridge()
-        let isActiveAfterTerminate = await bridge.isBridgeActive
-        XCTAssertFalse(isActiveAfterTerminate)
+        let intercept = MCPIOCompletion<PendingIntercept>()
+        let hooks = BridgeTestHooks(pendingPublished: { intercept.finish(.success($0)) })
+        try await BridgeFixture.withSession(hooks: hooks) { session in
+            let result = try await BridgeFixture.approveNext(session, intercept: intercept)
+            XCTAssertEqual(result.receipt.transmissionStage, .complete)
+            XCTAssertTrue(result.receipt.hasCorrelatedResponse)
+            XCTAssertEqual(result.receipt.outcome, .responseReceived)
+            XCTAssertGreaterThan(result.receipt.bytesWritten, 0)
+            XCTAssertGreaterThan(result.receipt.bytesRead, 0)
+            let status = await session.gate.currentStatus
+            XCTAssertEqual(status, .locked)
+        }
     }
 
     func testLowRiskCommandBypassesInterlockRequirement() async throws {
-        let gate = HardwareInterlockGate(initialStatus: .locked)
-        let bridge = ContainerSocketBridge(
-            interlockGate: gate,
-            arguments: ["cat"]
-        )
-
-        try await bridge.launchBridge()
-
-        let payload = Data("{\"jsonrpc\":\"2.0\",\"id\":200,\"method\":\"get_screen_size\"}".utf8)
-        let response = try await bridge.dispatchMCPCommand(payload, isHighRiskAction: false)
-
-        let responseString = String(decoding: response, as: UTF8.self)
-        XCTAssertTrue(responseString.contains("get_screen_size"))
-
-        await bridge.terminateBridge()
+        // Only exact metadata schemas are exempt; tool names are never risk labels.
+        try await BridgeFixture.withSession { session in
+            let data = try await session.bridge.dispatchMCPCommand(Data(#"{"jsonrpc":"2.0","id":200,"method":"tools/list","params":{}}"#.utf8))
+            let response = try XCTUnwrap(try MCPJSONCodec.decode(data).object)
+            XCTAssertNotNil(response["result"]?.object?["tools"]?.array)
+            let status = await session.gate.currentStatus
+            XCTAssertEqual(status, .locked)
+            let snapshot = await session.bridge.snapshot()
+            XCTAssertNil(snapshot.latestTransfer?.approval)
+            XCTAssertNil(snapshot.pendingIntercept)
+        }
     }
 
+    /// Separate live acceptance only. Infrastructure/protocol failures throw; no
+    /// catch-return or swallowed initialization errors can produce a green test.
     func testLiveContainerHandshakeUnderPermissiveGateState() async throws {
-        // Verify against screenenv_container Docker instance if operational
-        let gate = HardwareInterlockGate()
-        try await gate.arm()
-        try await gate.grantPermissive()
-
-        let bridge = ContainerSocketBridge(
-            containerName: "screenenv_container",
-            interlockGate: gate
-        )
-
+        let bridge = ContainerSocketBridge(interlockGate: HardwareInterlockGate())
         do {
-            try await bridge.launchBridge()
+            let info = try await bridge.attach()
+            XCTAssertTrue(BridgeLimits.supportedProtocols.contains(info.protocolVersion))
+            XCTAssertFalse(info.advertisedName.isEmpty)
+            XCTAssertFalse(info.advertisedVersion.isEmpty)
+            let snapshot = await bridge.snapshot()
+            XCTAssertEqual(snapshot.connectionState, .attached)
+            XCTAssertEqual(snapshot.serverInfo, info)
+            if await bridge.advertisesTools {
+                let data = try await bridge.dispatchMCPCommand(Data(#"{"jsonrpc":"2.0","id":"live-catalog","method":"tools/list"}"#.utf8))
+                let envelope = try XCTUnwrap(try MCPJSONCodec.decode(data).object)
+                XCTAssertEqual(envelope["jsonrpc"], .string("2.0"))
+                XCTAssertNotNil(envelope["id"]?.string.flatMap(UUID.init(uuidString:)))
+                XCTAssertNotNil(envelope["result"]?.object?["tools"]?.array)
+            }
+            let receipt = await bridge.detach()
+            XCTAssertEqual(receipt.outcome, .detached)
         } catch {
-            // Docker or container not available in this environment, skip live test
-            return
+            let receipt = await bridge.detach()
+            XCTAssertNotEqual(receipt.outcome, .cleanupIncomplete)
+            throw error
         }
-
-        let initPayload = Data(
-            "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{},\"clientInfo\":{\"name\":\"TacticalHypervisor\",\"version\":\"1.0\"}}}".utf8
-        )
-
-        do {
-            let responseData = try await bridge.dispatchMCPCommand(initPayload, isHighRiskAction: true)
-            let responseString = String(decoding: responseData, as: UTF8.self)
-            XCTAssertTrue(responseString.contains("screenenv"))
-        } catch {
-            // If container environment fails to initialize within timeout, handle gracefully
-        }
-
-        await bridge.terminateBridge()
     }
 }

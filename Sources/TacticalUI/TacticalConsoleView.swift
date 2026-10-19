@@ -18,12 +18,19 @@ public struct TacticalConsoleView: View {
             ConsoleWindowChromeBar(
                 status: controller.currentStatus,
                 isObserving: controller.isObserving,
-                countdownTTL: controller.countdownTTL
+                countdownTTL: controller.countdownTTL,
+                bridgeSnapshot: controller.bridgeSnapshot,
+                isBridgeConfigured: controller.isBridgeConfigured
             )
             .frame(height: DesignTokens.Layout.chromeHeight)
 
             HStack(spacing: 0) {
-                ConsoleNavigationRail(activeBay: $controller.activeBay)
+                ConsoleNavigationRail(
+                    activeBay: $controller.activeBay,
+                    bridgeSnapshot: controller.bridgeSnapshot,
+                    isBridgeConfigured: controller.isBridgeConfigured,
+                    isObserving: controller.isObserving
+                )
                     .frame(width: DesignTokens.Layout.railWidth)
                 ConsoleViewport(controller: controller)
                     .frame(width: DesignTokens.Layout.viewportWidth)
@@ -32,6 +39,8 @@ public struct TacticalConsoleView: View {
                     isObserving: controller.isObserving,
                     countdownTTL: controller.countdownTTL,
                     lastCommandResult: controller.lastCommandResult,
+                    bridgeSnapshot: controller.bridgeSnapshot,
+                    isBridgeConfigured: controller.isBridgeConfigured,
                     grant: { grantRequest = controller.commandRequest(.grantPermissive) },
                     abort: { abortRequest = controller.commandRequest(.emergencyAbort) },
                     airgap: { dumpRequest = controller.commandRequest(.forceAirgapDump) }
