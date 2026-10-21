@@ -93,6 +93,94 @@ struct ConsoleReadout: View {
     }
 }
 
+/// Coarse, read-only UI projection. No image bytes, client subscriptions, timers,
+/// transport side effects, or assumptions that RFB initialization means pixels.
+struct ConsoleFramePresentation {
+    let snapshot: FrameSnapshot?
+    let isConfigured: Bool
+    let isObserving: Bool
+
+    var hasReceivedFrame: Bool {
+        guard isConfigured, isObserving, let snapshot,
+              snapshot.state == .connected, snapshot.failure == nil,
+              snapshot.generation != nil, snapshot.lastFrameAt != nil else { return false }
+        return validDimensions != nil
+    }
+
+    var isFailed: Bool {
+        isConfigured && isObserving && (snapshot?.state == .failed || snapshot?.failure != nil)
+    }
+
+    var stateLabel: String {
+        guard isConfigured else { return "UNBOUND" }
+        guard isObserving else { return "UNOBSERVED" }
+        guard let snapshot else { return "DETACHED" }
+        guard !isFailed else { return "FAILED" }
+        switch snapshot.state {
+        case .connected: return hasReceivedFrame ? "STREAMING" : "AWAITING FRAME"
+        case .connecting: return "CONNECTING"
+        case .negotiating: return "NEGOTIATING"
+        case .disconnecting: return "DISCONNECTING"
+        case .detached: return "DETACHED"
+        case .failed: return "FAILED"
+        }
+    }
+
+    var badge: String {
+        guard isConfigured else { return "[FRAMEBUFFER UNBOUND]" }
+        return hasReceivedFrame ? "[READ-ONLY SOURCE // FRAME RECEIVED]" : "[STANDBY // CONTAINER DETACHED]"
+    }
+
+    var sourceLabel: String {
+        guard isConfigured, isObserving, snapshot?.state == .connected, !isFailed,
+              let dimensions = validDimensions else { return "SOURCE PX: -- // PROFILE: UNBOUND" }
+        let size = "\(dimensions.width)×\(dimensions.height)"
+        return hasReceivedFrame ? "SOURCE: \(size) PX // ASSUMED sRGB" : "RFB SIZE: \(size) // AWAITING PIXELS"
+    }
+
+    var statisticsLabel: String {
+        guard isConfigured, isObserving, let stats = snapshot?.statistics else {
+            return "RX: -- B / -- MSG // UPDATES: -- // SAME: -- // SRC: -- // REPLACED: --"
+        }
+        return "RX: \(stats.receivedBinaryPayloadBytes) B / \(stats.receivedBinaryMessages) MSG // UPDATES: \(stats.completedUpdates) // SAME: \(stats.noChangeUpdates) // SRC: \(stats.publishedFrames) // REPLACED: \(stats.replacedFrameDeliveries)"
+    }
+
+    var diagnostic: String? {
+        guard isConfigured, isObserving, let failure = snapshot?.failure else { return nil }
+        let label: String
+        switch failure {
+        case .busy: label = "BUSY"
+        case .staleGeneration: label = "STALE GENERATION"
+        case .cancelled: label = "CANCELLED"
+        case .endOfStream: label = "END OF STREAM"
+        case .transportFailure: label = "TRANSPORT FAILURE"
+        case .timedOut(let stage): label = "TIMEOUT // \(stage.rawValue.uppercased())"
+        case .systemCall(let code): label = "SYSTEM CALL // CODE \(code)"
+        case .randomUnavailable: label = "RANDOM SOURCE UNAVAILABLE"
+        case .httpRejected(let status): label = "HTTP REJECTED // STATUS \(status)"
+        case .protocolViolation(let violation): label = "PROTOCOL // \(violation.rawValue.uppercased())"
+        case .unsupportedVersion: label = "UNSUPPORTED RFB VERSION"
+        case .unsupportedSecurity: label = "UNSUPPORTED RFB SECURITY"
+        case .securityRejected: label = "RFB SECURITY REJECTED"
+        case .unsupportedEncoding(let encoding): label = "UNSUPPORTED ENCODING // \(encoding)"
+        case .limitExceeded(let limit): label = "LIMIT EXCEEDED // \(limit.rawValue.uppercased())"
+        }
+        // Enumerated categories and numeric codes only; never stringify a raw
+        // error, server name, endpoint, clipboard content, or source pixels.
+        return BridgeDisplayText.escaped(label, limit: 96)
+    }
+
+    var accessibilitySummary: String {
+        "Framebuffer \(stateLabel). \(sourceLabel). \(statisticsLabel). \(diagnostic.map { "Failure: \($0)." } ?? "") Source counts are received binary payloads and published source frames, not GPU presentation FPS or proof of container identity. Replaced deliveries are not a total dropped-frame metric. No guest input forwarding."
+    }
+
+    private var validDimensions: (width: Int, height: Int)? {
+        guard let width = snapshot?.width, let height = snapshot?.height,
+              width > 0, width <= 4096, height > 0, height <= 4096 else { return nil }
+        return (width, height)
+    }
+}
+
 struct ConsoleWindowChromeBar: View {
     let status: InterlockStatus
     let isObserving: Bool
@@ -172,6 +260,8 @@ struct ConsoleNavigationRail: View {
     let bridgeSnapshot: BridgeSnapshot?
     let isBridgeConfigured: Bool
     let isObserving: Bool
+    let frameSnapshot: FrameSnapshot?
+    let isFramebufferConfigured: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -209,7 +299,10 @@ struct ConsoleNavigationRail: View {
                 .font(DesignTokens.Font.labelMd)
                 Text(bridgeSnapshot?.latestTransfer.map { "WRITE CHUNKS: \($0.writeChunks)" } ?? "WRITE CHUNKS: --")
                     .font(DesignTokens.Font.labelSm).monospacedDigit()
-                Text("FRAMEBUFFER: UNBOUND").font(DesignTokens.Font.mono(8))
+                Text(isFramebufferConfigured
+                     ? "FRAME: \(ConsoleFramePresentation(snapshot: frameSnapshot, isConfigured: true, isObserving: isObserving).stateLabel)"
+                     : "FRAMEBUFFER: UNBOUND")
+                    .font(DesignTokens.Font.mono(8))
                 Rectangle().fill(DesignTokens.slateBorder).frame(height: 3)
                     .accessibilityHidden(true)
             }

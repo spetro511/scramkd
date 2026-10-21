@@ -29,7 +29,9 @@ public struct TacticalConsoleView: View {
                     activeBay: $controller.activeBay,
                     bridgeSnapshot: controller.bridgeSnapshot,
                     isBridgeConfigured: controller.isBridgeConfigured,
-                    isObserving: controller.isObserving
+                    isObserving: controller.isObserving,
+                    frameSnapshot: controller.frameSnapshot,
+                    isFramebufferConfigured: controller.isFramebufferConfigured
                 )
                     .frame(width: DesignTokens.Layout.railWidth)
                 ConsoleViewport(controller: controller)

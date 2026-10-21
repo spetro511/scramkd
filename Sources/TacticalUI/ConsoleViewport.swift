@@ -7,11 +7,14 @@ struct ConsoleViewport: View {
     @ObservedObject var controller: ConsoleStateController
 
     var body: some View {
+        let frame = ConsoleFramePresentation(snapshot: controller.frameSnapshot,
+            isConfigured: controller.isFramebufferConfigured, isObserving: controller.isObserving)
         VStack(spacing: 0) {
             ConsoleViewportHeader(
                 activeBay: controller.activeBay,
                 bridgeState: BridgePresentation.connection(controller.bridgeConnectionState,
-                    configured: controller.isBridgeConfigured, observing: controller.isObserving)
+                    configured: controller.isBridgeConfigured, observing: controller.isObserving),
+                frame: frame
             )
                 .frame(height: 32)
             HStack(spacing: 0) {
@@ -48,13 +51,16 @@ struct ConsoleViewport: View {
                 .accessibilityHidden(true)
 
                 ZStack {
-                    TacticalMetalViewportContainer(stateController: controller)
+                    TacticalMetalViewportContainer(
+                        stateController: controller, framebufferClient: controller.framebufferClient
+                    )
                     ConsoleViewportOverlay(
                         status: controller.currentStatus,
                         isObserving: controller.isObserving,
                         activeBay: controller.activeBay,
                         bridgeSnapshot: controller.bridgeSnapshot,
-                        isBridgeConfigured: controller.isBridgeConfigured
+                        isBridgeConfigured: controller.isBridgeConfigured,
+                        frame: frame
                     )
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -62,19 +68,7 @@ struct ConsoleViewport: View {
             }
             .frame(maxHeight: .infinity)
 
-            HStack(spacing: 14) {
-                Text(BridgePresentation.transfer(controller.latestBridgeTransfer)).monospacedDigit()
-                Spacer(minLength: 4)
-                Text("FRAMEBUFFER: UNBOUND").font(DesignTokens.Font.labelSm)
-                    .foregroundStyle(DesignTokens.textDim)
-            }
-            .font(DesignTokens.Font.mono(8))
-            .foregroundStyle(DesignTokens.textMuted)
-            .padding(.horizontal, 12)
-            .frame(height: 28)
-            .background(DesignTokens.chromeDark)
-            .overlay(alignment: .top) { ConsoleRule() }
-            .accessibilityElement(children: .combine)
+            ConsoleViewportFooter(frame: frame, transfer: controller.latestBridgeTransfer)
         }
         .background(DesignTokens.canvasDark)
         .overlay(alignment: .trailing) { Rectangle().fill(DesignTokens.slateBorder).frame(width: 1) }
@@ -84,6 +78,7 @@ struct ConsoleViewport: View {
 private struct ConsoleViewportHeader: View {
     let activeBay: String
     let bridgeState: String
+    let frame: ConsoleFramePresentation
 
     var body: some View {
         HStack(spacing: 8) {
@@ -93,20 +88,63 @@ private struct ConsoleViewportHeader: View {
                 .tracking(0.5)
             Text("[MCP: \(bridgeState)]").foregroundStyle(DesignTokens.textMuted)
             Spacer(minLength: 4)
-            Text("[ FRAMEBUFFER: UNBOUND // MTKVIEW STATE ]")
-                .font(DesignTokens.Font.labelSm)
-                .foregroundStyle(DesignTokens.textDim)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 3)
-                .background(DesignTokens.railDark)
-                .overlay { Rectangle().strokeBorder(DesignTokens.slateBorderLight, lineWidth: 1) }
+            VStack(alignment: .trailing, spacing: 1) {
+                if frame.isConfigured {
+                    Text("FRAME: \(frame.stateLabel)").font(DesignTokens.Font.mono(8, weight: "SemiBold"))
+                    Text(frame.badge).font(DesignTokens.Font.mono(8))
+                } else {
+                    Text("[ FRAMEBUFFER: UNBOUND // MTKVIEW STATE ]").font(DesignTokens.Font.labelSm)
+                }
+            }
+            .foregroundStyle(frame.isFailed ? DesignTokens.red : DesignTokens.textDim)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 3)
+            .background(DesignTokens.railDark)
+            .overlay { Rectangle().strokeBorder(DesignTokens.slateBorderLight, lineWidth: 1) }
         }
         .font(DesignTokens.Font.labelMd)
         .padding(.horizontal, 12)
         .background(DesignTokens.chromeDark)
         .overlay(alignment: .bottom) { ConsoleRule() }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Container viewport, \(activeBay). MCP bridge \(bridgeState). Framebuffer unbound; native gate-state visualization only. Bridge attachment is not a guest display or containment proof.")
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Container viewport, \(activeBay). MCP bridge \(bridgeState). \(frame.accessibilitySummary)")
+        .accessibilityHint("The framebuffer source is separate from MCP. RFB None security does not authenticate the container. Source sRGB interpretation is assumed, not a verified ICC profile. Source updates and GPU draws are independent.")
+    }
+}
+
+private struct ConsoleViewportFooter: View {
+    let frame: ConsoleFramePresentation
+    let transfer: BridgeTransferReceipt?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            if frame.isConfigured {
+                Text(frame.statisticsLabel).lineLimit(1).help(frame.statisticsLabel)
+                HStack(spacing: 8) {
+                    Text(frame.sourceLabel).foregroundStyle(DesignTokens.textDim)
+                    Spacer(minLength: 0)
+                    Text("SOURCE COUNTS ≠ GPU FPS")
+                }
+            } else {
+                HStack(spacing: 14) {
+                    Text(BridgePresentation.transfer(transfer))
+                    Spacer(minLength: 4)
+                    Text("FRAMEBUFFER: UNBOUND").font(DesignTokens.Font.labelSm)
+                        .foregroundStyle(DesignTokens.textDim)
+                }
+            }
+        }
+        .font(DesignTokens.Font.mono(8))
+        .monospacedDigit()
+        .foregroundStyle(DesignTokens.textMuted)
+        .padding(.horizontal, 12)
+        .frame(height: 28)
+        .background(DesignTokens.chromeDark)
+        .overlay(alignment: .top) { ConsoleRule() }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Viewport source measurements")
+        .accessibilityValue(frame.isConfigured ? frame.accessibilitySummary : BridgePresentation.transfer(transfer) + ". Framebuffer unbound.")
+        .accessibilityHint("RX excludes HTTP and WebSocket framing and control bytes. SAME counts no-change source updates. REPLACED counts overwritten frame deliveries, not all dropped frames. No measured VSYNC or presentation-rate claim.")
     }
 }
 
@@ -116,6 +154,7 @@ private struct ConsoleViewportOverlay: View {
     let activeBay: String
     let bridgeSnapshot: BridgeSnapshot?
     let isBridgeConfigured: Bool
+    let frame: ConsoleFramePresentation
 
     var body: some View {
         VStack(spacing: 0) {
@@ -124,7 +163,7 @@ private struct ConsoleViewportOverlay: View {
                     .font(DesignTokens.Font.labelSm)
                     .tracking(0.6)
                 Spacer(minLength: 0)
-                Text("COORDINATES: REFERENCE").font(DesignTokens.Font.mono(8))
+                Text("AXES: REFERENCE // NOT SOURCE PX").font(DesignTokens.Font.mono(8))
             }
             .foregroundStyle(DesignTokens.textMuted)
             .padding(.horizontal, 16)
@@ -133,7 +172,7 @@ private struct ConsoleViewportOverlay: View {
             HStack(alignment: .top, spacing: 12) {
                 if activeBay == ConsoleBay.overview.rawValue {
                     ConsoleInterceptCard(status: status, isObserving: isObserving,
-                        bridgeSnapshot: bridgeSnapshot, isBridgeConfigured: isBridgeConfigured)
+                        bridgeSnapshot: bridgeSnapshot, isBridgeConfigured: isBridgeConfigured, frame: frame)
                         .frame(maxWidth: 650)
                 } else {
                     ConsoleUnboundBayCard(bay: ConsoleBay(rawValue: activeBay))
@@ -146,7 +185,7 @@ private struct ConsoleViewportOverlay: View {
             .padding(.horizontal, 16)
             Spacer(minLength: 0)
             HStack {
-                Text("NATIVE STATE GEOMETRY // FRAMEBUFFER UNBOUND")
+                Text(frame.isConfigured ? frame.badge : "NATIVE STATE GEOMETRY // FRAMEBUFFER UNBOUND")
                     .font(DesignTokens.Font.mono(8))
                     .foregroundStyle(DesignTokens.textMuted)
                 Spacer(minLength: 0)
@@ -166,6 +205,7 @@ private struct ConsoleInterceptCard: View {
     let isObserving: Bool
     let bridgeSnapshot: BridgeSnapshot?
     let isBridgeConfigured: Bool
+    let frame: ConsoleFramePresentation
 
     var body: some View {
         let presentation = ConsoleGatePresentation(status: status, isObserving: isObserving)
@@ -176,7 +216,7 @@ private struct ConsoleInterceptCard: View {
                 Text("MCP BRIDGE: \(BridgePresentation.connection(bridgeSnapshot?.connectionState ?? .detached, configured: isBridgeConfigured, observing: isObserving))")
                     .foregroundStyle(DesignTokens.textDim)
                 Spacer(minLength: 0)
-                Text("DISPLAY: UNBOUND").foregroundStyle(DesignTokens.textMuted)
+                Text("DISPLAY: \(frame.stateLabel)").foregroundStyle(frame.isFailed ? DesignTokens.red : DesignTokens.textMuted)
                     .font(DesignTokens.Font.labelSm)
             }
             .font(DesignTokens.Font.labelMd)
@@ -193,6 +233,9 @@ private struct ConsoleInterceptCard: View {
                     Text(bridgeSnapshot?.serverInfo.map {
                         "MCP PROTOCOL: \(BridgeDisplayText.escaped($0.protocolVersion, limit: 24)) // IDENTITY: NOT VERIFIED"
                     } ?? "MCP PROTOCOL: UNBOUND // PEER IDENTITY: UNKNOWN")
+                    if let diagnostic = frame.diagnostic {
+                        Text("FRAME FAILURE: \(diagnostic)").foregroundStyle(DesignTokens.red)
+                    }
                 }
                 .font(DesignTokens.Font.mono(8))
                 .foregroundStyle(DesignTokens.textDim)

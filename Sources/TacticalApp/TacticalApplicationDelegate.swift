@@ -31,7 +31,10 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
         // connect to a service, or enable audio/microphone/VM capabilities.
         let gate = HardwareInterlockGate()
         let bridge = ContainerSocketBridge(interlockGate: gate)
-        self.controller = ConsoleStateController(interlockGate: gate, bridge: bridge)
+        let framebufferClient = FramebufferClient()
+        self.controller = ConsoleStateController(
+            interlockGate: gate, bridge: bridge, framebufferClient: framebufferClient
+        )
         super.init()
     }
 
@@ -149,7 +152,7 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
         for task in bridgeWork { task.cancel() }
 
         lifecycleTask = Task { @MainActor [weak self, controller] in
-            // Controller stop revokes bridge admission before its first await.
+            // Controller stop owns admission revocation and bridge/frame cleanup.
             // Never wait on an approval/response task before requesting teardown.
             await controller.stop()
             await previous?.value

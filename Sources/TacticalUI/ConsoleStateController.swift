@@ -135,6 +135,8 @@ private enum ConsoleCommandEffect: Sendable {
 private struct ConsoleBootstrap: Sendable {
     let core: InterlockObservation
     let bridge: BridgeObservation?
+    let frame: FrameStateObservation?
+    let frameFailure: FrameError?
 }
 
 private struct ConsoleBridgeOperation: Sendable {
@@ -143,13 +145,33 @@ private struct ConsoleBridgeOperation: Sendable {
 }
 
 private struct ConsoleBridgeRetirementResult: Sendable {
-    let receipt: BridgeDetachReceipt
-    let snapshot: BridgeSnapshot
+    let receipt: BridgeDetachReceipt?
+    let snapshot: BridgeSnapshot?
+    let frame: ConsoleFrameRetirementResult?
 }
 
 private struct ConsoleBridgeRetirement: Sendable {
     let id: UUID
+    let bridgeIncluded: Bool
     let task: Task<ConsoleBridgeRetirementResult, Never>
+}
+
+private struct ConsoleFrameConnection: Sendable {
+    let id: UUID
+    let session: UUID
+    let bridgeGeneration: UUID
+    let task: Task<Result<UUID, any Error>, Never>
+}
+
+private struct ConsoleFrameRetirementScope: Sendable {
+    let connection: ConsoleFrameConnection?
+    let generation: UUID?
+}
+
+private struct ConsoleFrameRetirementResult: Sendable {
+    let snapshot: FrameSnapshot
+    let generation: UUID?
+    let failure: FrameError?
 }
 
 public struct AuditLogRow: Identifiable, Sendable {
@@ -195,12 +217,17 @@ public final class ConsoleStateController: ObservableObject {
     @Published public private(set) var lastCommandResult: String = "UNBOUND"
     @Published public var activeBay: String = "BAY-01"
     @Published public private(set) var bridgeSnapshot: BridgeSnapshot?
+    @Published public private(set) var frameSnapshot: FrameSnapshot? = nil
+    public let framebufferClient: FramebufferClient?
 
     public var bridgeConnectionState: BridgeConnectionState { bridgeSnapshot?.connectionState ?? .detached }
     public var pendingIntercept: PendingIntercept? { bridgeSnapshot?.pendingIntercept }
     public var serverInfo: ServerInfo? { bridgeSnapshot?.serverInfo }
     public var latestBridgeTransfer: BridgeTransferReceipt? { bridgeSnapshot?.latestTransfer }
     public var isBridgeConfigured: Bool { bridge != nil }
+    public var frameConnectionState: FrameConnectionState { frameSnapshot?.state ?? .detached }
+    public var isFramebufferConfigured: Bool { framebufferClient != nil }
+    public var frameStatistics: FrameStatistics? { frameSnapshot?.statistics }
 
     private let interlockGate: HardwareInterlockGate
     private let bridge: ContainerSocketBridge?
@@ -211,6 +238,16 @@ public final class ConsoleStateController: ObservableObject {
     private var bridgeObservationTask: Task<Void, Never>?
     private var bridgeSubscriptionID: UUID?
     private var bridgeRetirement: ConsoleBridgeRetirement?
+    private var incompleteFrameRetirementID: UUID?
+    private var frameRetirementScope: ConsoleFrameRetirementScope?
+    private var frameConnection: ConsoleFrameConnection?
+    private var frameOwnedGeneration: UUID?
+    private var frameObservationTask: Task<Void, Never>?
+    private var frameAssociationSettlements: [UUID: Task<Void, Never>] = [:]
+    private var frameSubscriptionID: UUID?
+    private var lastFrameRevision: UInt64?
+    private var retiredFrameRevision: UInt64?
+    var ownedFramebufferConnectionCount: Int { frameConnection != nil || frameRetirementScope != nil ? 1 : 0 }
     private var bridgeOperations: [UUID: ConsoleBridgeOperation] = [:]
     private var lastBridgeCursor: UInt64 = 0
     private var omittedBridgeEvents: UInt64 = 0
@@ -232,10 +269,18 @@ public final class ConsoleStateController: ObservableObject {
     private let bridgeBootstrapDeliveryBarrier: (@MainActor @Sendable (BridgeSnapshot) async -> Void)?
     private let bridgeObservationDeliveryBarrier: (@MainActor @Sendable () async -> Void)?
     private let bridgeAttachBarrier: (@Sendable () async -> Void)?
+    private let bridgeAttachCompletionBarrier: (@MainActor @Sendable () async -> Void)?
+    private let bridgeRetirementWaitMilestone: (@MainActor @Sendable () -> Void)?
+    private let frameConnectCompletionBarrier: (@MainActor @Sendable () async -> Void)?
+    private let frameStateDeliveryBarrier: (@MainActor @Sendable () async -> Void)?
 
-    public init(interlockGate: HardwareInterlockGate, bridge: ContainerSocketBridge? = nil) {
+    public init(
+        interlockGate: HardwareInterlockGate, bridge: ContainerSocketBridge? = nil,
+        framebufferClient: FramebufferClient? = nil
+    ) {
         self.interlockGate = interlockGate
         self.bridge = bridge
+        self.framebufferClient = framebufferClient
         self.bridgeSnapshot = nil
         self.commandCompletionBarrier = nil
         self.observationDeliveryBarrier = nil
@@ -244,21 +289,31 @@ public final class ConsoleStateController: ObservableObject {
         self.bridgeBootstrapDeliveryBarrier = nil
         self.bridgeObservationDeliveryBarrier = nil
         self.bridgeAttachBarrier = nil
+        self.bridgeAttachCompletionBarrier = nil
+        self.bridgeRetirementWaitMilestone = nil
+        self.frameConnectCompletionBarrier = nil
+        self.frameStateDeliveryBarrier = nil
     }
 
     init(
         interlockGate: HardwareInterlockGate,
         bridge: ContainerSocketBridge? = nil,
+        framebufferClient: FramebufferClient? = nil,
         observationDeliveryBarrier: (@MainActor @Sendable () async -> Void)?,
         bootstrapDeliveryBarrier: (@MainActor @Sendable (InterlockObservationSnapshot) async -> Void)? = nil,
         commandAdmissionBarrier: (@Sendable (ConsoleCommand) async -> Void)? = nil,
         bridgeBootstrapDeliveryBarrier: (@MainActor @Sendable (BridgeSnapshot) async -> Void)? = nil,
         bridgeObservationDeliveryBarrier: (@MainActor @Sendable () async -> Void)? = nil,
         bridgeAttachBarrier: (@Sendable () async -> Void)? = nil,
+        bridgeAttachCompletionBarrier: (@MainActor @Sendable () async -> Void)? = nil,
+        bridgeRetirementWaitMilestone: (@MainActor @Sendable () -> Void)? = nil,
+        frameConnectCompletionBarrier: (@MainActor @Sendable () async -> Void)? = nil,
+        frameStateDeliveryBarrier: (@MainActor @Sendable () async -> Void)? = nil,
         commandCompletionBarrier: (@MainActor @Sendable (ConsoleCommand) async -> Void)? = nil
     ) {
         self.interlockGate = interlockGate
         self.bridge = bridge
+        self.framebufferClient = framebufferClient
         self.bridgeSnapshot = nil
         self.commandCompletionBarrier = commandCompletionBarrier
         self.observationDeliveryBarrier = observationDeliveryBarrier
@@ -267,6 +322,10 @@ public final class ConsoleStateController: ObservableObject {
         self.bridgeBootstrapDeliveryBarrier = bridgeBootstrapDeliveryBarrier
         self.bridgeObservationDeliveryBarrier = bridgeObservationDeliveryBarrier
         self.bridgeAttachBarrier = bridgeAttachBarrier
+        self.bridgeAttachCompletionBarrier = bridgeAttachCompletionBarrier
+        self.bridgeRetirementWaitMilestone = bridgeRetirementWaitMilestone
+        self.frameConnectCompletionBarrier = frameConnectCompletionBarrier
+        self.frameStateDeliveryBarrier = frameStateDeliveryBarrier
     }
 
     deinit {
@@ -274,6 +333,8 @@ public final class ConsoleStateController: ObservableObject {
         bootstrapTask?.cancel()
         observationTask?.cancel()
         bridgeObservationTask?.cancel()
+        frameObservationTask?.cancel()
+        frameConnection?.task.cancel()
         for operation in bridgeOperations.values { operation.cancel() }
         for command in pendingCommands.values {
             command.admission.revoke(.expiredGeneration)
@@ -286,6 +347,7 @@ public final class ConsoleStateController: ObservableObject {
         if isObserving, let sessionID {
             await reconcile(session: sessionID)
             await reconcileBridge(session: sessionID)
+            await reconcileFrame(session: sessionID)
             return
         }
 
@@ -303,6 +365,7 @@ public final class ConsoleStateController: ObservableObject {
             let bridge = self.bridge
             let bridgeCursor = lastBridgeCursor
             let bridgeBarrier = bridgeBootstrapDeliveryBarrier
+            let framebuffer = framebufferClient
             bootstrap = Task {
                 let observation = await gate.observeTransitions(after: cursor, historyLimit: Self.auditRowLimit)
                 if let bootstrapBarrier { await bootstrapBarrier(observation.snapshot) }
@@ -314,7 +377,23 @@ public final class ConsoleStateController: ObservableObject {
                 } else {
                     bridgeObservation = nil
                 }
-                return ConsoleBootstrap(core: observation, bridge: bridgeObservation)
+                let frameObservation: FrameStateObservation?
+                let frameFailure: FrameError?
+                if let framebuffer {
+                    do {
+                        frameObservation = try await framebuffer.observeState()
+                        frameFailure = nil
+                    } catch {
+                        frameObservation = nil
+                        frameFailure = error as? FrameError ?? .transportFailure
+                    }
+                } else {
+                    frameObservation = nil
+                    frameFailure = nil
+                }
+                return ConsoleBootstrap(
+                    core: observation, bridge: bridgeObservation, frame: frameObservation, frameFailure: frameFailure
+                )
             }
             bootstrapTask = bootstrap
         }
@@ -323,6 +402,7 @@ public final class ConsoleStateController: ObservableObject {
         guard sessionID == session else {
             await interlockGate.unsubscribeObservation(id: observation.core.id)
             if let source = observation.bridge, let bridge { await bridge.unsubscribe(id: source.id) }
+            if let source = observation.frame, let framebufferClient { await framebufferClient.unsubscribe(id: source.id) }
             return
         }
         guard !isObserving else { return }
@@ -330,6 +410,8 @@ public final class ConsoleStateController: ObservableObject {
         subscriptionID = observation.core.id
         apply(observation.core.snapshot)
         if let source = observation.bridge { applyBridgeSnapshot(source.snapshot) }
+        if let source = observation.frame { receiveFrame(source.snapshot, session: session) }
+        if let error = observation.frameFailure { recordFrameStandby(error) }
         isObserving = true
         let gate = interlockGate
         let deliveryBarrier = observationDeliveryBarrier
@@ -357,13 +439,27 @@ public final class ConsoleStateController: ObservableObject {
                 await bridge.unsubscribe(id: source.id)
             }
         }
+        if let source = observation.frame, let framebuffer = framebufferClient {
+            frameSubscriptionID = source.id
+            let barrier = frameStateDeliveryBarrier
+            frameObservationTask = Task { [weak self] in
+                for await snapshot in source.updates {
+                    guard !Task.isCancelled else { break }
+                    if let barrier { await barrier() }
+                    guard !Task.isCancelled else { break }
+                    self?.receiveFrame(snapshot, session: session)
+                }
+                await framebuffer.unsubscribe(id: source.id)
+            }
+        }
     }
 
     /// Invalidates callbacks before awaiting cleanup. Gate safety remains independent.
     public func stop() async {
         // Revokes the actual installed/attaching connection, not a possibly stale UI snapshot.
         let retirement = beginBridgeRetirement(reason: .windowClosed)
-        if !isBridgeConfigured, sessionID == nil, bootstrapTask == nil, observationTask == nil, pendingCommands.isEmpty {
+        if !isBridgeConfigured, !isFramebufferConfigured,
+           sessionID == nil, bootstrapTask == nil, observationTask == nil, pendingCommands.isEmpty {
             await cleanupTask?.value
             return
         }
@@ -389,9 +485,17 @@ public final class ConsoleStateController: ObservableObject {
         oldBridgeTask?.cancel()
         let oldBridgeSubscription = bridgeSubscriptionID
         bridgeSubscriptionID = nil
+        let oldFrameTask = frameObservationTask
+        frameObservationTask = nil
+        oldFrameTask?.cancel()
+        let oldFrameSubscription = frameSubscriptionID
+        frameSubscriptionID = nil
+        let oldFrameSettlements = Array(frameAssociationSettlements.values)
+        frameAssociationSettlements.removeAll()
         let previousCleanup = cleanupTask
         let gate = interlockGate
         let bridge = self.bridge
+        let framebuffer = framebufferClient
         let cleanup = Task<Void, Never> { [weak self] in
             await previousCleanup?.value
             if let oldSubscription {
@@ -401,10 +505,14 @@ public final class ConsoleStateController: ObservableObject {
                 let observation = await pendingBootstrap.value
                 await gate.unsubscribeObservation(id: observation.core.id)
                 if let source = observation.bridge, let bridge { await bridge.unsubscribe(id: source.id) }
+                if let source = observation.frame, let framebuffer { await framebuffer.unsubscribe(id: source.id) }
             }
             if let oldBridgeSubscription, let bridge { await bridge.unsubscribe(id: oldBridgeSubscription) }
+            if let oldFrameSubscription, let framebuffer { await framebuffer.unsubscribe(id: oldFrameSubscription) }
             await oldTask?.value
             await oldBridgeTask?.value
+            await oldFrameTask?.value
+            for settlement in oldFrameSettlements { await settlement.value }
             for command in oldCommands { _ = await command.task.value }
             if let retirement {
                 let result = await retirement.task.value
@@ -421,6 +529,10 @@ public final class ConsoleStateController: ObservableObject {
             if sessionID == nil, let bridge {
                 let snapshot = await bridge.snapshot(after: lastBridgeCursor)
                 if sessionID == nil { applyBridgeSnapshot(snapshot) }
+            }
+            if sessionID == nil, let framebufferClient {
+                let snapshot = await framebufferClient.snapshot()
+                if sessionID == nil { projectRetiredFrame(snapshot, generation: frameRetirementScope?.generation) }
             }
         }
     }
@@ -470,14 +582,25 @@ public final class ConsoleStateController: ObservableObject {
     public func attachBridge() async throws {
         let (bridge, session) = try bridgeSession()
         if let cleanupTask { await cleanupTask.value }
+        if frameConnection != nil || frameRetirementScope != nil {
+            // Refresh association before opening another MCP generation. A
+            // currently associated viewer needs explicit detach, not silent
+            // replacement. A lost association installs scoped F1 retirement.
+            await reconcileBridge(session: session)
+            try validateSession(session)
+            if frameConnection != nil { throw FrameError.busy }
+        }
         while let retirement = bridgeRetirement {
+            bridgeRetirementWaitMilestone?()
             let result = await retirement.task.value
             finishBridgeRetirement(retirement, result: result, session: session)
+            if incompleteFrameRetirementID == retirement.id { throw FrameError.busy }
         }
         try validateSession(session)
         let barrier = bridgeAttachBarrier
+        let info: ServerInfo
         do {
-            let _: ServerInfo = try await runBridgeOperation(session: session) {
+            info = try await runBridgeOperation(session: session) {
                 if let barrier { await barrier() }
                 try Task.checkCancellation()
                 return try await bridge.attach()
@@ -491,6 +614,10 @@ public final class ConsoleStateController: ObservableObject {
             }
             throw error
         }
+        // MCP attach already succeeded. Viewer failures are separate STANDBY
+        // outcomes, never rethrown as a failed MCP/tool attachment.
+        if let bridgeAttachCompletionBarrier { await bridgeAttachCompletionBarrier() }
+        await connectFramebuffer(session: session, bridgeGeneration: info.generation)
     }
 
     public func detachBridge() async {
@@ -594,31 +721,271 @@ public final class ConsoleStateController: ObservableObject {
         }
     }
 
+    private func connectFramebuffer(session: UUID, bridgeGeneration: UUID) async {
+        guard let framebuffer = framebufferClient, !Task.isCancelled,
+              isObserving, sessionID == session, bridgeConnectionState == .attached,
+              bridgeSnapshot?.generation == bridgeGeneration else { return }
+        guard frameSubscriptionID != nil else {
+            recordFrameStandby(.limitExceeded(.observers))
+            return
+        }
+        // No automatic reconnect, including after a failed viewer session.
+        guard frameConnection == nil, frameRetirementScope == nil else { return }
+        let task = Task<Result<UUID, any Error>, Never> {
+            do {
+                try Task.checkCancellation()
+                return .success(try await framebuffer.connect())
+            } catch { return .failure(error) }
+        }
+        let connection = ConsoleFrameConnection(
+            id: UUID(), session: session, bridgeGeneration: bridgeGeneration, task: task
+        )
+        frameConnection = connection
+        frameOwnedGeneration = nil
+        frameSnapshot = nil
+        let result = await withTaskCancellationHandler { await task.value } onCancel: { task.cancel() }
+        let snapshot = await framebuffer.snapshot()
+        if let frameConnectCompletionBarrier { await frameConnectCompletionBarrier() }
+        guard hasCurrentFrameStartAdmission(connection) else { return }
+        if Task.isCancelled {
+            // The checked binding is still this captured connection. Never issue
+            // a late unscoped disconnect against whichever session now exists.
+            if let retirement = beginBridgeRetirement(reason: .requestCancelled, retireBridge: false) {
+                let retired = await retirement.task.value
+                finishBridgeRetirement(retirement, result: retired, session: session)
+            }
+            return
+        }
+        switch result {
+        case .success(let generation):
+            frameOwnedGeneration = generation
+            applyFrameSnapshot(snapshot)
+        case .failure(let error):
+            applyFrameSnapshot(snapshot)
+            recordFrameStandby(error as? FrameError ?? .transportFailure)
+        }
+    }
+
+    private func ownsFrameConnection(_ connection: ConsoleFrameConnection) -> Bool {
+        isObserving && sessionID == connection.session &&
+            (frameConnection?.id == connection.id || frameRetirementScope?.connection?.id == connection.id)
+    }
+
+    private func hasFrameBridgeAssociation(_ connection: ConsoleFrameConnection) -> Bool {
+        bridgeConnectionState == .attached && bridgeSnapshot?.generation == connection.bridgeGeneration
+    }
+
+    private func hasCurrentFrameStartAdmission(_ connection: ConsoleFrameConnection) -> Bool {
+        ownsFrameConnection(connection) && frameConnection?.id == connection.id && hasFrameBridgeAssociation(connection)
+    }
+
+    /// Called synchronously on loss of this exact binding. This never revokes or
+    /// detaches the MCP connection: only the captured old viewer is retired.
+    private func retireLostFrameAssociation(_ connection: ConsoleFrameConnection) {
+        guard sessionID == connection.session, frameConnection?.id == connection.id else { return }
+        guard let retirement = beginBridgeRetirement(reason: .connectionReplaced, retireBridge: false) else { return }
+        let id = UUID()
+        let settlement = Task<Void, Never> { [weak self] in
+            let result = await retirement.task.value
+            self?.finishBridgeRetirement(retirement, result: result, session: connection.session)
+            self?.frameAssociationSettlements.removeValue(forKey: id)
+        }
+        frameAssociationSettlements[id] = settlement
+    }
+
+    /// No controller/renderer/UI access. Only an immutable captured scope is used.
+    private nonisolated static func retireFramebuffer(
+        _ client: FramebufferClient?, scope: ConsoleFrameRetirementScope?
+    ) async -> ConsoleFrameRetirementResult? {
+        guard let client, let scope else { return nil }
+        var target = scope.generation
+        if let connection = scope.connection {
+            connection.task.cancel()
+            if case .success(let generation) = await connection.task.value, target == nil { target = generation }
+        }
+        // Fresh controller attach waits for this retirement. If cancellation won
+        // before connect returned a UUID, its settled task plus actor snapshot
+        // identifies only that old session; no future generation can be installed
+        // through this controller until this owned handle completes.
+        let before = await client.snapshot()
+        if target == nil { target = before.generation }
+        if let target {
+            do { try await client.disconnect(generation: target) }
+            catch {
+                let snapshot = await client.snapshot()
+                let failure = error as? FrameError ?? .transportFailure
+                if failure == .staleGeneration, snapshot.generation == nil {
+                    return ConsoleFrameRetirementResult(snapshot: snapshot, generation: target, failure: nil)
+                }
+                return ConsoleFrameRetirementResult(snapshot: snapshot, generation: target, failure: failure)
+            }
+        }
+        let snapshot = await client.snapshot()
+        return ConsoleFrameRetirementResult(
+            snapshot: snapshot, generation: target,
+            failure: snapshot.generation == nil ? nil : .busy
+        )
+    }
+
+    private func reconcileFrame(session: UUID) async {
+        guard sessionID == session, let framebufferClient else { return }
+        let snapshot = await framebufferClient.snapshot()
+        guard sessionID == session else { return }
+        receiveFrame(snapshot, session: session)
+    }
+
+    private func receiveFrame(_ snapshot: FrameSnapshot, session: UUID) {
+        guard sessionID == session else { return }
+        if let retiredFrameRevision, snapshot.revision <= retiredFrameRevision {
+            // A new UI observer may bootstrap the same final quiescent status.
+            // It may never bootstrap a retired live generation or old pixels.
+            guard snapshot.revision == retiredFrameRevision, snapshot.generation == nil,
+                  frameConnection == nil, frameRetirementScope == nil,
+                  snapshot.state == .detached || snapshot.state == .failed else { return }
+        }
+        let terminal = snapshot.state == .detached || snapshot.state == .disconnecting || snapshot.state == .failed
+        if let connection = frameConnection ?? frameRetirementScope?.connection {
+            guard ownsFrameConnection(connection) else { return }
+            let expectedGeneration = frameOwnedGeneration ?? frameRetirementScope?.generation
+            if let expectedGeneration, let actual = snapshot.generation, expectedGeneration != actual { return }
+            if !hasFrameBridgeAssociation(connection) {
+                retireLostFrameAssociation(connection)
+                guard terminal, snapshot.lastFrameAt == nil else { return }
+            }
+            if frameRetirementScope != nil {
+                guard terminal else { return }
+            } else if frameOwnedGeneration == nil {
+                frameOwnedGeneration = snapshot.generation
+            }
+        } else if frameRetirementScope != nil {
+            guard terminal else { return }
+        } else {
+            // Startup observation is offline/status-only, not permission to adopt
+            // an unrelated live viewer or restore a previous frame generation.
+            guard snapshot.state == .detached || snapshot.state == .failed else { return }
+        }
+        applyFrameSnapshot(snapshot)
+    }
+
+    private func applyFrameSnapshot(_ snapshot: FrameSnapshot) {
+        if let lastFrameRevision, snapshot.revision < lastFrameRevision { return }
+        let previous = frameSnapshot
+        lastFrameRevision = snapshot.revision
+        frameSnapshot = snapshot
+        guard previous?.state != snapshot.state || previous?.failure != snapshot.failure else { return }
+        let description: String
+        if let failure = snapshot.failure {
+            description = "FRAME STANDBY: \(Self.frameErrorLabel(failure)); VIEWER STATUS ONLY"
+        } else if snapshot.state == .connected {
+            description = snapshot.lastFrameAt == nil
+                ? "RFB INITIALIZED; PIXELS NOT YET OBSERVED" : "FRAME VIEWER CONNECTED; RECEIVE STATE ONLY"
+        } else {
+            description = "FRAME VIEWER \(snapshot.state.rawValue.uppercased()); LOCAL STATE ONLY"
+        }
+        appendAudit(AuditLogRow(
+            timestamp: "—", subsystem: "FRAME", tagColor: snapshot.failure == nil ? "slate" : "amber",
+            description: description,
+            metric: "BINARY PAYLOAD \(snapshot.statistics.receivedBinaryPayloadBytes) B · PUBLISHED \(snapshot.statistics.publishedFrames) · NO GPU/PRESENTATION CLAIM",
+            isEmergency: false
+        ))
+    }
+
+    private func projectRetiredFrame(_ snapshot: FrameSnapshot, generation: UUID?) {
+        let terminal = snapshot.state == .detached || snapshot.state == .disconnecting || snapshot.state == .failed
+        guard terminal, snapshot.lastFrameAt == nil,
+              snapshot.generation == nil || snapshot.generation == generation else {
+            // An unexpected still-live/replacement session is not evidence of
+            // successful F1 teardown and must never be adopted as STREAMING.
+            frameSnapshot = nil
+            return
+        }
+        applyFrameSnapshot(snapshot)
+    }
+
+    private func recordFrameStandby(_ error: FrameError, cleanup: Bool = false) {
+        appendAudit(AuditLogRow(
+            timestamp: "—", subsystem: "FRAME", tagColor: cleanup ? "red" : "amber",
+            description: "FRAME STANDBY: \(Self.frameErrorLabel(error))",
+            metric: cleanup ? "CLEANUP INCOMPLETE; OWNERSHIP RETAINED/BUSY" : "VIEWER ONLY; MCP ATTACH/CORE PERMISSION UNCHANGED",
+            isEmergency: false
+        ))
+    }
+
+    private static func frameErrorLabel(_ error: FrameError) -> String {
+        switch error {
+        case .busy: "BUSY"
+        case .staleGeneration: "STALE FRAME GENERATION"
+        case .cancelled: "CANCELLED"
+        case .endOfStream: "EOF"
+        case .transportFailure: "TRANSPORT FAILED"
+        case .timedOut(let stage): "TIMEOUT \(stage.rawValue.uppercased())"
+        case .systemCall(let code): "LOCAL SYSTEM ERROR \(code)"
+        case .randomUnavailable: "RANDOM SOURCE UNAVAILABLE"
+        case .httpRejected(let status): "UPGRADE REJECTED \(status)"
+        case .protocolViolation(let violation): "PROTOCOL \(violation.rawValue.uppercased())"
+        case .unsupportedVersion: "UNSUPPORTED VERSION"
+        case .unsupportedSecurity: "UNSUPPORTED SECURITY; NO SSO"
+        case .securityRejected: "SECURITY REJECTED"
+        case .unsupportedEncoding(let encoding): "UNSUPPORTED ENCODING \(encoding)"
+        case .limitExceeded(let limit): "LIMIT \(limit.rawValue.uppercased())"
+        }
+    }
+
     /// Synchronous half of teardown. No actor hop precedes connection revocation.
-    private func beginBridgeRetirement(reason: BridgeRevocationReason) -> ConsoleBridgeRetirement? {
-        guard let bridge else { return nil }
-        bridge.revokeAdmissions(scope: .currentConnection, reason: reason)
-        let operations = Array(bridgeOperations.values)
-        bridgeOperations.removeAll()
+    private func beginBridgeRetirement(
+        reason: BridgeRevocationReason, retireBridge: Bool = true
+    ) -> ConsoleBridgeRetirement? {
+        let bridge = retireBridge ? self.bridge : nil
+        guard bridge != nil || framebufferClient != nil else { return nil }
+        bridge?.revokeAdmissions(scope: .currentConnection, reason: reason)
+        let operations = retireBridge ? Array(bridgeOperations.values) : []
+        if retireBridge { bridgeOperations.removeAll() }
         for operation in operations { operation.cancel() }
-        let commandIDs = pendingCommands.compactMap { $0.value.bridgeApproval == nil ? nil : $0.key }
+        let commandIDs = retireBridge ? pendingCommands.compactMap { $0.value.bridgeApproval == nil ? nil : $0.key } : []
         let commands = commandIDs.compactMap { pendingCommands.removeValue(forKey: $0) }
         for command in commands {
             command.admission.revoke(.expiredGeneration)
             command.task.cancel()
         }
-        if let bridgeRetirement, operations.isEmpty, commands.isEmpty { return bridgeRetirement }
+        let frameScope = framebufferClient.map { _ in
+            ConsoleFrameRetirementScope(
+                connection: frameConnection ?? frameRetirementScope?.connection,
+                generation: frameOwnedGeneration ?? frameSnapshot?.generation ?? frameRetirementScope?.generation
+            )
+        }
+        let hasNewFrameConnection = frameConnection != nil
+        frameScope?.connection?.task.cancel()
+        frameConnection = nil
+        frameOwnedGeneration = nil
+        if frameScope != nil {
+            frameRetirementScope = frameScope
+            frameSnapshot = nil // Current binding only; late completions cannot clear F2.
+        }
+        if let bridgeRetirement, operations.isEmpty, commands.isEmpty, !hasNewFrameConnection,
+           incompleteFrameRetirementID != bridgeRetirement.id,
+           bridge == nil || bridgeRetirement.bridgeIncluded { return bridgeRetirement }
         let previous = bridgeRetirement
         let cursor = lastBridgeCursor
+        let framebuffer = framebufferClient
         let task = Task<ConsoleBridgeRetirementResult, Never> {
             if let previous { _ = await previous.task.value }
-            let receipt = await bridge.detach()
+            async let frameResult = Self.retireFramebuffer(framebuffer, scope: frameScope)
+            let receipt: BridgeDetachReceipt?
+            if let bridge {
+                receipt = await bridge.detach()
+            } else {
+                receipt = nil
+            }
             for operation in operations { await operation.settle() }
             for command in commands { _ = await command.task.value }
-            return ConsoleBridgeRetirementResult(receipt: receipt, snapshot: await bridge.snapshot(after: cursor))
+            let snapshot: BridgeSnapshot?
+            if let bridge { snapshot = await bridge.snapshot(after: cursor) }
+            else { snapshot = nil }
+            return ConsoleBridgeRetirementResult(receipt: receipt, snapshot: snapshot, frame: await frameResult)
         }
-        let retirement = ConsoleBridgeRetirement(id: UUID(), task: task)
+        let retirement = ConsoleBridgeRetirement(id: UUID(), bridgeIncluded: bridge != nil, task: task)
         bridgeRetirement = retirement
+        incompleteFrameRetirementID = nil
         return retirement
     }
 
@@ -628,11 +995,30 @@ public final class ConsoleStateController: ObservableObject {
         session: UUID?
     ) {
         guard bridgeRetirement?.id == retirement.id else { return }
-        bridgeRetirement = nil
+        if let frame = result.frame {
+            if let failure = frame.failure {
+                incompleteFrameRetirementID = retirement.id
+                frameRetirementScope = ConsoleFrameRetirementScope(
+                    connection: frameRetirementScope?.connection, generation: frame.generation
+                )
+                if sessionID == session {
+                    projectRetiredFrame(frame.snapshot, generation: frame.generation)
+                    recordFrameStandby(failure, cleanup: true)
+                }
+            } else {
+                retiredFrameRevision = max(retiredFrameRevision ?? 0, frame.snapshot.revision)
+                frameRetirementScope = nil
+                if sessionID == session { projectRetiredFrame(frame.snapshot, generation: frame.generation) }
+            }
+        }
+        if result.frame?.failure == nil {
+            bridgeRetirement = nil
+            incompleteFrameRetirementID = nil
+        }
         guard sessionID == session else { return }
-        applyBridgeSnapshot(result.snapshot)
+        if let snapshot = result.snapshot { applyBridgeSnapshot(snapshot) }
         // The backend receipt, not the request to detach, is teardown evidence.
-        if result.receipt.outcome == .cleanupIncomplete {
+        if result.receipt?.outcome == .cleanupIncomplete {
             publishCommandResult("DETACH INCOMPLETE: LOCAL CLEANUP", color: "red")
         }
     }
@@ -842,6 +1228,12 @@ public final class ConsoleStateController: ObservableObject {
             lastBridgeCursor = event.cursor
         }
         lastBridgeCursor = snapshot.cursor
+        if let connection = frameConnection,
+           snapshot.connectionState != .attached || snapshot.generation != connection.bridgeGeneration {
+            // Clear STREAMING before publishing association loss. Capturing F1
+            // here prevents any delayed terminal callback from targeting F2.
+            retireLostFrameAssociation(connection)
+        }
         bridgeSnapshot = snapshot
     }
 

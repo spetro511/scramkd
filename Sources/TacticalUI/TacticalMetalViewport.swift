@@ -3,12 +3,14 @@ import CoreGraphics
 import Metal
 import MetalKit
 import TacticalCore
+import TacticalVirtualization
 
 /// Resource/drawability/submission status, not completed display presentation.
 public enum TacticalViewportAvailability: Equatable, Sendable {
     case ready
     case submitted
     case waitingForDrawable
+    case waitingForGPU
     case unavailable(String)
     case stopped
 
@@ -17,6 +19,7 @@ public enum TacticalViewportAvailability: Equatable, Sendable {
         case .ready: "METAL RESOURCES READY"
         case .submitted: "FRAME SUBMITTED; COMPLETION UNVERIFIED"
         case .waitingForDrawable: "DRAWABLE UNAVAILABLE"
+        case .waitingForGPU: "GPU SUBMISSION LIMIT; FRAME DEFERRED"
         case .unavailable(let reason): reason
         case .stopped: "RENDERER STOPPED"
         }
@@ -27,6 +30,12 @@ public enum TacticalViewportAvailability: Equatable, Sendable {
 /// linear Display P3; the sRGB render target applies the shared transfer curve.
 enum TacticalViewportColor {
     static let backgroundHex: UInt32 = 0x030509
+
+    static let canvasReferenceSRGB = SIMD3<Double>(3.0 / 255, 5.0 / 255, 9.0 / 255)
+    static var canvasClearColor: MTLClearColor {
+        let rgb = linearDisplayP3(encodedSRGB: canvasReferenceSRGB)
+        return MTLClearColor(red: rgb.x, green: rgb.y, blue: rgb.z, alpha: 1)
+    }
 
     static func clearReferenceSRGB(status: InterlockStatus) -> SIMD3<Double> {
         switch status {
@@ -97,7 +106,8 @@ struct TacticalViewportGeometry: Equatable, Sendable {
         size: CGSize,
         status: InterlockStatus,
         telemetryHealth: SubsystemHealth?,
-        increasedContrast: Bool = false
+        increasedContrast: Bool = false,
+        backgroundSRGB: SIMD3<Double>? = nil
     ) -> Self {
         guard size.width.isFinite, size.height.isFinite, size.width > 0, size.height > 0 else {
             return Self(vertices: [])
@@ -110,7 +120,8 @@ struct TacticalViewportGeometry: Equatable, Sendable {
 
         func color(_ hex: UInt32, opacity: Float = 1) -> SIMD4<Float> {
             let rgb = TacticalViewportColor.linearDisplayP3(
-                hex: hex, opacity: opacity, backgroundSRGB: TacticalViewportColor.clearReferenceSRGB(status: status)
+                hex: hex, opacity: opacity,
+                backgroundSRGB: backgroundSRGB ?? TacticalViewportColor.clearReferenceSRGB(status: status)
             )
             return SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1)
         }
@@ -192,7 +203,8 @@ struct TacticalViewportGeometry: Equatable, Sendable {
     }
 }
 
-/// Main-actor Metal delegate drawing interlock geometry, not a guest framebuffer.
+/// Main-actor Metal delegate. Optional framebuffer input is explicit; default
+/// operation remains the native interlock geometry with no remote source.
 /// The SDK's MTKViewDelegate callbacks are NS_SWIFT_UI_ACTOR annotated; no
 /// unchecked Sendable conformance or suppression of delegate isolation is used.
 @MainActor
@@ -206,6 +218,26 @@ public final class TacticalViewportRenderer: NSObject, MTKViewDelegate {
     public private(set) var availability: TacticalViewportAvailability = .unavailable("METAL NOT CONFIGURED")
     public private(set) var configurationFailure: String?
     public private(set) var increasedContrast = false
+    public private(set) var encodedDrawCallsCount: UInt64 = 0
+
+    public var metricSnapshot: TacticalViewportMetricSnapshot {
+        TacticalViewportMetricSnapshot(
+            submittedFrames: renderedFrameCount, encodedDrawCallsCount: encodedDrawCallsCount,
+            uploadedFrameSequence: framebuffer.image?.sequence, uploadedGeneration: framebuffer.image?.generation,
+            busyDropCounts: framebuffer.busyDropCounts, rejectedFrameCount: framebuffer.rejectedFrameCount,
+            gpuFailureCount: framebuffer.gpuFailureCount, residentTextureBytes: framebuffer.residentTextureBytes,
+            pendingCPUFrameBytes: framebuffer.pendingCPUFrameBytes, inFlightReadCounts: framebuffer.ownership.inFlightReadCounts,
+            framebufferConfigured: framebuffer.configured, isImageAvailable: framebuffer.image != nil
+        )
+    }
+
+    public var framebufferSummary: String {
+        guard framebuffer.configured else { return "NO GUEST DISPLAY FEED." }
+        guard let image = framebuffer.image else {
+            return "CONTAINER DETACHED. \(framebuffer.failure ?? "FRAMEBUFFER IMAGE UNAVAILABLE")."
+        }
+        return "FRAMEBUFFER RECEIVED: \(image.layout.width) BY \(image.layout.height), SEQUENCE \(image.sequence). COLOR PROFILE: ASSUMED sRGB. PRESENTATION UNVERIFIED."
+    }
 
     /// Explicit controller state takes precedence over an optional telemetry feed.
     public var interlockStatus: InterlockStatus {
@@ -221,6 +253,37 @@ public final class TacticalViewportRenderer: NSObject, MTKViewDelegate {
     private var cachedSize: CGSize?
     private var cachedStatus: InterlockStatus?
     private var cachedHealth: SubsystemHealth?
+    private let framebuffer = TacticalFramebufferSurface()
+    private var stopped = false
+
+    var framebufferSourceConfigured: Bool { framebuffer.configured }
+    /// Explicit frame input. Validates packed layout, cap, encoding, generation,
+    /// and monotonic source sequence before touching GPU resources. No connect.
+    public func updateFramebuffer(_ frame: RGBAFrame) {
+        guard !stopped else { return }
+        let previousMode = framebuffer.configured
+        framebuffer.enqueue(frame)
+        if previousMode != framebuffer.configured { invalidateGeometry() }
+    }
+
+    /// Retires image admission and clears pending pixels immediately. An explicit
+    /// new generation/delivery is required before later frames can be accepted.
+    public func clearFramebuffer() {
+        framebuffer.clear()
+    }
+
+    public func setFramebufferSourceConfigured(_ enabled: Bool) {
+        guard !stopped, framebuffer.configured != enabled else { return }
+        framebuffer.setConfigured(enabled)
+        invalidateGeometry()
+    }
+
+    public func beginFramebufferGeneration(_ generation: UUID) {
+        guard !stopped else { return }
+        let previousMode = framebuffer.configured
+        framebuffer.beginGeneration(generation)
+        if previousMode != framebuffer.configured { invalidateGeometry() }
+    }
 
     public override init() {
         super.init()
@@ -254,6 +317,7 @@ public final class TacticalViewportRenderer: NSObject, MTKViewDelegate {
             availability = .unavailable("METAL DEVICE UNAVAILABLE")
             return
         }
+        framebuffer.setDevice(device)
         guard view.commandQueue != nil else {
             availability = .unavailable("METAL QUEUE UNAVAILABLE")
             return
@@ -306,6 +370,11 @@ public final class TacticalViewportRenderer: NSObject, MTKViewDelegate {
             availability = .waitingForDrawable
             return
         }
+        framebuffer.flushPending()
+        if framebuffer.image != nil, !framebuffer.canSubmitRead {
+            availability = .waitingForGPU
+            return
+        }
         guard prepareGeometry(for: viewport, status: status), let vertexBuffer,
               let vertexCount = cachedGeometry?.vertices.count, vertexCount > 0 else { return }
         guard let renderPassDescriptor = view.currentRenderPassDescriptor,
@@ -328,15 +397,25 @@ public final class TacticalViewportRenderer: NSObject, MTKViewDelegate {
             return
         }
         commandBuffer.label = "Tactical state geometry submission"
+        // Image first, then the cached native HUD primitives. External SwiftUI
+        // reference TRGT/rulers remain above this entire drawable.
+        let framebufferTicket = framebuffer.encode(in: encoder, logicalSize: view.bounds.size)
+        if framebuffer.image != nil, framebufferTicket == nil {
+            encoder.endEncoding()
+            availability = .unavailable("FRAMEBUFFER ENCODING UNAVAILABLE")
+            return
+        }
         encoder.setRenderPipelineState(pipeline)
         encoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
         var logicalSize = SIMD2<Float>(Float(view.bounds.width), Float(view.bounds.height))
         encoder.setVertexBytes(&logicalSize, length: MemoryLayout<SIMD2<Float>>.stride, index: 1)
         encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertexCount)
         encoder.endEncoding()
+        if let framebufferTicket { framebuffer.attachCompletion(to: commandBuffer, ticket: framebufferTicket) }
         commandBuffer.present(drawable)
         commandBuffer.commit()
         renderedFrameCount &+= 1
+        encodedDrawCallsCount &+= (framebufferTicket == nil ? 1 : 2)
         lastSubmittedVertexCount = vertexCount
         lastSubmittedInterlockStatus = status
         lastSubmittedClearColor = renderPassDescriptor.colorAttachments[0].clearColor
@@ -348,10 +427,13 @@ public final class TacticalViewportRenderer: NSObject, MTKViewDelegate {
     func configureRenderPass(_ descriptor: MTLRenderPassDescriptor, status: InterlockStatus) {
         descriptor.colorAttachments[0].loadAction = .clear
         descriptor.colorAttachments[0].storeAction = .store
-        descriptor.colorAttachments[0].clearColor = TacticalViewportColor.clearColor(status: status)
+        descriptor.colorAttachments[0].clearColor = framebuffer.configured
+            ? TacticalViewportColor.canvasClearColor : TacticalViewportColor.clearColor(status: status)
     }
 
     func stop() {
+        stopped = true
+        framebuffer.stop()
         pipeline = nil
         invalidateGeometry()
         availability = .stopped
@@ -370,7 +452,8 @@ public final class TacticalViewportRenderer: NSObject, MTKViewDelegate {
             return vertexBuffer != nil
         }
         let geometry = TacticalViewportGeometry.make(
-            size: size, status: status, telemetryHealth: health, increasedContrast: increasedContrast
+            size: size, status: status, telemetryHealth: health, increasedContrast: increasedContrast,
+            backgroundSRGB: framebuffer.configured ? TacticalViewportColor.canvasReferenceSRGB : nil
         )
         guard !geometry.vertices.isEmpty, let device = view.device else {
             availability = .unavailable("METAL GEOMETRY UNAVAILABLE")
@@ -434,6 +517,7 @@ public final class TacticalMetalViewportView: MTKView {
     private var isObservingInterlock = false
     private var lastAccessibilitySummary: String?
     private var synchronizedBackgroundStatus: InterlockStatus?
+    private var synchronizedFramebufferMode: Bool?
     private let availabilityLabel = NSTextField(labelWithString: "")
     private var hasAvailabilityTypeface = false
 
@@ -557,12 +641,12 @@ public final class TacticalMetalViewportView: MTKView {
             telemetry = "TELEMETRY UNAVAILABLE"
         }
         let observation = isObservingInterlock ? "STATE OBSERVED" : "STATE OBSERVATION INACTIVE"
-        let summary = "\(viewportRenderer.interlockStatus.rawValue). \(observation). \(telemetry). \(viewportRenderer.availability.summary). LOWER-RIGHT GLYPH: INTERLOCK CATEGORY, NOT A TARGET. NO GUEST DISPLAY FEED."
+        let summary = "\(viewportRenderer.interlockStatus.rawValue). \(observation). \(telemetry). \(viewportRenderer.availability.summary). LOWER-RIGHT GLYPH: INTERLOCK CATEGORY, NOT A TARGET. \(viewportRenderer.framebufferSummary)"
         guard lastAccessibilitySummary != summary else { return }
         lastAccessibilitySummary = summary
         setAccessibilityValue(summary)
         switch viewportRenderer.availability {
-        case .unavailable, .waitingForDrawable:
+        case .unavailable, .waitingForDrawable, .waitingForGPU:
             availabilityLabel.stringValue = viewportRenderer.availability.summary
             availabilityLabel.isHidden = !hasAvailabilityTypeface
         case .ready, .submitted, .stopped:
@@ -572,9 +656,10 @@ public final class TacticalMetalViewportView: MTKView {
 
     func synchronizeStateBackground(status explicitStatus: InterlockStatus? = nil) {
         let status = explicitStatus ?? viewportRenderer.interlockStatus
-        guard synchronizedBackgroundStatus != status else { return }
-        clearColor = TacticalViewportColor.clearColor(status: status)
-        let encoded = TacticalViewportColor.clearReferenceSRGB(status: status)
+        let isRemote = viewportRenderer.framebufferSourceConfigured
+        guard synchronizedBackgroundStatus != status || synchronizedFramebufferMode != isRemote else { return }
+        clearColor = isRemote ? TacticalViewportColor.canvasClearColor : TacticalViewportColor.clearColor(status: status)
+        let encoded = isRemote ? TacticalViewportColor.canvasReferenceSRGB : TacticalViewportColor.clearReferenceSRGB(status: status)
         // Core Animation receives an explicitly tagged encoded sRGB CGColor;
         // Metal receives the corresponding linear Display P3 clear value.
         if let layer {
@@ -582,6 +667,7 @@ public final class TacticalMetalViewportView: MTKView {
                 srgbRed: CGFloat(encoded.x), green: CGFloat(encoded.y), blue: CGFloat(encoded.z), alpha: 1
             )
             synchronizedBackgroundStatus = status
+            synchronizedFramebufferMode = isRemote
         }
     }
 

@@ -179,6 +179,86 @@ final class BridgePresentationTests: XCTestCase {
         XCTAssertEqual(model.key, old)
     }
 
+    func testNilFramebufferFeatureKeepsUnboundPresentation() {
+        let frame = ConsoleFramePresentation(snapshot: nil, isConfigured: false, isObserving: true)
+        XCTAssertEqual(frame.stateLabel, "UNBOUND")
+        XCTAssertEqual(frame.badge, "[FRAMEBUFFER UNBOUND]")
+        XCTAssertFalse(frame.hasReceivedFrame)
+        XCTAssertNil(frame.diagnostic)
+        XCTAssertTrue(frame.statisticsLabel.contains("RX: -- B"))
+    }
+
+    func testConfiguredFramebufferStandsByUntilAnActualFrameArrives() {
+        let initial = ConsoleFramePresentation(snapshot: nil, isConfigured: true, isObserving: true)
+        XCTAssertEqual(initial.stateLabel, "DETACHED")
+        XCTAssertEqual(initial.badge, "[STANDBY // CONTAINER DETACHED]")
+        for state in [FrameConnectionState.connecting, .negotiating, .connected] {
+            let frame = ConsoleFramePresentation(snapshot: frameSnapshot(state: state),
+                isConfigured: true, isObserving: true)
+            XCTAssertFalse(frame.hasReceivedFrame)
+            XCTAssertEqual(frame.badge, "[STANDBY // CONTAINER DETACHED]")
+            XCTAssertEqual(frame.stateLabel, state == .connected ? "AWAITING FRAME" : state.rawValue.uppercased())
+        }
+        let initialized = ConsoleFramePresentation(snapshot: frameSnapshot(state: .connected),
+            isConfigured: true, isObserving: true)
+        XCTAssertEqual(initialized.sourceLabel, "RFB SIZE: 1920×1080 // AWAITING PIXELS")
+    }
+
+    func testReceivedFrameReportsSourcePixelsAndAssumedNotVerifiedProfile() {
+        let frame = ConsoleFramePresentation(snapshot: frameSnapshot(state: .connected, receivedFrame: true),
+            isConfigured: true, isObserving: true)
+        XCTAssertTrue(frame.hasReceivedFrame)
+        XCTAssertEqual(frame.stateLabel, "STREAMING")
+        XCTAssertEqual(frame.sourceLabel, "SOURCE: 1920×1080 PX // ASSUMED sRGB")
+        XCTAssertEqual(frame.badge, "[READ-ONLY SOURCE // FRAME RECEIVED]")
+        XCTAssertTrue(frame.accessibilitySummary.contains("not GPU presentation FPS"))
+    }
+
+    func testRetiredOrFailedSourceNeverLabelsStaleFrameAsStreaming() {
+        for state in [FrameConnectionState.detached, .disconnecting, .failed] {
+            let frame = ConsoleFramePresentation(snapshot: frameSnapshot(state: state, receivedFrame: true),
+                isConfigured: true, isObserving: true)
+            XCTAssertFalse(frame.hasReceivedFrame)
+            XCTAssertNotEqual(frame.stateLabel, "STREAMING")
+            XCTAssertEqual(frame.badge, "[STANDBY // CONTAINER DETACHED]")
+            XCTAssertFalse(frame.sourceLabel.contains("1920×1080"))
+        }
+        let failed = ConsoleFramePresentation(snapshot: frameSnapshot(state: .connected, receivedFrame: true,
+            failure: .timedOut(.update)), isConfigured: true, isObserving: true)
+        XCTAssertFalse(failed.hasReceivedFrame)
+        XCTAssertEqual(failed.stateLabel, "FAILED")
+        XCTAssertEqual(failed.diagnostic, "TIMEOUT // UPDATE")
+        let unobserved = ConsoleFramePresentation(snapshot: frameSnapshot(state: .connected, receivedFrame: true),
+            isConfigured: true, isObserving: false)
+        XCTAssertEqual(unobserved.stateLabel, "UNOBSERVED")
+        XCTAssertFalse(unobserved.hasReceivedFrame)
+    }
+
+    func testFramebufferCountersUseActualValuesWithoutSyntheticPresentationRate() {
+        var statistics = FrameStatistics()
+        statistics.receivedBinaryPayloadBytes = 12345
+        statistics.receivedBinaryMessages = 7
+        statistics.completedUpdates = 9
+        statistics.noChangeUpdates = 2
+        statistics.publishedFrames = 5
+        statistics.replacedFrameDeliveries = 3
+        let frame = ConsoleFramePresentation(snapshot: frameSnapshot(state: .connected, receivedFrame: true,
+            statistics: statistics), isConfigured: true, isObserving: true)
+        XCTAssertEqual(frame.statisticsLabel,
+            "RX: 12345 B / 7 MSG // UPDATES: 9 // SAME: 2 // SRC: 5 // REPLACED: 3")
+        XCTAssertFalse(frame.statisticsLabel.contains("FPS"))
+        XCTAssertTrue(frame.accessibilitySummary.contains("not a total dropped-frame metric"))
+    }
+
+    private func frameSnapshot(
+        state: FrameConnectionState, receivedFrame: Bool = false,
+        failure: FrameError? = nil, statistics: FrameStatistics = FrameStatistics()
+    ) -> FrameSnapshot {
+        FrameSnapshot(revision: 1, generation: UUID(), state: state, width: 1920, height: 1080,
+            lastTrafficAt: nil, lastFrameAt: receivedFrame ? ContinuousClock.now : nil,
+            statistics: statistics, failure: failure)
+    }
+
     private func frame(arguments: String) -> Data {
         Data("{\"jsonrpc\":\"2.0\",\"id\":\"test\",\"method\":\"tools/call\",\"params\":{\"name\":\"test.tool\",\"arguments\":\(arguments)}}\n".utf8)
     }
