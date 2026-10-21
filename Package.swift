@@ -44,7 +44,14 @@ let package = Package(
         ),
         .target(
             name: "TacticalAudioSVS",
-            dependencies: ["TacticalCore"]
+            dependencies: ["TacticalCore", "CTacticalAudioRealtime"]
+        ),
+        .target(
+            name: "CTacticalAudioRealtime",
+            dependencies: [],
+            publicHeadersPath: "include",
+            cSettings: [.unsafeFlags(["-fno-objc-arc"])],
+            linkerSettings: [.linkedFramework("Foundation"), .linkedFramework("AVFoundation")]
         ),
         .target(
             name: "TacticalVirtualization",
@@ -74,12 +81,13 @@ let package = Package(
         ),
         .testTarget(
             name: "TacticalAudioSVSTests",
-            dependencies: ["TacticalAudioSVS", "TacticalCore"]
+            dependencies: ["TacticalAudioSVS", "TacticalCore", "CTacticalAudioRealtime"]
         ),
         .testTarget(
             name: "TacticalUITests",
             dependencies: ["TacticalUI", "TacticalCore", "TacticalVirtualization"]
         ),
     ],
-    swiftLanguageModes: [.v6]
+    swiftLanguageModes: [.v6],
+    cLanguageStandard: .c11
 )

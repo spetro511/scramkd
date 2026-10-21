@@ -16,6 +16,8 @@ final class SVSBridgeTests: XCTestCase {
         XCTAssertEqual(cue, .armedPulse)
         XCTAssertEqual(params?.frequencyHz, 440.0)
         XCTAssertEqual(params?.waveform, .sine)
+        XCTAssertEqual(params?.durationSeconds, 0.15)
+        XCTAssertEqual(params?.amplitude, 0.501187234)
     }
 
     func testPermissiveTransitionEmits880Hz() async throws {
@@ -30,6 +32,8 @@ final class SVSBridgeTests: XCTestCase {
         XCTAssertEqual(cue, .permissivePulse)
         XCTAssertEqual(params?.frequencyHz, 880.0)
         XCTAssertEqual(params?.waveform, .sine)
+        XCTAssertEqual(params?.durationSeconds, 0.20)
+        XCTAssertEqual(params?.amplitude, 0.630957344)
     }
 
     func testEmergencyAbortTransitionEmits1200HzSawPulse() async throws {
@@ -44,6 +48,8 @@ final class SVSBridgeTests: XCTestCase {
         XCTAssertEqual(cue, .emergencyAbortTrip)
         XCTAssertEqual(params?.frequencyHz, 1200.0)
         XCTAssertEqual(params?.waveform, .saw)
+        XCTAssertEqual(params?.durationSeconds, 0.50)
+        XCTAssertEqual(params?.amplitude, 0.891250938)
     }
 
     func testEndToEndGateObservationStreaming() async throws {
@@ -55,12 +61,10 @@ final class SVSBridgeTests: XCTestCase {
         let isObserving = await bridge.isObserving
         XCTAssertTrue(isObserving)
 
-        // 1. Arm gate -> 440Hz armed pulse
+        // Existing case identity retained; these assertions concern requests, not audibility.
         try await gate.arm()
-        for _ in 0..<50 {
-            if await synthesizer.currentActiveCue == .armedPulse { break }
-            try await Task.sleep(nanoseconds: 2_000_000)
-        }
+        let armObserved = try await bridge.waitForCursor(1)
+        XCTAssertTrue(armObserved)
         let armedCue = await synthesizer.currentActiveCue
         let armedParams = await synthesizer.lastSynthesizedParameters
         XCTAssertEqual(armedCue, .armedPulse)
@@ -68,10 +72,8 @@ final class SVSBridgeTests: XCTestCase {
 
         // 2. Grant permissive -> 880Hz permissive pulse
         try await gate.grantPermissive()
-        for _ in 0..<50 {
-            if await synthesizer.currentActiveCue == .permissivePulse { break }
-            try await Task.sleep(nanoseconds: 2_000_000)
-        }
+        let grantObserved = try await bridge.waitForCursor(2)
+        XCTAssertTrue(grantObserved)
         let permissiveCue = await synthesizer.currentActiveCue
         let permissiveParams = await synthesizer.lastSynthesizedParameters
         XCTAssertEqual(permissiveCue, .permissivePulse)
@@ -79,10 +81,8 @@ final class SVSBridgeTests: XCTestCase {
 
         // 3. Trip emergency abort -> 1200Hz saw pulse
         await gate.tripEmergencyAbort(reason: "AVIONICS_FAULT")
-        for _ in 0..<50 {
-            if await synthesizer.currentActiveCue == .emergencyAbortTrip { break }
-            try await Task.sleep(nanoseconds: 2_000_000)
-        }
+        let abortObserved = try await bridge.waitForCursor(3)
+        XCTAssertTrue(abortObserved)
         let abortCue = await synthesizer.currentActiveCue
         let abortParams = await synthesizer.lastSynthesizedParameters
         XCTAssertEqual(abortCue, .emergencyAbortTrip)
