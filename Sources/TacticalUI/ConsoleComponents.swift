@@ -187,6 +187,9 @@ struct ConsoleWindowChromeBar: View {
     let countdownTTL: String
     let bridgeSnapshot: BridgeSnapshot?
     let isBridgeConfigured: Bool
+    var audioStatusLabel: String = "OFFLINE"
+    var audioStatusColorName: String = "muted"
+    var residentMemoryMB: String = "--"
 
     var body: some View {
         let presentation = ConsoleGatePresentation(status: status, isObserving: isObserving)
@@ -212,7 +215,12 @@ struct ConsoleWindowChromeBar: View {
                     bridgeSnapshot?.connectionState ?? .detached,
                     configured: isBridgeConfigured, observing: isObserving
                 ))
-                ConsoleReadout(label: "MEM:", value: "--")
+                ConsoleReadout(
+                    label: "SVS:",
+                    value: audioStatusLabel,
+                    color: audioStatusColorName == "green" ? DesignTokens.green : (audioStatusColorName == "amber" ? DesignTokens.amber : DesignTokens.textMuted)
+                )
+                ConsoleReadout(label: "MEM:", value: residentMemoryMB)
             }
             Spacer(minLength: 4)
             HStack(spacing: 7) {

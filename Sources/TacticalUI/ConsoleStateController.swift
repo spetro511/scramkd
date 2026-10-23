@@ -1,4 +1,5 @@
 import Combine
+import Darwin
 import Foundation
 import os
 import TacticalCore
@@ -218,6 +219,9 @@ public final class ConsoleStateController: ObservableObject {
     @Published public var activeBay: String = "BAY-01"
     @Published public private(set) var bridgeSnapshot: BridgeSnapshot?
     @Published public private(set) var frameSnapshot: FrameSnapshot? = nil
+    @Published public private(set) var audioStatusLabel: String = "OFFLINE"
+    @Published public private(set) var audioStatusColorName: String = "muted"
+    @Published public private(set) var residentMemoryMB: String = "--"
     public let framebufferClient: FramebufferClient?
 
     public var bridgeConnectionState: BridgeConnectionState { bridgeSnapshot?.connectionState ?? .detached }
@@ -578,6 +582,43 @@ public final class ConsoleStateController: ObservableObject {
     public func emergencyAbort() async { await tripAbort() }
     public func forceAirgapDump() async { await perform(.forceAirgapDump) }
     public func resetEmergencyAbort() async { await perform(.resetEmergencyAbort) }
+
+    public func setAudioStatus(label: String, colorName: String = "muted") {
+        audioStatusLabel = label
+        audioStatusColorName = colorName
+    }
+
+    public func sampleSystemMetrics() {
+        var info = mach_task_basic_info()
+        var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size / 4)
+        let kerr = withUnsafeMutablePointer(to: &info) {
+            $0.withMemoryRebound(to: integer_t.self, capacity: Int(count)) {
+                task_info(mach_task_self_, task_flavor_t(MACH_TASK_BASIC_INFO), $0, &count)
+            }
+        }
+        if kerr == KERN_SUCCESS {
+            let mb = Double(info.resident_size) / (1024 * 1024)
+            residentMemoryMB = String(format: "%.1f MB", mb)
+        }
+    }
+
+    public func recordAudioAnnunciation(
+        description: String,
+        metric: String = "SVS",
+        tagColor: String = "amber",
+        isEmergency: Bool = false
+    ) {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss.SSS"
+        appendAudit(AuditLogRow(
+            timestamp: formatter.string(from: Date()),
+            subsystem: "SVS",
+            tagColor: tagColor,
+            description: description,
+            metric: metric,
+            isEmergency: isEmergency
+        ))
+    }
 
     public func attachBridge() async throws {
         let (bridge, session) = try bridgeSession()

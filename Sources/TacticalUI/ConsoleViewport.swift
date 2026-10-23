@@ -55,11 +55,7 @@ struct ConsoleViewport: View {
                         stateController: controller, framebufferClient: controller.framebufferClient
                     )
                     ConsoleViewportOverlay(
-                        status: controller.currentStatus,
-                        isObserving: controller.isObserving,
-                        activeBay: controller.activeBay,
-                        bridgeSnapshot: controller.bridgeSnapshot,
-                        isBridgeConfigured: controller.isBridgeConfigured,
+                        controller: controller,
                         frame: frame
                     )
                 }
@@ -149,17 +145,13 @@ private struct ConsoleViewportFooter: View {
 }
 
 private struct ConsoleViewportOverlay: View {
-    let status: InterlockStatus
-    let isObserving: Bool
-    let activeBay: String
-    let bridgeSnapshot: BridgeSnapshot?
-    let isBridgeConfigured: Bool
+    @ObservedObject var controller: ConsoleStateController
     let frame: ConsoleFramePresentation
 
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("\(activeBay) // \(ConsoleBay(rawValue: activeBay)?.title ?? "UNBOUND BAY")")
+                Text("\(controller.activeBay) // \(ConsoleBay(rawValue: controller.activeBay)?.title ?? "UNBOUND BAY")")
                     .font(DesignTokens.Font.labelSm)
                     .tracking(0.6)
                 Spacer(minLength: 0)
@@ -170,12 +162,12 @@ private struct ConsoleViewportOverlay: View {
             .padding(.top, 12)
             Spacer(minLength: 0)
             HStack(alignment: .top, spacing: 12) {
-                if activeBay == ConsoleBay.overview.rawValue {
-                    ConsoleInterceptCard(status: status, isObserving: isObserving,
-                        bridgeSnapshot: bridgeSnapshot, isBridgeConfigured: isBridgeConfigured, frame: frame)
+                if controller.activeBay == ConsoleBay.overview.rawValue {
+                    ConsoleInterceptCard(status: controller.currentStatus, isObserving: controller.isObserving,
+                        bridgeSnapshot: controller.bridgeSnapshot, isBridgeConfigured: controller.isBridgeConfigured, frame: frame)
                         .frame(maxWidth: 650)
                 } else {
-                    ConsoleUnboundBayCard(bay: ConsoleBay(rawValue: activeBay))
+                    ConsoleBayDetailCard(bay: ConsoleBay(rawValue: controller.activeBay), controller: controller)
                         .frame(maxWidth: 650)
                 }
                 // One reference target illustration, separate from the renderer's
@@ -299,6 +291,162 @@ private struct ConsoleInterceptCard: View {
         }
         .background(DesignTokens.canvasDark)
         .overlay { Rectangle().strokeBorder(DesignTokens.slateBorder, lineWidth: 1) }
+    }
+}
+
+private struct ConsoleBayDetailCard: View {
+    let bay: ConsoleBay?
+    @ObservedObject var controller: ConsoleStateController
+
+    var body: some View {
+        switch bay {
+        case .network:
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text("BAY-02 // NETWORK DEFENSE (CONTAINMENT)")
+                        .font(DesignTokens.Font.mono(11, weight: "Bold"))
+                    Spacer()
+                    Text("STATUS: \(controller.bridgeSnapshot?.connectionState.rawValue.uppercased() ?? "DETACHED")")
+                        .font(DesignTokens.Font.mono(9, weight: "SemiBold"))
+                        .foregroundStyle(controller.isBridgeConfigured && controller.bridgeSnapshot?.connectionState == .attached ? DesignTokens.green : DesignTokens.textDim)
+                }
+                ConsoleRule()
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack {
+                        Text("BRIDGE ENDPOINT:").foregroundStyle(DesignTokens.textMuted)
+                        Text("unix:///Users/surensahaydachny/.docker/run/docker.sock").monospacedDigit()
+                    }
+                    HStack {
+                        Text("FRAMEBUFFER LOOPBACK:").foregroundStyle(DesignTokens.textMuted)
+                        Text("127.0.0.1:7860/websockify (BSD TCP Raw)").monospacedDigit()
+                    }
+                    HStack {
+                        Text("SANDBOX ISOLATION:").foregroundStyle(DesignTokens.textMuted)
+                        Text("Zero-Trust Stdio Framing + 16KiB Bounded Chunking")
+                    }
+                    HStack {
+                        Text("OUTBOUND BYTES:").foregroundStyle(DesignTokens.textMuted)
+                        Text(controller.bridgeSnapshot?.latestTransfer.map { "\($0.bytesWritten) B (\($0.writeChunks) chunks)" } ?? "--").monospacedDigit()
+                    }
+                }
+                .font(DesignTokens.Font.mono(9))
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(DesignTokens.cardSlip)
+            .overlay { Rectangle().strokeBorder(DesignTokens.slateBorder, lineWidth: 1) }
+
+        case .avionics:
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text("BAY-03 // AVIONICS KINEMATICS & SVS")
+                        .font(DesignTokens.Font.mono(11, weight: "Bold"))
+                    Spacer()
+                    Text("AUDIO SVS: \(controller.audioStatusLabel)")
+                        .font(DesignTokens.Font.mono(9, weight: "SemiBold"))
+                        .foregroundStyle(controller.audioStatusColorName == "green" ? DesignTokens.green : (controller.audioStatusColorName == "amber" ? DesignTokens.amber : DesignTokens.textMuted))
+                }
+                ConsoleRule()
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack {
+                        Text("REAL-TIME ENGINE:").foregroundStyle(DesignTokens.textMuted)
+                        Text("AVAudioEngine + AVAudioSourceNode (MRC Native Block, Zero ARC)")
+                    }
+                    HStack {
+                        Text("LOCK-FREE QUEUE:").foregroundStyle(DesignTokens.textMuted)
+                        Text("C11 SPSC Ring Buffer + Atomic Mailbox Preemption")
+                    }
+                    HStack {
+                        Text("SYNTHESIS PROFILE:").foregroundStyle(DesignTokens.textMuted)
+                        Text("440Hz Sine / 880Hz Sine / 1200Hz Saw / 660-880Hz Harmonic Pulses")
+                    }
+                    HStack {
+                        Text("MASTER ATTENUATION:").foregroundStyle(DesignTokens.textMuted)
+                        Text("-24.0 dBFS (5 ms Linear Endpoint Fades)").monospacedDigit()
+                    }
+                }
+                .font(DesignTokens.Font.mono(9))
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(DesignTokens.cardSlip)
+            .overlay { Rectangle().strokeBorder(DesignTokens.slateBorder, lineWidth: 1) }
+
+        case .threats:
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text("BAY-04 // THREAT VECTOR MATRIX")
+                        .font(DesignTokens.Font.mono(11, weight: "Bold"))
+                    Spacer()
+                    Text("INTERCEPT: ACTIVE")
+                        .font(DesignTokens.Font.mono(9, weight: "SemiBold"))
+                        .foregroundStyle(DesignTokens.amber)
+                }
+                ConsoleRule()
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack {
+                        Text("GATED PRIVILEGED TOOLS:").foregroundStyle(DesignTokens.textMuted)
+                        Text("screenenv.bash_execute, screenenv.file_write, etc.")
+                    }
+                    HStack {
+                        Text("CLEARANCE LEASE:").foregroundStyle(DesignTokens.textMuted)
+                        Text("One-Shot Execution Lease; Auto-Relock On Wire Completion")
+                    }
+                    HStack {
+                        Text("WIRE VERIFICATION:").foregroundStyle(DesignTokens.textMuted)
+                        Text("Immutable SHA-256 Frame Fingerprint Validation")
+                    }
+                    HStack {
+                        Text("PROCESS PROVENANCE:").foregroundStyle(DesignTokens.textMuted)
+                        Text("App-Owned Local Dispatch; Zero Foreign Ingress")
+                    }
+                }
+                .font(DesignTokens.Font.mono(9))
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(DesignTokens.cardSlip)
+            .overlay { Rectangle().strokeBorder(DesignTokens.slateBorder, lineWidth: 1) }
+
+        case .orchestration:
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text("BAY-05 // CORE ORCHESTRATION")
+                        .font(DesignTokens.Font.mono(11, weight: "Bold"))
+                    Spacer()
+                    Text("INTERLOCK: \(controller.currentStatus.rawValue)")
+                        .font(DesignTokens.Font.mono(9, weight: "SemiBold"))
+                        .foregroundStyle(controller.currentStatus == .permissiveGranted ? DesignTokens.green : (controller.currentStatus == .armed ? DesignTokens.amber : (controller.currentStatus == .emergencyAbort ? DesignTokens.red : DesignTokens.lockedSlate)))
+                }
+                ConsoleRule()
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack {
+                        Text("SAFETY ACTOR:").foregroundStyle(DesignTokens.textMuted)
+                        Text("HardwareInterlockGate (Actor-Isolated, Sendable)")
+                    }
+                    HStack {
+                        Text("SYNCHRONIZATION:").foregroundStyle(DesignTokens.textMuted)
+                        Text("OSAllocatedUnfairLock Protected Waiters & Stream Observation")
+                    }
+                    HStack {
+                        Text("MEMORY USAGE:").foregroundStyle(DesignTokens.textMuted)
+                        Text("Resident Set Size: \(controller.residentMemoryMB)").monospacedDigit()
+                    }
+                    HStack {
+                        Text("TRANSITION RECOVERY:").foregroundStyle(DesignTokens.textMuted)
+                        Text("Strict Recovery Ladder: .emergencyAbort -> .locked Only")
+                    }
+                }
+                .font(DesignTokens.Font.mono(9))
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(DesignTokens.cardSlip)
+            .overlay { Rectangle().strokeBorder(DesignTokens.slateBorder, lineWidth: 1) }
+
+        case .overview, nil:
+            ConsoleUnboundBayCard(bay: bay)
+        }
     }
 }
 

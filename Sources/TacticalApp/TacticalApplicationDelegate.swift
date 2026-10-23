@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import TacticalAudioSVS
 import TacticalCore
 import TacticalUI
 import TacticalVirtualization
@@ -9,7 +10,12 @@ import os
 final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
     NSMenuDelegate, NSMenuItemValidation
 {
+    private let gate: HardwareInterlockGate
     private let controller: ConsoleStateController
+    private let synthesizer: TacticalToneSynthesizer
+    private let svsBridge: SVSBridge
+    private var isAudioOutputEnabled: Bool = false
+    private var isAudioMuted: Bool = false
     private var consoleWindow: NSWindow?
     private var keyboardMonitor: Any?
     private var lastMenuKeyEquivalentID: ConsoleMenuKeySnapshot.Identity?
@@ -32,6 +38,11 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
         let gate = HardwareInterlockGate()
         let bridge = ContainerSocketBridge(interlockGate: gate)
         let framebufferClient = FramebufferClient()
+        let synthesizer = TacticalToneSynthesizer()
+        let svsBridge = SVSBridge(synthesizer: synthesizer)
+        self.gate = gate
+        self.synthesizer = synthesizer
+        self.svsBridge = svsBridge
         self.controller = ConsoleStateController(
             interlockGate: gate, bridge: bridge, framebufferClient: framebufferClient
         )
@@ -119,7 +130,9 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
         installKeyboardMonitor()
 
         let previous = lifecycleTask
-        lifecycleTask = Task { @MainActor [weak self, controller] in
+        let gate = self.gate
+        let svsBridge = self.svsBridge
+        lifecycleTask = Task { @MainActor [weak self, controller, svsBridge, gate] in
             // Close/reopen cannot let an old stop tear down a newer subscription.
             await previous?.value
             guard !Task.isCancelled,
@@ -129,6 +142,8 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
                   self.consoleWindow != nil
             else { return }
             await controller.start()
+            await svsBridge.startObserving(gate: gate)
+            controller.sampleSystemMetrics()
         }
     }
 
@@ -151,7 +166,11 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
         activeBridgeOperation = nil
         for task in bridgeWork { task.cancel() }
 
-        lifecycleTask = Task { @MainActor [weak self, controller] in
+        let svsBridge = self.svsBridge
+        let synthesizer = self.synthesizer
+        lifecycleTask = Task { @MainActor [weak self, controller, svsBridge, synthesizer] in
+            await svsBridge.stopObserving()
+            await synthesizer.disableOutput()
             // Controller stop owns admission revocation and bridge/frame cleanup.
             // Never wait on an approval/response task before requesting teardown.
             await controller.stop()
@@ -388,6 +407,34 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
         submit.toolTip = "Attach, then arm manually before opening. Every tool request needs its own approval."
         addSubmenu(virtualizationMenu, to: mainMenu)
 
+        let audioMenu = makeMenu(title: "Audio")
+        let toggleOutput = audioMenu.addItem(
+            withTitle: "Enable Audio Output", action: #selector(toggleAudioOutput(_:)), keyEquivalent: "e"
+        )
+        toggleOutput.target = self
+        toggleOutput.keyEquivalentModifierMask = [.command, .option]
+
+        let toggleMute = audioMenu.addItem(
+            withTitle: "Mute Audio", action: #selector(toggleAudioMute(_:)), keyEquivalent: "m"
+        )
+        toggleMute.target = self
+        toggleMute.keyEquivalentModifierMask = [.command, .option]
+
+        audioMenu.addItem(.separator())
+        let cuesMenu = makeMenu(title: "Test Annunciator Cues")
+        let cueArmed = cuesMenu.addItem(withTitle: "Armed Pulse (440 Hz Sine)", action: #selector(testArmedPulseCue(_:)), keyEquivalent: "")
+        cueArmed.target = self
+        let cuePermissive = cuesMenu.addItem(withTitle: "Permissive Pulse (880 Hz Sine)", action: #selector(testPermissivePulseCue(_:)), keyEquivalent: "")
+        cuePermissive.target = self
+        let cueAbort = cuesMenu.addItem(withTitle: "Emergency Abort (1200 Hz Saw)", action: #selector(testAbortCue(_:)), keyEquivalent: "")
+        cueAbort.target = self
+        let cueCaution = cuesMenu.addItem(withTitle: "Caution Alert (660/880 Hz)", action: #selector(testCautionCue(_:)), keyEquivalent: "")
+        cueCaution.target = self
+        let cueWarning = cuesMenu.addItem(withTitle: "Warning Alarm (880/660 Hz)", action: #selector(testWarningCue(_:)), keyEquivalent: "")
+        cueWarning.target = self
+        addSubmenu(cuesMenu, to: audioMenu)
+        addSubmenu(audioMenu, to: mainMenu)
+
         let windowMenu = makeMenu(title: "Window")
         let show = windowMenu.addItem(withTitle: "Show Console", action: #selector(showConsoleFromMenu(_:)), keyEquivalent: "")
         show.target = self
@@ -435,6 +482,80 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
     @objc private func listMCPTools(_ sender: NSMenuItem) { handleBridgeMenu(.listTools) }
     @objc private func submitMCPToolRequest(_ sender: NSMenuItem) { handleBridgeMenu(.submitTool) }
 
+    @objc private func toggleAudioOutput(_ sender: NSMenuItem) {
+        if isAudioOutputEnabled {
+            isAudioOutputEnabled = false
+            controller.setAudioStatus(label: "OFFLINE", colorName: "muted")
+            controller.recordAudioAnnunciation(
+                description: "CoreAudio real-time output disabled",
+                metric: "OFFLINE",
+                tagColor: "slate"
+            )
+            let synthesizer = self.synthesizer
+            Task { @MainActor [synthesizer] in
+                await synthesizer.disableOutput()
+            }
+        } else {
+            isAudioOutputEnabled = true
+            controller.setAudioStatus(
+                label: isAudioMuted ? "MUTED" : "ACTIVE",
+                colorName: isAudioMuted ? "amber" : "green"
+            )
+            controller.recordAudioAnnunciation(
+                description: "CoreAudio real-time output enabled (48kHz, -24dB master)",
+                metric: "48kHz",
+                tagColor: "green"
+            )
+            let synthesizer = self.synthesizer
+            Task { @MainActor [synthesizer] in
+                do {
+                    try await synthesizer.enableOutput()
+                } catch {
+                    Logger(subsystem: "MOSDEF.TacticalApp", category: "audio")
+                        .error("Audio output enable failed: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+
+    @objc private func toggleAudioMute(_ sender: NSMenuItem) {
+        isAudioMuted.toggle()
+        if isAudioOutputEnabled {
+            controller.setAudioStatus(
+                label: isAudioMuted ? "MUTED" : "ACTIVE",
+                colorName: isAudioMuted ? "amber" : "green"
+            )
+        }
+        controller.recordAudioAnnunciation(
+            description: isAudioMuted ? "Audio annunciator muted" : "Audio annunciator unmuted",
+            metric: isAudioMuted ? "MUTED" : "UNMUTED",
+            tagColor: isAudioMuted ? "amber" : "green"
+        )
+        let synthesizer = self.synthesizer
+        let muted = self.isAudioMuted
+        Task { @MainActor [synthesizer] in
+            await synthesizer.setMuted(muted)
+        }
+    }
+
+    @objc private func testArmedPulseCue(_ sender: NSMenuItem) { testEnqueueCue(.armedPulse) }
+    @objc private func testPermissivePulseCue(_ sender: NSMenuItem) { testEnqueueCue(.permissivePulse) }
+    @objc private func testAbortCue(_ sender: NSMenuItem) { testEnqueueCue(.emergencyAbortTrip) }
+    @objc private func testCautionCue(_ sender: NSMenuItem) { testEnqueueCue(.masterCaution) }
+    @objc private func testWarningCue(_ sender: NSMenuItem) { testEnqueueCue(.masterWarning) }
+
+    private func testEnqueueCue(_ cue: ToneCue) {
+        controller.recordAudioAnnunciation(
+            description: "Test annunciator cue: \(cue.rawValue)",
+            metric: "TEST",
+            tagColor: "amber"
+        )
+        let synthesizer = self.synthesizer
+        Task { @MainActor [synthesizer] in
+            _ = try? await synthesizer.enqueueCue(cue)
+        }
+    }
+
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         switch menuItem.action {
         case #selector(armGate(_:)):
@@ -455,6 +576,18 @@ final class TacticalApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
             return bridgeMenuAvailable(.listTools)
         case #selector(submitMCPToolRequest(_:)):
             return bridgeMenuAvailable(.submitTool)
+        case #selector(toggleAudioOutput(_:)):
+            menuItem.title = isAudioOutputEnabled ? "Disable Audio Output" : "Enable Audio Output"
+            return !isTerminating
+        case #selector(toggleAudioMute(_:)):
+            menuItem.title = isAudioMuted ? "Unmute Audio" : "Mute Audio"
+            return !isTerminating
+        case #selector(testArmedPulseCue(_:)),
+             #selector(testPermissivePulseCue(_:)),
+             #selector(testAbortCue(_:)),
+             #selector(testCautionCue(_:)),
+             #selector(testWarningCue(_:)):
+            return !isTerminating
         default:
             return true
         }

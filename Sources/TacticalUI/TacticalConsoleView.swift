@@ -20,7 +20,10 @@ public struct TacticalConsoleView: View {
                 isObserving: controller.isObserving,
                 countdownTTL: controller.countdownTTL,
                 bridgeSnapshot: controller.bridgeSnapshot,
-                isBridgeConfigured: controller.isBridgeConfigured
+                isBridgeConfigured: controller.isBridgeConfigured,
+                audioStatusLabel: controller.audioStatusLabel,
+                audioStatusColorName: controller.audioStatusColorName,
+                residentMemoryMB: controller.residentMemoryMB
             )
             .frame(height: DesignTokens.Layout.chromeHeight)
 
