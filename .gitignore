@@ -17,12 +17,27 @@ service.json
 secrets/
 config.local.*
 
-# External agent skill packages (vendor-owned, pinned by skills-lock.json)
+# Local AI agents, prompts, orchestration state & development tooling (never committed)
 .agents/
 .claude/
 .config/
 .opencode/
+.opencode.json
+.system_generated/
+AGENTS.md
+.:AGENTS.md
+ANTIGRAVITY_PROMPT.md
+CLAUDE.md
+GEMINI.md
+OpenCode.md
+STATE.md
 skills-lock.json
+stitch-design/
+docs/NATIVE_CONSOLE_DESIGN.md
+docs/NATIVE_CONSOLE_RENDERING.md
+docs/NATIVE_CONSOLE_RUNBOOK.md
+docs/NATIVE_CONSOLE_VERIFICATION.md
+docs/PHASE4_VERIFICATION.md
 
 # Tooling caches
 .offline-markdown-preview/

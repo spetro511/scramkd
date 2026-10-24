@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: "🚨 Zero-Day Interlock Bypass / Private Vulnerability Report"
-    url: "https://github.com/spetro511/tactical-hypervisor-macos/security/advisories/new"
-    about: "Report an exploitable TOCTOU race, permit replay, or sandbox escape privately via GitHub Security Advisories."
-  - name: "🏛️ Architecture RFCs & Threat Model Discussions"
-    url: "https://github.com/spetro511/tactical-hypervisor-macos/discussions"
-    about: "Propose supervisor daemon RFCs, discuss Darwin/XPC/virtualization primitives, or debate threat models in GitHub Discussions."
+  - name: "🚨 Found an Exploitable Interlock Bypass? (Private Security Advisory)"
+    url: "https://github.com/spetro511/scramkd/security/advisories/new"
+    about: "Do not drop zero-days in public issues. Send TOCTOU races, permit replays, or container escape vectors privately here (24h human ACK / 72h XCTest triage)."
+  - name: "🏛️ Systems Architecture RFCs & Threat Modeling (GitHub Discussions)"
+    url: "https://github.com/spetro511/scramkd/discussions"
+    about: "Debate Darwin/launchd IPC, Swift 6 actor isolation, or non-exploit threat models with other systems engineers."

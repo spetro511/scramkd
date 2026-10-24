@@ -5,25 +5,25 @@ body:
     attributes:
       value: |
         ### `scramkd` Systems Architecture RFC
-        Propose structural enhancements to the Darwin supervisor daemon, hardware interlock state machine, or container/VM transport layer.
+        We don't add complexity to `scramkd` unless it measurably tightens containment, cuts latency on the safety path, or eliminates operator error. Remember the core thesis: **`P(Safety) != 1.0 ==> UNACCEPTABLE ON BARE METAL`**. No runtime LLM inference on the safety path, no cloud dependencies, and no shared mutable state.
   - type: textarea
     id: motivation
     attributes:
-      label: "1. Problem Statement & Threat Context"
-      description: "What failure mode, latency bottleneck, or containment gap does this RFC address?"
+      label: "1. What Problem Are We Actually Solving?"
+      description: "What concrete containment gap, Darwin/IPC bottleneck, or operator failure mode exists today? Why can't it be solved with the current primitives?"
     validations:
       required: true
   - type: textarea
     id: design
     attributes:
       label: "2. Proposed Swift 6 / C11 Contract & Isolation Model"
-      description: "Specify actor ownership, Sendable types, and failure semantics."
+      description: "Be specific: which actor owns the state, what crosses isolation boundaries as Sendable, how are locks/descriptors fenced on abort, and what happens when the caller cancels mid-flight?"
     validations:
       required: true
   - type: textarea
     id: verification
     attributes:
-      label: "3. Deterministic Verification Plan"
-      description: "How will this RFC be proven under -strict-concurrency=complete and Maker-Breaker fault injection?"
+      label: "3. How Do We Prove It Doesn't Lie?"
+      description: "How will we test this deterministically under `-Xswiftc -strict-concurrency=complete` and adversarial fault injection without relying on flaky sleeps or manual UI inspection?"
     validations:
       required: true

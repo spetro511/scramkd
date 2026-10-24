@@ -38,7 +38,7 @@ final class BridgeToolRequestSheet: NSObject, NSTextViewDelegate {
             "Arm the gate manually before opening this form. Submit closes the sheet before dispatch. "
             + "Then review the pending request and grant within its five-second approval window, or abort. "
             + "Every tool call needs its own approval; full transmission relocks the gate. "
-            + "Only this app's requests are intercepted. External .opencode.json Docker traffic is unchanged and unprotected."
+            + "Only this app's requests are intercepted. External direct Docker traffic is unchanged and unprotected."
         )
         let limits = NSTextField(wrappingLabelWithString:
             "Name + arguments: at most 1 MiB of UTF-8. The backend separately validates JSON, tool names, "

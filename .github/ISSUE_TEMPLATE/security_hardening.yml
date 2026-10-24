@@ -1,16 +1,17 @@
 name: "🛡️ Security Hardening & Boundary Enforcement"
-description: "Propose or track a deterministic defense-in-depth hardening requirement across ScramK* targets."
+description: "Track a concrete systems/IPC hardening requirement or close an explicitly marked NOT IMPLEMENTED boundary."
 title: "[SEC-XXX-00] "
 labels: ["security:containment"]
 body:
   - type: markdown
     attributes:
       value: |
-        > **WARNING**: Do **not** file exploitable zero-day interlock bypasses here. Use [GitHub Private Vulnerability Reporting](https://github.com/spetro511/tactical-hypervisor-macos/security/advisories/new).
+        > **Hold up:** If you found an exploitable bypass in a boundary we already claim is enforced, **do not post it here**. File a [Private Security Advisory](https://github.com/spetro511/scramkd/security/advisories/new) instead. Use this form for public Stage 3+ engineering hardening, closing explicit `NOT IMPLEMENTED` surfaces, and tightening defense-in-depth contracts.
   - type: dropdown
     id: subsystem
     attributes:
       label: "Target Subsystem"
+      description: "Which Swift 6 / C11 target owns the boundary you're hardening?"
       options:
         - "ScramKCore (HardwareInterlockGate / PermissivePermit)"
         - "ScramKVirtualization (ContainerSocketBridge / ContainerCreationPolicy / MCP / RFB)"
@@ -23,20 +24,29 @@ body:
     id: cwe
     attributes:
       label: "Primary CWE Mapping"
-      placeholder: "e.g., CWE-284 (Improper Access Control), CWE-367 (TOCTOU)"
+      description: "Anchor the failure mode to the specific CWE(s) it eliminates."
+      placeholder: "e.g., CWE-284 (Improper Access Control), CWE-306 (Missing Authentication for Critical Function)"
+    validations:
+      required: true
+  - type: textarea
+    id: current_state
+    attributes:
+      label: "Where the Code Stands Today"
+      description: "Point to the exact file, symbol, and line range in Sources/ or LaunchDaemons/. What does the code actually do right now, and why does that gap exist?"
+      placeholder: "e.g., Sources/scramkctl/ScramKCLI.swift#L5-L36 currently instantiates an in-process HardwareInterlockGate rather than connecting to /var/run/scramkd/control.sock..."
     validations:
       required: true
   - type: textarea
     id: threat_model
     attributes:
-      label: "Threat Model & Boundary Invariant"
-      description: "State the concrete adversarial mechanism and the deterministic boundary invariant that must hold."
+      label: "The Kernel / IPC / Memory Attack Surface"
+      description: "Skip generic security boilerplate. Walk through the exact mechanism an attacker or rogue agent loop would abuse if this boundary is left open or implemented naively."
     validations:
       required: true
   - type: textarea
     id: acceptance_criteria
     attributes:
-      label: "Deterministic Acceptance Criteria & XCTest Coverage"
-      description: "Specify the exact compile-time and XCTest assertions required to close this issue."
+      label: "Definition of Done (Code & Deterministic XCTest Gate)"
+      description: "What concrete code changes, POSIX/Darwin syscalls, and failing-to-passing XCTests are required before we call this closed?"
     validations:
       required: true

@@ -310,9 +310,9 @@ plutil -lint LaunchDaemons/com.scramk.daemon.plist
 
 | Channel | Scope & Operational Purpose | Artifact / Endpoint |
 | --- | --- | --- |
-| **Private Vulnerability Disclosure** | Zero-day interlock bypasses, TOCTOU races, permit replay, or sandbox escape vectors (`24h` ACK / `72h` deterministic XCTest triage). | [SECURITY.md](SECURITY.md) · [Open Private Advisory](https://github.com/spetro511/tactical-hypervisor-macos/security/advisories/new) |
-| **Stage 3 Security & IPC Backlog** | CWE-mapped engineering backlog (`[SEC-IPC-01]` through `[GOV-AGENTS-04]`) and Maker-Breaker mutation verification reports. | [docs/GITHUB_ISSUES_BACKLOG.md](docs/GITHUB_ISSUES_BACKLOG.md) · [GitHub Issues](https://github.com/spetro511/tactical-hypervisor-macos/issues) |
-| **Systems Architecture RFCs & Threat Modeling** | Public RFCs, Darwin/XPC supervisor design debates, and non-exploit threat model discussions. | [GitHub Discussions](https://github.com/spetro511/tactical-hypervisor-macos/discussions) |
+| **Private Vulnerability Disclosure** | Zero-day interlock bypasses, TOCTOU races, permit replay, or sandbox escape vectors (`24h` ACK / `72h` deterministic XCTest triage). | [SECURITY.md](SECURITY.md) · [Open Private Advisory](https://github.com/spetro511/scramkd/security/advisories/new) |
+| **Stage 3 Security & IPC Backlog** | CWE-mapped engineering backlog (`[SEC-IPC-01]` through `[GOV-HYGIENE-04]`) and adversarial mutation verification suites. | [docs/GITHUB_ISSUES_BACKLOG.md](docs/GITHUB_ISSUES_BACKLOG.md) · [GitHub Issues](https://github.com/spetro511/scramkd/issues) |
+| **Systems Architecture RFCs & Threat Modeling** | Public RFCs, Darwin/XPC supervisor design debates, and non-exploit threat model discussions. | [GitHub Discussions](https://github.com/spetro511/scramkd/discussions) |
 
 ---
 

@@ -1,4 +1,4 @@
-# Hardening Analysis — Tactical Hypervisor
+# Hardening Analysis — `scramkd` MCP Transport Remediation
 
 **Scope:** Follow-up audit of the changes landed after the initial repository
 bootstrap (`ae736f9..5f54dbc`), focused on the `screenenv_container` MCP
@@ -38,7 +38,7 @@ child pipe. If the child has already exited (container restart, Docker daemon
 hiccup, `python -m screenenv.mcp_server` unhandled exception), the pipe read end
 is closed. macOS delivers `SIGPIPE` to the *writing* process, whose default
 disposition is termination. Swift does not install a `SIG_IGN` handler, so the
-parent Tactical Hypervisor app dies with signal 13.
+parent `scramkd` supervisor process dies with signal 13.
 
 ### 2.2 Kernel Pipe-Buffer Deadlock (issue 2)
 
@@ -65,7 +65,7 @@ subsequent low-risk command queues behind a permanently suspended actor call.
 domain `NSCocoaErrorDomain`, code 510 on broken pipe). The original
 `try stdinHandle.write(...)` propagated the raw `Error` value, which violated
 the "every transport failure is a `HardwareInterlockError`" contract that
-`SVSBridge`, `TacticalViewportRenderer`, and every UI path rely on for typed
+`SVSBridge`, `ScramKViewportRenderer`, and every UI path rely on for typed
 handling. The interlock layer effectively became unable to distinguish
 "transport down" from "gate locked" from "unknown Cocoa fault".
 
@@ -177,11 +177,11 @@ trigger.
   added and threaded through `ToneParameters`.
 - `SVSBridge.ingestTelemetry` now reacts to every `InterlockStatus` transition,
   not only emergency abort — the operator can *hear* arm / permissive-grant.
-- `TacticalViewportRenderer.draw` selects a per-state `clearColor` (locked =
+- `ScramKViewportRenderer.draw` selects a per-state `clearColor` (locked =
   cool slate, armed = amber, permissive = green, abort = red). Viewport exposes
   `updateTelemetry(_:)` and `ingestTelemetry(_:)` so the interlock's new
   `AsyncStream` can bind directly to the HUD.
-- `TacticalToneSynthesizer` accumulates `lastSynthesizedParameters` and
+- `ScramKToneSynthesizer` accumulates `lastSynthesizedParameters` and
   `totalTonesSynthesized` to make the CoreAudio stub path observable from tests.
 
 ### 5.3 `5f54dbc` — Docs / hygiene
@@ -189,9 +189,6 @@ trigger.
 - `.gitignore` extended with `application_default_credentials.json` and
   `service.json` — closes an operational-hygiene gap where cloud / service
   principal JSON blobs could be committed by accident during development.
-- Renamed the agent directive file from the mis-named `.:AGENTS.md` to
-  canonical `AGENTS.md` (colon-prefixed filename was macOS-Finder-hostile and
-  broke tooling that globs `AGENTS.md`).
 
 ---
 
@@ -230,6 +227,6 @@ trigger.
 
 **Repository custodian & author:** @spetro511 (Suren Sahaydachny)
 **GitHub:** <https://github.com/spetro511>
-**Remote:** `origin → https://github.com/spetro511/tactical-hypervisor-macos.git`
+**Remote:** `origin → https://github.com/spetro511/scramkd.git`
 
 *Deterministic. Zero AI footprint. Interlock-gated.*

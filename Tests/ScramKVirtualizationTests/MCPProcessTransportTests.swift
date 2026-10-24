@@ -391,7 +391,7 @@ os.close(release)
 sys.exit(0 if value == b'x' else 61)
 """#)
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("opencode", isDirectory: true)
+            .appendingPathComponent("scramkd-tests", isDirectory: true)
             .appendingPathComponent("mcp-stop-fixture-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
         let releaseURL = directory.appendingPathComponent("release.fifo")

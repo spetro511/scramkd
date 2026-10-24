@@ -1,12 +1,17 @@
 name: "⚡ Adversarial Breaker Regression / Concurrency Probe"
-description: "Report a non-exploitable state-machine race, continuation leak, or strict-concurrency edge case."
+description: "Report a state-machine race, continuation leak, POSIX pipe edge case, or strict-concurrency fault."
 title: "[BREAKER-00] "
 labels: ["severity:medium"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Maker-Breaker Concurrency & Fault Probe
+        In `scramkd`, every actor state transition and pipe handoff is expected to survive 100-waiter cancellation storms and POSIX fault injection without leaking a single continuation or file descriptor. If you found a timing window, lock contention trap, or edge case that needs a permanent Breaker test, lay it out below.
   - type: dropdown
     id: target
     attributes:
-      label: "Test Target"
+      label: "Owning Test Target"
       options:
         - "ScramKCoreTests"
         - "ScramKVirtualizationTests"
@@ -17,14 +22,15 @@ body:
   - type: textarea
     id: mechanism
     attributes:
-      label: "State-Transition / Concurrency Mechanism"
-      description: "Describe the actor isolation boundary, OSAllocatedUnfairLock critical section, or POSIX descriptor lifecycle under test."
+      label: "What Breaks & Why (Actor / Lock / Descriptor Lifecycle)"
+      description: "Trace the exact sequence of events across actor boundaries, OSAllocatedUnfairLock critical sections, or nonblocking POSIX I/O that triggers the fault."
     validations:
       required: true
   - type: textarea
     id: reproducer
     attributes:
       label: "Deterministic XCTest Reproducer"
+      description: "Paste the XCTest snippet or swift test invocation that reproduces the failure under complete strict concurrency."
       placeholder: "swift test -Xswiftc -strict-concurrency=complete --filter ..."
     validations:
       required: true

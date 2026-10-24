@@ -44,7 +44,7 @@ Multi-target Swift Package Manager configuration with a `.macOS(.v14)` platform 
 - **`MB-05` Constant-Time SHA-256 Hex Digest Comparison**: Eliminated timing side-channels in wire payload digest verification.
 - **`MB-06` Bounded `ActiveHoldPolicy`**: Enforced physical hold-to-grant dead-man switch with monotonic ceiling and instant relock on key-up or focus loss.
 - **`MB-07` 3-Tier Progressive Disclosure HUD**: Structured `ScramKUI` into Tier 1 Primary Flight Display, Tier 2 Collapsible Diagnostic Drawer, and Tier 3 Modal Inspection Sheets.
-- **`MB-08` Documentation & Governance Rebrand**: Synchronized `README.md`, `AGENTS.md`, `STATE.md`, and `PROGRESS.md` to canonical `scramkd` architecture.
+- **`MB-08` Documentation & Governance Rebrand**: Synchronized `README.md`, `SECURITY.md`, `docs/GITHUB_ISSUES_BACKLOG.md`, and `PROGRESS.md` to canonical `scramkd` architecture.
 
 ## Roadmap Status
 
@@ -57,4 +57,4 @@ Multi-target Swift Package Manager configuration with a `.macOS(.v14)` platform 
 | `MB-00` | Atomic `scramkd` / `scramkctl` / `ScramK*` target & symbol cutover | Complete |
 | `MB-01`..`MB-05` | Track A: `PermissivePermit`, `ContainerSecurityProfile`, Writer Handoff, Env Scrubber, Constant-Time SHA-256 | Complete |
 | `MB-06`..`MB-07` | Track B: Bounded `ActiveHoldPolicy` & 3-Tier Progressive Disclosure HUD | Complete |
-| `MB-08` | Final Documentation & Governance Synchronization (`README.md`, `AGENTS.md`, `STATE.md`, `PROGRESS.md`) | Complete |
+| `MB-08` | Final Documentation & Governance Synchronization (`README.md`, `SECURITY.md`, `PROGRESS.md`) | Complete |

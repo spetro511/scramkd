@@ -4,16 +4,18 @@ body:
   - type: markdown
     attributes:
       value: |
-        ### `scramkd` Public Threat Modeling & Boundary Analysis
-        > **Reminder**: For exploitable zero-day bypasses, use [GitHub Private Vulnerability Reporting](https://github.com/spetro511/tactical-hypervisor-macos/security/advisories/new). Use this template for public architectural threat modeling, CWE surface analysis, and Maker-Breaker test design.
+        ### `scramkd` Public Threat Modeling & Red-Team Hypothesis
+        > **Ground Rule:** If you have a live exploit that bypasses an enforced boundary, stop and file a [Private Security Advisory](https://github.com/spetro511/scramkd/security/advisories/new).
+        >
+        > Use this discussion category to pressure-test our architectural assumptions in the open—thinking like an adversary (or an abliterated agent swarm with raw shell access) probing the boundary between container space and Darwin host memory.
   - type: dropdown
     id: boundary
     attributes:
-      label: "Boundary Under Analysis"
+      label: "Containment Boundary Under Analysis"
       options:
         - "HardwareInterlockGate / PermissivePermit (ScramKCore)"
         - "ContainerCreationPolicy / ContainerSocketBridge (ScramKVirtualization)"
-        - "MCPProcessTransport / Environment Scrubber (ScramKVirtualization)"
+        - "MCPProcessTransport / 7-Key Environment Scrubber (ScramKVirtualization)"
         - "ActiveHoldPolicy / 3-Tier Display P3 HUD (ScramKUI)"
         - "LaunchDaemon / scramkctl Control Socket (scramkd / scramkctl)"
     validations:
@@ -21,14 +23,14 @@ body:
   - type: textarea
     id: attack_surface
     attributes:
-      label: "Adversarial Hypothesis & Attack Surface"
-      description: "Describe the untrusted input, timing window, or OS boundary being analyzed."
+      label: "The Adversarial Hypothesis"
+      description: "Assume the agent container is already compromised at tick zero. What timing window, parser ambiguity, OS descriptor nuance, or operator-fatigue trap are you targeting?"
     validations:
       required: true
   - type: textarea
     id: countermeasure
     attributes:
-      label: "Proposed Deterministic Invariant / Breaker Test"
-      description: "Outline the compile-time or runtime invariant and corresponding XCTest assertion."
+      label: "Proposed Deterministic Countermeasure & Breaker Test"
+      description: "How do we kill this entire bug class deterministically (compile-time invariant, kernel socket option, or actor fence), and what XCTest proves the door stays shut?"
     validations:
       required: true
