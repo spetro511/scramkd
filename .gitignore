@@ -4,5 +4,26 @@ Packages/
 *.xcodeproj
 *.xcworkspace
 .DS_Store
+
+# Secrets, credentials, and private configuration
 application_default_credentials.json
 service.json
+.agent.cloud.config
+.env
+.env.*
+*.pem
+*.p12
+*.key
+secrets/
+config.local.*
+
+# External agent skill packages (vendor-owned, pinned by skills-lock.json)
+.agents/
+.claude/
+.config/
+.opencode/
+skills-lock.json
+
+# Tooling caches
+.offline-markdown-preview/
+*.log
