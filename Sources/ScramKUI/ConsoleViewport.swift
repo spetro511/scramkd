@@ -314,7 +314,7 @@ private struct ConsoleBayDetailCard: View {
                 VStack(alignment: .leading, spacing: 5) {
                     HStack {
                         Text("BRIDGE ENDPOINT:").foregroundStyle(DesignTokens.textMuted)
-                        Text("unix:///Users/surensahaydachny/.docker/run/docker.sock").monospacedDigit()
+                        Text("unix://~/.docker/run/docker.sock").monospacedDigit()
                     }
                     HStack {
                         Text("FRAMEBUFFER LOOPBACK:").foregroundStyle(DesignTokens.textMuted)

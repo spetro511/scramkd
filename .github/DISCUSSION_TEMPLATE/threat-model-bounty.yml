@@ -1,0 +1,34 @@
+title: "[THREAT-MODEL] "
+labels: ["security:containment"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### `scramkd` Public Threat Modeling & Boundary Analysis
+        > **Reminder**: For exploitable zero-day bypasses, use [GitHub Private Vulnerability Reporting](https://github.com/spetro511/tactical-hypervisor-macos/security/advisories/new). Use this template for public architectural threat modeling, CWE surface analysis, and Maker-Breaker test design.
+  - type: dropdown
+    id: boundary
+    attributes:
+      label: "Boundary Under Analysis"
+      options:
+        - "HardwareInterlockGate / PermissivePermit (ScramKCore)"
+        - "ContainerCreationPolicy / ContainerSocketBridge (ScramKVirtualization)"
+        - "MCPProcessTransport / Environment Scrubber (ScramKVirtualization)"
+        - "ActiveHoldPolicy / 3-Tier Display P3 HUD (ScramKUI)"
+        - "LaunchDaemon / scramkctl Control Socket (scramkd / scramkctl)"
+    validations:
+      required: true
+  - type: textarea
+    id: attack_surface
+    attributes:
+      label: "Adversarial Hypothesis & Attack Surface"
+      description: "Describe the untrusted input, timing window, or OS boundary being analyzed."
+    validations:
+      required: true
+  - type: textarea
+    id: countermeasure
+    attributes:
+      label: "Proposed Deterministic Invariant / Breaker Test"
+      description: "Outline the compile-time or runtime invariant and corresponding XCTest assertion."
+    validations:
+      required: true

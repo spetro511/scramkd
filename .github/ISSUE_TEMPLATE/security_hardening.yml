@@ -1,0 +1,42 @@
+name: "🛡️ Security Hardening & Boundary Enforcement"
+description: "Propose or track a deterministic defense-in-depth hardening requirement across ScramK* targets."
+title: "[SEC-XXX-00] "
+labels: ["security:containment"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > **WARNING**: Do **not** file exploitable zero-day interlock bypasses here. Use [GitHub Private Vulnerability Reporting](https://github.com/spetro511/tactical-hypervisor-macos/security/advisories/new).
+  - type: dropdown
+    id: subsystem
+    attributes:
+      label: "Target Subsystem"
+      options:
+        - "ScramKCore (HardwareInterlockGate / PermissivePermit)"
+        - "ScramKVirtualization (ContainerSocketBridge / ContainerCreationPolicy / MCP / RFB)"
+        - "ScramKAudio / CScramKAudioRealtime (CoreAudio SVS / C11 Ring Buffer)"
+        - "ScramKUI (3-Tier Display P3 HUD / ActiveHoldPolicy)"
+        - "scramkd / scramkctl (Supervisor Daemon / Operator CLI / launchd)"
+    validations:
+      required: true
+  - type: input
+    id: cwe
+    attributes:
+      label: "Primary CWE Mapping"
+      placeholder: "e.g., CWE-284 (Improper Access Control), CWE-367 (TOCTOU)"
+    validations:
+      required: true
+  - type: textarea
+    id: threat_model
+    attributes:
+      label: "Threat Model & Boundary Invariant"
+      description: "State the concrete adversarial mechanism and the deterministic boundary invariant that must hold."
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: "Deterministic Acceptance Criteria & XCTest Coverage"
+      description: "Specify the exact compile-time and XCTest assertions required to close this issue."
+    validations:
+      required: true

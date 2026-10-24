@@ -1,0 +1,30 @@
+name: "⚡ Adversarial Breaker Regression / Concurrency Probe"
+description: "Report a non-exploitable state-machine race, continuation leak, or strict-concurrency edge case."
+title: "[BREAKER-00] "
+labels: ["severity:medium"]
+body:
+  - type: dropdown
+    id: target
+    attributes:
+      label: "Test Target"
+      options:
+        - "ScramKCoreTests"
+        - "ScramKVirtualizationTests"
+        - "ScramKAudioTests"
+        - "ScramKUITests"
+    validations:
+      required: true
+  - type: textarea
+    id: mechanism
+    attributes:
+      label: "State-Transition / Concurrency Mechanism"
+      description: "Describe the actor isolation boundary, OSAllocatedUnfairLock critical section, or POSIX descriptor lifecycle under test."
+    validations:
+      required: true
+  - type: textarea
+    id: reproducer
+    attributes:
+      label: "Deterministic XCTest Reproducer"
+      placeholder: "swift test -Xswiftc -strict-concurrency=complete --filter ..."
+    validations:
+      required: true

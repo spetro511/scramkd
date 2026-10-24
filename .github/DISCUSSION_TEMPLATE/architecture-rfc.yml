@@ -1,0 +1,29 @@
+title: "[RFC] "
+labels: ["architecture-rfc"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### `scramkd` Systems Architecture RFC
+        Propose structural enhancements to the Darwin supervisor daemon, hardware interlock state machine, or container/VM transport layer.
+  - type: textarea
+    id: motivation
+    attributes:
+      label: "1. Problem Statement & Threat Context"
+      description: "What failure mode, latency bottleneck, or containment gap does this RFC address?"
+    validations:
+      required: true
+  - type: textarea
+    id: design
+    attributes:
+      label: "2. Proposed Swift 6 / C11 Contract & Isolation Model"
+      description: "Specify actor ownership, Sendable types, and failure semantics."
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: "3. Deterministic Verification Plan"
+      description: "How will this RFC be proven under -strict-concurrency=complete and Maker-Breaker fault injection?"
+    validations:
+      required: true

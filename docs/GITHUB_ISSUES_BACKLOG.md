@@ -2,7 +2,7 @@
 
 **Audit Authority**: `tactical-security-architect`  
 **Target Release Baseline**: `scramkd` `v0.4.0`  
-**Governance Mandate**: Truthful capability reporting, fail-closed boundary enforcement, and deterministic verification ([AGENTS.md](file:///Users/surensahaydachny/MOSDEF/tactical-hypervisor-macos/AGENTS.md#L1-L101)).
+**Governance Mandate**: Truthful capability reporting, fail-closed boundary enforcement, portable relative path hygiene, and deterministic verification ([AGENTS.md](../AGENTS.md#L1-L101)).
 
 ---
 
@@ -26,7 +26,7 @@ gh label create "subsystem:scramkctl"            --color "006B75" --description 
 | `[SEC-IPC-01]` | Wire `scramkctl` to `/var/run/scramkd/control.sock` with `LOCAL_PEERCRED` Verification | `P1` | `HIGH` | `CWE-284`, `CWE-306` | `OPEN` |
 | `[SEC-INTERLOCK-02]` | Implement F12 Airgap Telemetry Dump & Cryptographic Wipe (`forceAirgapDump`) | `P2` | `MEDIUM` | `CWE-665`, `CWE-325` | `OPEN` |
 | `[SEC-CI-03]` | Live Container Runtime E2E CI Runner & `LOOPBACK_FB` / `STRICT_AIRGAP` Probe | `P2` | `MEDIUM` | `CWE-693`, `CWE-436` | `OPEN` |
-| `[GOV-AGENTS-04]` | Continuous CI Lint Gate Preventing Legacy Namespace Drift Across `.agents/` & `docs/` | `P3` | `LOW` | `CWE-1059` | `OPEN` |
+| `[GOV-AGENTS-04]` | Continuous CI Lint Gate Preventing Legacy Namespace Drift & Hardcoded Host Paths | `P3` | `LOW` | `CWE-1059`, `CWE-200` | `OPEN` |
 
 ---
 
@@ -39,17 +39,17 @@ gh label create "subsystem:scramkctl"            --color "006B75" --description 
   - `CWE-306`: Missing Authentication for Critical Function
 
 ### Evidence & Code Citations
-- [`ScramKCLI.main()`](file:///Users/surensahaydachny/MOSDEF/tactical-hypervisor-macos/Sources/scramkctl/ScramKCLI.swift#L5-L34) currently instantiates an in-process [`HardwareInterlockGate`](file:///Users/surensahaydachny/MOSDEF/tactical-hypervisor-macos/Sources/scramkctl/ScramKCLI.swift#L9) and executes `status`, `grant`, and `abort` against local process memory for deterministic CLI contract validation rather than communicating with a running `scramkd` daemon over IPC.
-- [`LaunchDaemons/com.scramk.daemon.plist`](file:///Users/surensahaydachny/MOSDEF/tactical-hypervisor-macos/LaunchDaemons/com.scramk.daemon.plist#L17-L30) provisions `SCRAMKD_CONTROL_SOCKET=/var/run/scramkd/control.sock` and a launchd UNIX domain socket dictionary `Sockets.ControlSocket` with `SockPathName=/var/run/scramkd/control.sock` and `SockPathMode=384` (`0600` octal).
+- [`ScramKCLI.main()`](../Sources/scramkctl/ScramKCLI.swift#L5-L34) currently instantiates an in-process [`HardwareInterlockGate`](../Sources/scramkctl/ScramKCLI.swift#L9) and executes `status`, `grant`, and `abort` against local process memory for deterministic CLI contract validation rather than communicating with a running `scramkd` daemon over IPC.
+- [`LaunchDaemons/com.scramk.daemon.plist`](../LaunchDaemons/com.scramk.daemon.plist#L17-L30) provisions `SCRAMKD_CONTROL_SOCKET=/var/run/scramkd/control.sock` and a launchd UNIX domain socket dictionary `Sockets.ControlSocket` with `SockPathName=/var/run/scramkd/control.sock` and `SockPathMode=384` (`0600` octal).
 
 ### Threat Model & Boundary Invariant
-- **Threat**: Without an authenticated UNIX domain control channel between `scramkctl` and `scramkd`, out-of-band CLI invocations (`scramkctl abort` / `scramkctl grant`) do not mutate the live daemon's [`HardwareInterlockGate`](file:///Users/surensahaydachny/MOSDEF/tactical-hypervisor-macos/Sources/ScramKCore/InterlockEngine.swift#L19-L260). Conversely, if `/var/run/scramkd/control.sock` is exposed without kernel-enforced peer credential inspection, an unprivileged local process could forge `grant` or `abort` frames if filesystem permissions are relaxed.
+- **Threat**: Without an authenticated UNIX domain control channel between `scramkctl` and `scramkd`, out-of-band CLI invocations (`scramkctl abort` / `scramkctl grant`) do not mutate the live daemon's [`HardwareInterlockGate`](../Sources/ScramKCore/InterlockEngine.swift#L19-L260). Conversely, if `/var/run/scramkd/control.sock` is exposed without kernel-enforced peer credential inspection, an unprivileged local process could forge `grant` or `abort` frames if filesystem permissions are relaxed.
 - **Boundary Invariant**: Every control socket connection accepted on `SCRAMKD_CONTROL_SOCKET` must extract kernel peer credentials via `getsockopt(fd, SOL_LOCAL, LOCAL_PEERCRED, ...)` (`xucred.cr_uid`) and `LOCAL_PEERPID` before parsing any frame, rejecting non-root/non-owner callers fail-closed prior to deserialization.
 
 ### Acceptance Criteria
 1. Implement a dedicated `ControlSocketServer` / `ControlSocketClient` binding `/var/run/scramkd/control.sock` (or launchd-inherited file descriptor via `launch_activate_socket("ControlSocket")`).
 2. Enforce `LOCAL_PEERCRED` (`xucred.cr_uid == 0` or daemon effective UID) and `LOCAL_PEERPID` audit logging on every accepted connection before `status`, `grant`, or `abort` dispatch.
-3. Connect [`ScramKCLI.swift`](file:///Users/surensahaydachny/MOSDEF/tactical-hypervisor-macos/Sources/scramkctl/ScramKCLI.swift#L5-L34) to `SCRAMKD_CONTROL_SOCKET` with deterministic fallback/error reporting when the daemon socket is absent.
+3. Connect [`ScramKCLI.swift`](../Sources/scramkctl/ScramKCLI.swift#L5-L34) to `SCRAMKD_CONTROL_SOCKET` with deterministic fallback/error reporting when the daemon socket is absent.
 4. Add unit and adversarial Breaker tests verifying unprivileged UID rejection and malformed control frame handling.
 
 ---
@@ -63,18 +63,18 @@ gh label create "subsystem:scramkctl"            --color "006B75" --description 
   - `CWE-325`: Missing Cryptographic Step
 
 ### Evidence & Code Citations
-- [`ConsoleStateController.triggerRekeyAndAirgapDisconnect()`](file:///Users/surensahaydachny/MOSDEF/tactical-hypervisor-macos/Sources/ScramKUI/ConsoleStateController.swift#L140-L162) truthfully short-circuits `F12`, recording `"NOT IMPLEMENTED — F12 REKEY/DISCONNECT UNAVAILABLE"` in the audit ledger rather than fabricating a disconnect or silently substituting `abort`.
-- [`SemanticInterceptInspector.defaultControlStripBadges`](file:///Users/surensahaydachny/MOSDEF/tactical-hypervisor-macos/Sources/ScramKUI/SemanticInterceptInspector.swift#L187-L192) explicitly renders `"F12 (NOT IMPLEMENTED)"`.
-- [`MakerBreakerUISecurityTests.testF12NotImplementedTruthfulnessAndInspectorDrawerHoldLifecycle`](file:///Users/surensahaydachny/MOSDEF/tactical-hypervisor-macos/Tests/ScramKUITests/MakerBreakerUISecurityTests.swift#L94-L127) locks this truthful non-implementation invariant in CI so UI layers never fabricate airgap dump completion.
+- [`ConsoleStateController.triggerRekeyAndAirgapDisconnect()`](../Sources/ScramKUI/ConsoleStateController.swift#L140-L162) truthfully short-circuits `F12`, recording `"NOT IMPLEMENTED — F12 REKEY/DISCONNECT UNAVAILABLE"` in the audit ledger rather than fabricating a disconnect or silently substituting `abort`.
+- [`SemanticInterceptInspector.defaultControlStripBadges`](../Sources/ScramKUI/SemanticInterceptInspector.swift#L187-L192) explicitly renders `"F12 (NOT IMPLEMENTED)"`.
+- [`MakerBreakerUISecurityTests.testF12NotImplementedTruthfulnessAndInspectorDrawerHoldLifecycle`](../Tests/ScramKUITests/MakerBreakerUISecurityTests.swift#L94-L127) locks this truthful non-implementation invariant in CI so UI layers never fabricate airgap dump completion.
 
 ### Threat Model & Boundary Invariant
-- **Threat**: Operators responding to an active containment anomaly require a single-keystroke (`F12`) forensic snapshot, transport disconnect, and cryptographic zeroization of transient session tokens (`PermissivePermit`, ephemeral MCP session state, and buffered telemetry rings). Until implemented, claiming completion would violate Zero-Trust operator truthfulness ([AGENTS.md §4](file:///Users/surensahaydachny/MOSDEF/tactical-hypervisor-macos/AGENTS.md#L76-L86)).
+- **Threat**: Operators responding to an active containment anomaly require a single-keystroke (`F12`) forensic snapshot, transport disconnect, and cryptographic zeroization of transient session tokens (`PermissivePermit`, ephemeral MCP session state, and buffered telemetry rings). Until implemented, claiming completion would violate Zero-Trust operator truthfulness ([AGENTS.md §4](../AGENTS.md#L76-L86)).
 - **Boundary Invariant**: `F12` must remain explicitly labeled `NOT IMPLEMENTED` until it atomically: (1) revokes active transport descriptors, (2) zeroizes in-memory permit material and active hold state, and (3) writes a SHA-256 signed, append-only forensic ring dump to an isolated, `0600`-permissioned audit file with `fsync` confirmation.
 
 ### Acceptance Criteria
 1. Implement atomic forensic ring buffer serialization with SHA-256 manifest digest and `0600` file permissions.
 2. Zeroize active `PermissivePermit` tokens, `ActiveHoldPolicy` hold leases, and pending `ContainerSocketBridge` continuations prior to returning completion.
-3. Only remove the `"F12 (NOT IMPLEMENTED)"` badge in [`SemanticInterceptInspector.swift`](file:///Users/surensahaydachny/MOSDEF/tactical-hypervisor-macos/Sources/ScramKUI/SemanticInterceptInspector.swift#L187-L192) and [`ConsoleStateController.swift`](file:///Users/surensahaydachny/MOSDEF/tactical-hypervisor-macos/Sources/ScramKUI/ConsoleStateController.swift#L140-L162) once end-to-end cryptographic wipe and disk `fsync` verification tests pass.
+3. Only remove the `"F12 (NOT IMPLEMENTED)"` badge in [`SemanticInterceptInspector.swift`](../Sources/ScramKUI/SemanticInterceptInspector.swift#L187-L192) and [`ConsoleStateController.swift`](../Sources/ScramKUI/ConsoleStateController.swift#L140-L162) once end-to-end cryptographic wipe and disk `fsync` verification tests pass.
 
 ---
 
@@ -87,8 +87,8 @@ gh label create "subsystem:scramkctl"            --color "006B75" --description 
   - `CWE-436`: Interpretation Conflict (Host Policy Validator vs. Live Runtime Enforcement)
 
 ### Evidence & Code Citations
-- [`ContainerSocketBridgeTests.testLiveContainerHandshakeUnderPermissiveGateState`](file:///Users/surensahaydachny/MOSDEF/tactical-hypervisor-macos/Tests/ScramKVirtualizationTests/ContainerSocketBridgeTests.swift#L15-L75) requires a provisioned local container runtime (`screenenv_container`) and is skipped during offline `swift test` runs ([AGENTS.md §5](file:///Users/surensahaydachny/MOSDEF/tactical-hypervisor-macos/AGENTS.md#L92-L100)).
-- [`ContainerCreationPolicy.swift`](file:///Users/surensahaydachny/MOSDEF/tactical-hypervisor-macos/Sources/ScramKVirtualization/ContainerCreationPolicy.swift#L5-L8) defines two security profiles: `.strictAirgap` (`"STRICT_AIRGAP"`) and `.loopbackFramebuffer` (`"LOOPBACK_FB"`, restricting port exposure and host bindings strictly to `127.0.0.1:7860/tcp`).
+- [`ContainerSocketBridgeTests.testLiveContainerHandshakeUnderPermissiveGateState`](../Tests/ScramKVirtualizationTests/ContainerSocketBridgeTests.swift#L15-L75) requires a provisioned local container runtime (`screenenv_container`) and is skipped during offline `swift test` runs ([AGENTS.md §5](../AGENTS.md#L92-L100)).
+- [`ContainerCreationPolicy.swift`](../Sources/ScramKVirtualization/ContainerCreationPolicy.swift#L5-L8) defines two security profiles: `.strictAirgap` (`"STRICT_AIRGAP"`) and `.loopbackFramebuffer` (`"LOOPBACK_FB"`, restricting port exposure and host bindings strictly to `127.0.0.1:7860/tcp`).
 
 ### Acceptance Criteria
 1. Provision a dedicated macOS Apple Silicon CI job with an airgapped `screenenv_container` fixture.
@@ -97,12 +97,14 @@ gh label create "subsystem:scramkctl"            --color "006B75" --description 
 
 ---
 
-## Issue 4: `[GOV-AGENTS-04]` Continuous CI Lint Gate Preventing Legacy Namespace Drift Across `.agents/` & `docs/`
+## Issue 4: `[GOV-AGENTS-04]` Continuous CI Lint Gate Preventing Legacy Namespace Drift & Hardcoded Host Paths
 
 - **Priority / Severity**: `P3` / `LOW`
 - **Labels**: `severity:low`, `subsystem:ScramKCore`
 - **CWE Mapping**:
   - `CWE-1059`: Insufficient Technical Documentation / Specification Drift
+  - `CWE-200`: Exposure of Sensitive Information to an Unauthorized Actor (Local Workstation Path Disclosure)
 
 ### Acceptance Criteria
 1. Enforce a pre-commit / CI check verifying zero occurrences of legacy `Tactical*` target names across `Package.swift`, `Sources/**`, `Tests/**`, `.agents/**`, and `docs/**`.
+2. Enforce zero occurrences of local workstation home paths (`/Users/<username>`) or `file:///` Markdown links across all tracked Swift, C, ObjC, and Markdown files.
