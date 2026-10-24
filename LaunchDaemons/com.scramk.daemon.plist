@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.scramk.daemon</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/scramkd</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin</string>
+        <key>SCRAMKD_BIND_HOST</key>
+        <string>127.0.0.1</string>
+        <key>SCRAMKD_CONTROL_SOCKET</key>
+        <string>/var/run/scramkd/control.sock</string>
+    </dict>
+    <key>Sockets</key>
+    <dict>
+        <key>ControlSocket</key>
+        <dict>
+            <key>SockFamily</key>
+            <string>Unix</string>
+            <key>SockPathName</key>
+            <string>/var/run/scramkd/control.sock</string>
+            <key>SockPathMode</key>
+            <integer>384</integer>
+        </dict>
+        <key>LoopbackTelemetry</key>
+        <dict>
+            <key>SockNodeName</key>
+            <string>127.0.0.1</string>
+            <key>SockServiceName</key>
+            <string>5910</string>
+            <key>SockType</key>
+            <string>stream</string>
+        </dict>
+    </dict>
+    <key>KeepAlive</key>
+    <dict>
+        <key>SuccessfulExit</key>
+        <false/>
+    </dict>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>ProcessType</key>
+    <string>Interactive</string>
+    <key>HardResourceLimits</key>
+    <dict>
+        <key>Core</key>
+        <integer>0</integer>
+        <key>NumberOfFiles</key>
+        <integer>4096</integer>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>/var/log/scramkd/scramkd.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/var/log/scramkd/scramkd.err.log</string>
+</dict>
+</plist>

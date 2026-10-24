@@ -2,90 +2,97 @@
 import PackageDescription
 
 let package = Package(
-    name: "TacticalHypervisor",
+    name: "scramkd",
     platforms: [
         .macOS(.v14)
     ],
     products: [
         .library(
-            name: "TacticalHypervisor",
+            name: "ScramK",
             targets: [
-                "TacticalCore",
-                "TacticalAudioSVS",
-                "TacticalVirtualization",
-                "TacticalUI"
+                "ScramKCore",
+                "ScramKAudio",
+                "ScramKVirtualization",
+                "ScramKUI",
             ]
         ),
         .library(
-            name: "TacticalCore",
-            targets: ["TacticalCore"]
+            name: "ScramKCore",
+            targets: ["ScramKCore"]
         ),
         .library(
-            name: "TacticalAudioSVS",
-            targets: ["TacticalAudioSVS"]
+            name: "ScramKAudio",
+            targets: ["ScramKAudio"]
         ),
         .library(
-            name: "TacticalVirtualization",
-            targets: ["TacticalVirtualization"]
+            name: "ScramKVirtualization",
+            targets: ["ScramKVirtualization"]
         ),
         .library(
-            name: "TacticalUI",
-            targets: ["TacticalUI"]
+            name: "ScramKUI",
+            targets: ["ScramKUI"]
         ),
         .executable(
-            name: "TacticalApp",
-            targets: ["TacticalApp"]
+            name: "scramkd",
+            targets: ["scramkd"]
+        ),
+        .executable(
+            name: "scramkctl",
+            targets: ["scramkctl"]
         ),
     ],
     targets: [
         .target(
-            name: "TacticalCore",
+            name: "ScramKCore",
             dependencies: []
         ),
         .target(
-            name: "TacticalAudioSVS",
-            dependencies: ["TacticalCore", "CTacticalAudioRealtime"]
+            name: "ScramKAudio",
+            dependencies: ["ScramKCore", "CScramKAudioRealtime"]
         ),
         .target(
-            name: "CTacticalAudioRealtime",
-            dependencies: [],
+            name: "CScramKAudioRealtime",
             publicHeadersPath: "include",
             cSettings: [.unsafeFlags(["-fno-objc-arc"])],
             linkerSettings: [.linkedFramework("Foundation"), .linkedFramework("AVFoundation")]
         ),
         .target(
-            name: "TacticalVirtualization",
-            dependencies: ["TacticalCore"]
+            name: "ScramKVirtualization",
+            dependencies: ["ScramKCore"]
         ),
         .target(
-            name: "TacticalUI",
-            dependencies: ["TacticalCore", "TacticalVirtualization"],
+            name: "ScramKUI",
+            dependencies: ["ScramKCore", "ScramKVirtualization"],
             resources: [.process("Resources")]
         ),
         .executableTarget(
-            name: "TacticalApp",
+            name: "scramkd",
             dependencies: [
-                "TacticalCore",
-                "TacticalVirtualization",
-                "TacticalAudioSVS",
-                "TacticalUI"
+                "ScramKCore",
+                "ScramKVirtualization",
+                "ScramKAudio",
+                "ScramKUI",
             ]
         ),
-        .testTarget(
-            name: "TacticalCoreTests",
-            dependencies: ["TacticalCore", "TacticalAudioSVS"]
+        .executableTarget(
+            name: "scramkctl",
+            dependencies: ["ScramKCore"]
         ),
         .testTarget(
-            name: "TacticalVirtualizationTests",
-            dependencies: ["TacticalVirtualization", "TacticalCore"]
+            name: "ScramKCoreTests",
+            dependencies: ["ScramKCore", "ScramKAudio"]
         ),
         .testTarget(
-            name: "TacticalAudioSVSTests",
-            dependencies: ["TacticalAudioSVS", "TacticalCore", "CTacticalAudioRealtime"]
+            name: "ScramKVirtualizationTests",
+            dependencies: ["ScramKVirtualization", "ScramKCore"]
         ),
         .testTarget(
-            name: "TacticalUITests",
-            dependencies: ["TacticalUI", "TacticalCore", "TacticalVirtualization"]
+            name: "ScramKAudioTests",
+            dependencies: ["ScramKAudio", "ScramKCore", "CScramKAudioRealtime"]
+        ),
+        .testTarget(
+            name: "ScramKUITests",
+            dependencies: ["ScramKUI", "ScramKCore", "ScramKVirtualization"]
         ),
     ],
     swiftLanguageModes: [.v6],
