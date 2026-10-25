@@ -47,11 +47,18 @@ public enum DesignTokens {
     }
 
     private static func color(_ rgb: UInt32) -> Color {
-        Color(
+        let r = CGFloat((rgb >> 16) & 0xFF) / 255.0
+        let g = CGFloat((rgb >> 8) & 0xFF) / 255.0
+        let b = CGFloat(rgb & 0xFF) / 255.0
+        let nsColor = NSColor(srgbRed: r, green: g, blue: b, alpha: 1.0)
+        if let p3Color = nsColor.usingColorSpace(.displayP3) {
+            return Color(nsColor: p3Color)
+        }
+        return Color(
             .sRGB,
-            red: Double((rgb >> 16) & 0xFF) / 255,
-            green: Double((rgb >> 8) & 0xFF) / 255,
-            blue: Double(rgb & 0xFF) / 255,
+            red: Double(r),
+            green: Double(g),
+            blue: Double(b),
             opacity: 1
         )
     }

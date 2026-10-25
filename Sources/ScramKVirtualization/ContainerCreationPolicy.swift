@@ -58,14 +58,14 @@ public struct ContainerCreationPolicy: Sendable {
         var state = ValidationState(profile: profile)
         try inspectObject(rootObject, depth: 1, isRoot: true, isHostConfig: false, state: &state)
 
-        if profile == .strictAirgap && !state.sawRootOrHostConfigNetworkModeNone {
+        if profile == .strictAirgap && !state.sawHostConfigNetworkModeNone {
             throw ContainerCreationPolicyError.missingRequiredDirective(key: "networkmode")
         }
     }
 
     private struct ValidationState {
         let profile: ContainerSecurityProfile
-        var sawRootOrHostConfigNetworkModeNone: Bool = false
+        var sawHostConfigNetworkModeNone: Bool = false
     }
 
     private static func inspectObject(
@@ -82,10 +82,14 @@ public struct ContainerCreationPolicy: Sendable {
         var seenCanonicalKeys = Set<String>()
         for (rawKey, value) in object {
             let canonical = canonicalKey(rawKey)
-            if !canonical.isEmpty {
-                if !seenCanonicalKeys.insert(canonical).inserted {
-                    throw ContainerCreationPolicyError.duplicateCanonicalKey(canonical)
-                }
+            guard !canonical.isEmpty else {
+                throw ContainerCreationPolicyError.forbiddenDirective(
+                    key: rawKey,
+                    detail: "Keys must contain alphanumeric characters"
+                )
+            }
+            if !seenCanonicalKeys.insert(canonical).inserted {
+                throw ContainerCreationPolicyError.duplicateCanonicalKey(canonical)
             }
 
             try validateDirective(
@@ -178,7 +182,7 @@ public struct ContainerCreationPolicy: Sendable {
                 )
             }
 
-        case "capadd", "binds", "mounts", "volumesfrom", "devices", "extrahosts":
+        case "capadd", "binds", "mounts", "volumesfrom", "devices", "extrahosts", "maskedpaths", "readonlypaths":
             if value is NSNull {
                 return
             }
@@ -259,8 +263,8 @@ public struct ContainerCreationPolicy: Sendable {
                         detail: "Strict airgap profile requires NetworkMode 'none', got '\(rawMode)'"
                     )
                 }
-                if isRoot || isHostConfig {
-                    state.sawRootOrHostConfigNetworkModeNone = true
+                if isHostConfig {
+                    state.sawHostConfigNetworkModeNone = true
                 }
             case .loopbackFramebuffer:
                 let allowedModes: Set<String> = ["none", "bridge", "default"]
@@ -470,9 +474,14 @@ public struct ContainerCreationPolicy: Sendable {
                         throw ContainerCreationPolicyError.invalidJSON
                     }
                     let canonical = canonicalKey(decodedKey)
-                    let keyToRecord = canonical.isEmpty ? decodedKey : canonical
-                    if !seen.insert(keyToRecord).inserted {
-                        throw ContainerCreationPolicyError.duplicateCanonicalKey(keyToRecord)
+                    guard !canonical.isEmpty else {
+                        throw ContainerCreationPolicyError.forbiddenDirective(
+                            key: decodedKey,
+                            detail: "Keys must contain alphanumeric characters"
+                        )
+                    }
+                    if !seen.insert(canonical).inserted {
+                        throw ContainerCreationPolicyError.duplicateCanonicalKey(canonical)
                     }
                     stack[lastIndex] = .object(seenCanonicalKeys: seen, expectingKey: false)
                 }

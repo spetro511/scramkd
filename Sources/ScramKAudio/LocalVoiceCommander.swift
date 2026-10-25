@@ -76,11 +76,16 @@ public actor LocalVoiceCommander {
         let tokens = transcript.split(separator: " ").map(String.init)
         guard let latestToken = tokens.last else { return }
 
+        let negationTokens: Set<String> = ["NOT", "NEVER", "NO", "DONT", "DON'T", "CANCEL", "STOP"]
+        let hasNegation = tokens.contains { negationTokens.contains($0) }
+
         do {
             switch latestToken {
             case "ARM":
+                guard !hasNegation else { return }
                 try await interlockGate.arm()
             case "GRANT", "PERMISSIVE":
+                guard !hasNegation else { return }
                 try await interlockGate.grantPermissive()
             case "ABORT", "HALT":
                 await interlockGate.tripEmergencyAbort(reason: "LOCAL_VOICE_PTT_ABORT")
@@ -93,6 +98,9 @@ public actor LocalVoiceCommander {
     }
 
     deinit {
+        if isListening {
+            audioEngine.inputNode.removeTap(onBus: 0)
+        }
         audioEngine.stop()
         recognitionTask?.cancel()
     }

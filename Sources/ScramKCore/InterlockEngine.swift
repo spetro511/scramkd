@@ -65,6 +65,8 @@ enum WaiterCancellationState: Sendable {
 public actor HardwareInterlockGate {
     private var status: InterlockStatus
     private var history: [InterlockTransitionRecord]
+    private var baseCursorOffset: UInt64 = 0
+    private let maxHistoryCapacity: Int = 2048
     private var waiters: [UUID: ContinuationWaiter]
     private var subscribers: [UUID: AsyncStream<InterlockTransitionRecord>.Continuation]
     private var observationSubscribers: [UUID: AsyncStream<InterlockObservedTransition>.Continuation] = [:]
@@ -116,12 +118,13 @@ public actor HardwareInterlockGate {
         after cursor: UInt64 = 0,
         historyLimit: Int = 256
     ) -> InterlockObservationSnapshot {
-        let boundary = UInt64(history.count)
+        let totalCount = baseCursorOffset &+ UInt64(history.count)
+        let boundary = totalCount
         let available = boundary - min(cursor, boundary)
         let retained = min(available, UInt64(max(0, historyLimit)))
-        let firstIndex = history.count - Int(retained)
+        let firstIndex = totalCount - retained
         let transitions = history.suffix(Int(retained)).enumerated().map { offset, record in
-            InterlockObservedTransition(cursor: UInt64(firstIndex + offset) + 1, record: record)
+            InterlockObservedTransition(cursor: firstIndex + UInt64(offset) + 1, record: record)
         }
         return InterlockObservationSnapshot(
             currentStatus: status,
@@ -215,6 +218,9 @@ public actor HardwareInterlockGate {
     ) throws -> PermissivePermit {
         if status == .emergencyAbort {
             throw HardwareInterlockError.emergencyAbortActive
+        }
+        guard status == .armed else {
+            throw HardwareInterlockError.invalidTransition(from: status, to: .permissiveGranted)
         }
         transition(to: .permissiveGranted, reason: "PERMISSIVE_PERMIT_ISSUED")
         drainWaiters(returning: ())
@@ -436,7 +442,13 @@ public actor HardwareInterlockGate {
         stateVersion &+= 1
         activePermit = nil
         history.append(record)
-        let observation = InterlockObservedTransition(cursor: UInt64(history.count), record: record)
+        if history.count > maxHistoryCapacity {
+            let drop = history.count - maxHistoryCapacity
+            history.removeFirst(drop)
+            baseCursorOffset &+= UInt64(drop)
+        }
+        let totalCount = baseCursorOffset &+ UInt64(history.count)
+        let observation = InterlockObservedTransition(cursor: totalCount, record: record)
         var terminatedObservations: [UUID] = []
         for (id, subscriber) in observationSubscribers {
             if case .terminated = subscriber.yield(observation) {

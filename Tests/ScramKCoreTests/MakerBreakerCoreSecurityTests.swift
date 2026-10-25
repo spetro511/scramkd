@@ -194,4 +194,47 @@ final class MakerBreakerCoreSecurityTests: XCTestCase {
         XCTAssertEqual(custom.criticalReadGuardDuration, .milliseconds(2000))
         XCTAssertNotEqual(policy, custom)
     }
+
+    // MARK: - SYS-02: PermissivePermit Issuance Requires Armed Status
+
+    func testPermissivePermitIssuanceRequiresArmedStatus() async throws {
+        let gate = HardwareInterlockGate(initialStatus: .locked)
+        let reqID = UUID()
+
+        // 1. From .locked, issuing a permissive permit must be rejected with invalidTransition
+        do {
+            _ = try await gate.issuePermissivePermit(forRequestID: reqID)
+            XCTFail("Locked gate must not issue permissive permit")
+        } catch let error as HardwareInterlockError {
+            XCTAssertEqual(error, .invalidTransition(from: .locked, to: .permissiveGranted))
+        }
+
+        // 2. Once armed, issuing a permissive permit succeeds
+        try await gate.arm()
+        let permit = try await gate.issuePermissivePermit(forRequestID: reqID)
+        XCTAssertEqual(permit.requestID, reqID)
+        let status = await gate.currentStatus
+        XCTAssertEqual(status, .permissiveGranted)
+    }
+
+    // MARK: - F-10: Gate Transition History Ring Buffer Capacity Cap (2048)
+
+    func testTransitionHistoryRingBufferCapacityCap() async throws {
+        let gate = HardwareInterlockGate(initialStatus: .locked)
+
+        // Perform 2100 transitions: arm -> lock cycles
+        for _ in 0..<1050 {
+            try await gate.arm()
+            try await gate.lock()
+        }
+
+        let history = await gate.transitionHistory
+        XCTAssertLessThanOrEqual(history.count, 2048)
+        XCTAssertEqual(history.count, 2048)
+
+        let snapshot = await gate.observationSnapshot(after: 0, historyLimit: 256)
+        XCTAssertEqual(snapshot.cursor, 2100)
+        XCTAssertEqual(snapshot.transitions.count, 256)
+        XCTAssertEqual(snapshot.omittedTransitionCount, 2100 - 256)
+    }
 }

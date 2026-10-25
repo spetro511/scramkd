@@ -16,11 +16,12 @@ struct ConsoleSafetyCockpit: View {
     var isAuthorizationHoldActive: Bool = false
     var isInspectorDrawerExpanded: Bool = false
     var semanticSummary: SemanticInterceptSummary? = nil
+    var pendingIntercept: PendingIntercept? = nil
     var toggleInspectorDrawer: () -> Void = {}
     @StateObject private var payload = BridgePayloadPresentationModel()
     @State private var inspectionSelection: BridgeInspectionSelection?
 
-    private var pending: PendingIntercept? { bridgeSnapshot?.pendingIntercept }
+    private var pending: PendingIntercept? { pendingIntercept ?? bridgeSnapshot?.pendingIntercept }
     private var document: BridgePayloadInspection? { payload.document(for: pending?.approval) }
     private var resolvedSemanticSummary: SemanticInterceptSummary? {
         if let semanticSummary {
@@ -35,7 +36,13 @@ struct ConsoleSafetyCockpit: View {
         )
     }
     private var canGrant: Bool {
-        BridgePresentation.canGrant(
+        let dwellSatisfied: Bool
+        if let resolvedSemanticSummary, resolvedSemanticSummary.riskLevel >= .high {
+            dwellSatisfied = resolvedSemanticSummary.isCriticalReadGuardSatisfied
+        } else {
+            dwellSatisfied = true
+        }
+        return dwellSatisfied && BridgePresentation.canGrant(
             status: status, isObserving: isObserving, isConfigured: isBridgeConfigured,
             connection: bridgeSnapshot?.connectionState ?? .detached, phase: pending?.phase
         ) && (!isBridgeConfigured || (
@@ -52,7 +59,7 @@ struct ConsoleSafetyCockpit: View {
     }
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
             ConsoleGateStatusCard(status: status, isObserving: isObserving, countdownTTL: countdownTTL,
                                   isBridgeConfigured: isBridgeConfigured)
             ConsoleSemanticInterceptSummaryCard(
@@ -63,10 +70,14 @@ struct ConsoleSafetyCockpit: View {
                 toggleDrawer: toggleInspectorDrawer
             )
             if isInspectorDrawerExpanded, let summary = resolvedSemanticSummary {
-                ConsoleSemanticDiffDrawer(summary: summary)
-            } else if isBridgeConfigured {
+                ConsoleSemanticDiffDrawer(summary: summary, inspect: {
+                    guard let pending, let document else { return }
+                    inspectionSelection = BridgeInspectionSelection(pending: pending, document: document)
+                })
+            } else if isBridgeConfigured || pending != nil {
                 ConsoleBridgeClearanceSlip(
-                    snapshot: bridgeSnapshot, isObserving: isObserving, document: document,
+                    snapshot: bridgeSnapshot, isObserving: isObserving,
+                    pendingIntercept: pending, document: document,
                     inspect: {
                         guard let pending, let document else { return }
                         inspectionSelection = BridgeInspectionSelection(pending: pending, document: document)
@@ -75,7 +86,7 @@ struct ConsoleSafetyCockpit: View {
             } else {
                 ConsoleClearanceSlip(status: status, isObserving: isObserving)
             }
-            VStack(alignment: .leading, spacing: 5) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text("COMMAND RESULT").font(DesignTokens.Font.mono(8, weight: "SemiBold"))
                     .tracking(0.8).foregroundStyle(DesignTokens.textMuted)
                 Text(lastCommandResult.isEmpty ? "NO OPERATOR COMMAND ISSUED" : BridgeDisplayText.escaped(lastCommandResult, limit: 512))
@@ -86,9 +97,9 @@ struct ConsoleSafetyCockpit: View {
                     .textSelection(.enabled)
                     .accessibilityValue(lastCommandResult.isEmpty ? "No operator command issued" : BridgeDisplayText.escaped(lastCommandResult, limit: 2048))
             }
-            .frame(maxWidth: .infinity, minHeight: 32, alignment: .leading)
+            .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
             Spacer(minLength: 0)
-            VStack(spacing: 10) {
+            VStack(spacing: 6) {
                 Button(action: grant) {
                     ConsoleActionLabel(
                         title: "[ GRANT PERMISSIVE ]", symbol: "checkmark.seal", key: "SPACE",
@@ -130,7 +141,7 @@ struct ConsoleSafetyCockpit: View {
             }
             .focusSection()
         }
-        .padding(16)
+        .padding(12)
         .background(DesignTokens.cockpitDark)
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Safety cockpit")
@@ -228,6 +239,7 @@ private struct ConsoleSemanticInterceptSummaryCard: View {
 
 private struct ConsoleSemanticDiffDrawer: View {
     let summary: SemanticInterceptSummary
+    var inspect: (() -> Void)? = nil
 
     private func color(for risk: SemanticRiskLevel) -> Color {
         switch risk {
@@ -238,12 +250,20 @@ private struct ConsoleSemanticDiffDrawer: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 6) {
                 Text("TIER-3 // SEMANTIC JSON DIFF & PROVENANCE DRAWER")
                     .font(DesignTokens.Font.mono(9, weight: "Bold"))
                     .foregroundStyle(DesignTokens.amber)
                 Spacer(minLength: 0)
+                if let inspect {
+                    Button(action: inspect) {
+                        Text("INSPECT").font(DesignTokens.Font.labelSm)
+                            .padding(.horizontal, 6).frame(height: 20)
+                    }
+                    .buttonStyle(ConsoleButtonStyle())
+                    .accessibilityLabel("Inspect raw frozen request payload")
+                }
                 Text("[\(summary.fieldDiffs.count) FIELDS // \(summary.payloadByteCount) B]")
                     .font(DesignTokens.Font.mono(8, weight: "Bold"))
                     .foregroundStyle(DesignTokens.textDim)
@@ -382,14 +402,15 @@ private struct ConsoleGateStatusCard: View {
 private struct ConsoleBridgeClearanceSlip: View {
     let snapshot: BridgeSnapshot?
     let isObserving: Bool
+    var pendingIntercept: PendingIntercept? = nil
     let document: BridgePayloadInspection?
     let inspect: () -> Void
 
-    private var pending: PendingIntercept? { snapshot?.pendingIntercept }
+    private var pending: PendingIntercept? { pendingIntercept ?? snapshot?.pendingIntercept }
     private var receipt: BridgeTransferReceipt? { snapshot?.latestTransfer }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
+        VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text("CLEARANCE // MCP TOOLS/CALL")
                     .font(DesignTokens.Font.mono(10, weight: "Bold"))
@@ -403,31 +424,31 @@ private struct ConsoleBridgeClearanceSlip: View {
                 BridgeDisplayText.escaped($0.toolHook, limit: 40)
             } ?? "UNBOUND")
             HStack(alignment: .top, spacing: 8) {
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text("ARGUMENT PREVIEW // INSPECT ALL")
                         .font(DesignTokens.Font.mono(8, weight: "SemiBold"))
                         .foregroundStyle(DesignTokens.textMuted)
                     Text(pending == nil ? "UNBOUND // NO LIVE REQUEST" : (document?.preview ?? "INSPECTION PENDING"))
                         .font(DesignTokens.Font.labelSm)
                         .foregroundStyle(document?.issue == nil ? DesignTokens.textDim : DesignTokens.red)
-                        .lineLimit(2)
+                        .lineLimit(1)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 Button(action: inspect) {
                     Text("INSPECT").font(DesignTokens.Font.labelSm)
-                        .padding(.horizontal, 8).frame(height: 26)
+                        .padding(.horizontal, 8).frame(height: 22)
                 }
                 .buttonStyle(ConsoleButtonStyle())
                 .disabled(pending == nil || document == nil)
                 .accessibilityLabel("Inspect complete frozen request and all decoded arguments")
                 .accessibilityHint("Read only. Escapes control and bidirectional characters. Does not execute or grant.")
             }
-            .frame(height: 44, alignment: .top)
+            .frame(height: 30, alignment: .top)
             Text(pending.map(BridgePresentation.origin) ?? "SOURCE APPLICATION PID: UNBOUND")
                 .font(DesignTokens.Font.mono(8))
                 .foregroundStyle(DesignTokens.textDim)
                 .monospacedDigit()
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text("SHA-256 // EXACT WIRE + LF // NOT A SIGNATURE")
                     .font(DesignTokens.Font.mono(8, weight: "SemiBold"))
                     .foregroundStyle(DesignTokens.textMuted)
@@ -436,10 +457,12 @@ private struct ConsoleBridgeClearanceSlip: View {
                     .foregroundStyle(DesignTokens.textReadout)
                     .textSelection(.enabled)
                     .monospacedDigit()
+                    .lineLimit(1)
             }
-            VStack(alignment: .leading, spacing: 2) {
-                Text("REQUEST: \(pending?.approval.requestID.uuidString ?? "UNBOUND")")
-                Text("GENERATION: \(pending?.approval.connectionGeneration.uuidString ?? snapshot?.generation?.uuidString ?? "UNBOUND")")
+            HStack {
+                Text("REQ: \(pending?.approval.requestID.uuidString.prefix(8) ?? "UNBOUND")...")
+                Spacer(minLength: 0)
+                Text("GEN: \(pending?.approval.connectionGeneration.uuidString.prefix(8) ?? snapshot?.generation?.uuidString.prefix(8) ?? "UNBOUND")...")
             }
             .font(DesignTokens.Font.mono(8))
             .foregroundStyle(DesignTokens.textDim)
@@ -453,7 +476,7 @@ private struct ConsoleBridgeClearanceSlip: View {
             .foregroundStyle(DesignTokens.textMuted)
             .monospacedDigit()
             ConsoleRule()
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 1) {
                 Text("LAST \(BridgePresentation.transfer(receipt))")
                 Text(receipt.map {
                     "STDOUT: \($0.bytesRead) B / \($0.readChunks) CH // \($0.transmissionStage.rawValue.uppercased()) // \($0.hasCorrelatedResponse ? "CORRELATED" : "NO RESPONSE")"
@@ -466,9 +489,9 @@ private struct ConsoleBridgeClearanceSlip: View {
             .monospacedDigit()
             .accessibilityHint("Local pipe write counts and observed stdout over this request interval. Read counts may include notifications. Neither proves external execution.")
         }
-        .padding(10)
+        .padding(8)
         .frame(maxWidth: .infinity, alignment: .topLeading)
-        .frame(height: 264, alignment: .top)
+        .frame(height: 216, alignment: .top)
         .background(DesignTokens.cardSlip)
         .overlay { Rectangle().strokeBorder(DesignTokens.slateBorderLight, lineWidth: 1) }
         .accessibilityElement(children: .contain)

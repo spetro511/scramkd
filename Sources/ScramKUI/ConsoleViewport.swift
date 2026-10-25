@@ -163,16 +163,20 @@ private struct ConsoleViewportOverlay: View {
             Spacer(minLength: 0)
             HStack(alignment: .top, spacing: 12) {
                 if controller.activeBay == ConsoleBay.overview.rawValue {
-                    ConsoleInterceptCard(status: controller.currentStatus, isObserving: controller.isObserving,
-                        bridgeSnapshot: controller.bridgeSnapshot, isBridgeConfigured: controller.isBridgeConfigured, frame: frame)
-                        .frame(maxWidth: 650)
+                    if !frame.hasReceivedFrame {
+                        ConsoleInterceptCard(status: controller.currentStatus, isObserving: controller.isObserving,
+                            bridgeSnapshot: controller.bridgeSnapshot, isBridgeConfigured: controller.isBridgeConfigured, frame: frame)
+                            .frame(maxWidth: 650)
+                    }
                 } else {
                     ConsoleBayDetailCard(bay: ConsoleBay(rawValue: controller.activeBay), controller: controller)
                         .frame(maxWidth: 650)
                 }
                 // One reference target illustration, separate from the renderer's
                 // categorical state glyph at the bottom-right of the drawable.
-                ConsoleReferenceReticle().frame(width: 112)
+                if !frame.hasReceivedFrame || controller.activeBay != ConsoleBay.overview.rawValue {
+                    ConsoleReferenceReticle().frame(width: 112)
+                }
             }
             .padding(.horizontal, 16)
             Spacer(minLength: 0)
@@ -244,7 +248,7 @@ private struct ConsoleInterceptCard: View {
                     .accessibilityLabel("Reference command only. Not executed. detonate sample dot sh, isolated, quarantine net.")
                 VStack(alignment: .leading, spacing: 7) {
                     HStack {
-                        Text("[MOSDEF-GATE] \(presentation.title)")
+                        Text("[SCRAMK-GATE] \(presentation.title)")
                             .font(DesignTokens.Font.mono(10, weight: "Bold"))
                             .tracking(0.5)
                         Spacer(minLength: 0)

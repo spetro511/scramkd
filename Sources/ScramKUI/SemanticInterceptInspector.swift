@@ -183,6 +183,7 @@ public struct SemanticInterceptSummary: Sendable, Equatable {
 /// and raw JSON-RPC payloads into the 3-Tier Progressive Disclosure HUD model.
 public enum SemanticInterceptInspector: Sendable {
     public static let maxJSONDepth: Int = 32
+    public static let maxEvaluatedFields: Int = 64
 
     public static let defaultControlStripBadges: [String] = [
         "SPACE (GRANT)",
@@ -601,11 +602,13 @@ public enum SemanticInterceptInspector: Sendable {
         // Flatten fields: if `params.arguments` is a non-empty object/array, walk its fields first
         // with concise key paths, and also include any other non-boilerplate root/params fields.
         var diffs: [SemanticPayloadFieldDiff] = []
+        var didExceedLimit = false
         if let argumentsValue {
             flattenJSONValue(
                 argumentsValue,
                 prefix: "",
                 toolContext: resolvedTool,
+                didExceedLimit: &didExceedLimit,
                 into: &diffs
             )
         }
@@ -615,6 +618,7 @@ public enum SemanticInterceptInspector: Sendable {
                     value,
                     prefix: key,
                     toolContext: resolvedTool,
+                    didExceedLimit: &didExceedLimit,
                     into: &diffs
                 )
             }
@@ -625,6 +629,7 @@ public enum SemanticInterceptInspector: Sendable {
                     value,
                     prefix: key,
                     toolContext: resolvedTool,
+                    didExceedLimit: &didExceedLimit,
                     into: &diffs
                 )
             }
@@ -635,9 +640,15 @@ public enum SemanticInterceptInspector: Sendable {
                     value,
                     prefix: key,
                     toolContext: resolvedTool,
+                    didExceedLimit: &didExceedLimit,
                     into: &diffs
                 )
             }
+        }
+
+        if didExceedLimit {
+            baseRisk = .critical
+            baseReasons.append("Evaluated field limit exceeded; fail-closed to CRITICAL")
         }
 
         let target = resolveTargetSummary(from: diffs, toolName: escapedTool)
@@ -656,8 +667,14 @@ public enum SemanticInterceptInspector: Sendable {
         _ value: SemanticJSONValue,
         prefix: String,
         toolContext: String,
+        didExceedLimit: inout Bool,
         into diffs: inout [SemanticPayloadFieldDiff]
     ) {
+        if diffs.count >= maxEvaluatedFields {
+            didExceedLimit = true
+            return
+        }
+
         switch value {
         case .object(let pairs):
             if pairs.isEmpty {
@@ -676,6 +693,10 @@ public enum SemanticInterceptInspector: Sendable {
                 return
             }
             for (key, child) in pairs {
+                if diffs.count >= maxEvaluatedFields {
+                    didExceedLimit = true
+                    return
+                }
                 let nextPrefix = prefix.isEmpty ? key : "\(prefix).\(key)"
                 if containsSpoofingControlOrBidi(key) {
                     diffs.append(
@@ -689,7 +710,7 @@ public enum SemanticInterceptInspector: Sendable {
                         )
                     )
                 }
-                flattenJSONValue(child, prefix: nextPrefix, toolContext: toolContext, into: &diffs)
+                flattenJSONValue(child, prefix: nextPrefix, toolContext: toolContext, didExceedLimit: &didExceedLimit, into: &diffs)
             }
         case .array(let elements):
             if elements.isEmpty {
@@ -708,8 +729,12 @@ public enum SemanticInterceptInspector: Sendable {
                 return
             }
             for (index, element) in elements.enumerated() {
+                if diffs.count >= maxEvaluatedFields {
+                    didExceedLimit = true
+                    return
+                }
                 let nextPrefix = prefix.isEmpty ? "[\(index)]" : "\(prefix)[\(index)]"
-                flattenJSONValue(element, prefix: nextPrefix, toolContext: toolContext, into: &diffs)
+                flattenJSONValue(element, prefix: nextPrefix, toolContext: toolContext, didExceedLimit: &didExceedLimit, into: &diffs)
             }
         case .string(let str):
             let path = prefix.isEmpty ? "value" : prefix
@@ -921,10 +946,11 @@ public enum SemanticInterceptInspector: Sendable {
 
         let lowerKey = keyPath.lowercased()
         let lowerVal = rawValue.lowercased()
+        let normalizedPath = NSString(string: rawValue.trimmingCharacters(in: .whitespacesAndNewlines)).standardizingPath.lowercased()
         let combined = "\(lowerKey)=\(lowerVal)"
 
         for pattern in criticalPatterns {
-            if lowerVal.contains(pattern) || lowerKey.contains(pattern) {
+            if lowerVal.contains(pattern) || lowerKey.contains(pattern) || normalizedPath.contains(pattern) {
                 return (.critical, "Destructive or privileged pattern (\(pattern)) in \(keyPath)")
             }
         }
@@ -936,7 +962,7 @@ public enum SemanticInterceptInspector: Sendable {
         }
 
         for pattern in highPatterns {
-            if lowerVal.contains(pattern) || lowerKey.contains(pattern) {
+            if lowerVal.contains(pattern) || lowerKey.contains(pattern) || normalizedPath.contains(pattern) {
                 return (.high, "High-risk pattern (\(pattern)) in \(keyPath)")
             }
         }

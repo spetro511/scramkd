@@ -130,7 +130,7 @@ private enum ConsoleAuditFilter: String, CaseIterable, Identifiable {
         case .all: return true
         case .gate: return row.subsystem == "INTERLOCK"
         case .commands: return row.subsystem == "COMMAND"
-        case .bridge: return ["BRIDGE", "STDIO", "MCP", "PIPE"].contains(row.subsystem)
+        case .bridge: return ["BRIDGE", "STDIO", "MCP", "PIPE", "FRAME", "AUDIO", "SVS"].contains(row.subsystem)
         }
     }
 }

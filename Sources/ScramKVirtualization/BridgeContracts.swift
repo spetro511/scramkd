@@ -52,7 +52,7 @@ public struct BridgeApprovalKey: Sendable, Hashable {
     public let sha256: String
     public let connectionGeneration: UUID
 
-    init(requestID: UUID, sha256: String, connectionGeneration: UUID) {
+    public init(requestID: UUID, sha256: String, connectionGeneration: UUID) {
         self.requestID = requestID
         self.sha256 = sha256
         self.connectionGeneration = connectionGeneration

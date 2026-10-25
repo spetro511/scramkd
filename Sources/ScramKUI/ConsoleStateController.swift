@@ -1,4 +1,5 @@
 import Combine
+import CryptoKit
 import Darwin
 import Foundation
 import os
@@ -223,10 +224,13 @@ public final class ConsoleStateController: ObservableObject {
     @Published public private(set) var audioStatusColorName: String = "muted"
     @Published public private(set) var residentMemoryMB: String = "--"
     @Published public private(set) var isAuthorizationHoldActive: Bool = false
+    @Published public private(set) var holdStartedAt: ContinuousClock.Instant? = nil
+    @Published public private(set) var simulatedIntercept: PendingIntercept? = nil
     @Published public private(set) var isInspectorDrawerExpanded: Bool = false
     @Published public var securityProfile: ContainerSecurityProfile
     public let activeHoldPolicy: ActiveHoldPolicy
     public let framebufferClient: FramebufferClient?
+    private var dwellTask: Task<Void, Never>?
 
     public var activeSecurityProfile: ContainerSecurityProfile {
         get { securityProfile }
@@ -236,13 +240,20 @@ public final class ConsoleStateController: ObservableObject {
     public var currentSemanticInterceptSummary: SemanticInterceptSummary? {
         guard let pending = pendingIntercept else { return nil }
         let holdActive = isAuthorizationHoldActive || (!isBridgeConfigured && isInspectorDrawerExpanded)
+        let dwellSatisfied: Bool
+        if let holdStartedAt, holdActive {
+            let elapsed = ContinuousClock.now - holdStartedAt
+            dwellSatisfied = elapsed >= activeHoldPolicy.criticalReadGuardDuration
+        } else {
+            dwellSatisfied = false
+        }
         return SemanticInterceptInspector.inspect(
             pending,
             status: currentStatus,
             securityProfile: securityProfile,
             isHoldActive: holdActive,
             activeHoldPolicy: activeHoldPolicy,
-            isCriticalReadGuardSatisfied: holdActive
+            isCriticalReadGuardSatisfied: dwellSatisfied
         )
     }
 
@@ -251,7 +262,7 @@ public final class ConsoleStateController: ObservableObject {
     }
 
     public var bridgeConnectionState: BridgeConnectionState { bridgeSnapshot?.connectionState ?? .detached }
-    public var pendingIntercept: PendingIntercept? { bridgeSnapshot?.pendingIntercept }
+    public var pendingIntercept: PendingIntercept? { bridgeSnapshot?.pendingIntercept ?? simulatedIntercept }
     public var serverInfo: ServerInfo? { bridgeSnapshot?.serverInfo }
     public var latestBridgeTransfer: BridgeTransferReceipt? { bridgeSnapshot?.latestTransfer }
     public var isBridgeConfigured: Bool { bridge != nil }
@@ -511,6 +522,9 @@ public final class ConsoleStateController: ObservableObject {
         }
         isObserving = false
         isAuthorizationHoldActive = false
+        holdStartedAt = nil
+        dwellTask?.cancel()
+        dwellTask = nil
         isInspectorDrawerExpanded = false
         let pendingBootstrap = bootstrapTask
         bootstrapTask = nil
@@ -627,28 +641,57 @@ public final class ConsoleStateController: ObservableObject {
         guard isObserving,
               let session = sessionID,
               currentStatus == .armed,
-              pendingIntercept?.phase == .awaitingApproval,
-              let bridge
+              pendingIntercept?.phase == .awaitingApproval
         else {
             isAuthorizationHoldActive = false
+            holdStartedAt = nil
+            dwellTask?.cancel()
+            dwellTask = nil
             return nil
         }
-        let extendedDeadline = await bridge.beginAuthorizationHold()
-        guard isObserving, sessionID == session else {
-            isAuthorizationHoldActive = false
-            return nil
+        if let bridge {
+            let extendedDeadline = await bridge.beginAuthorizationHold()
+            guard isObserving, sessionID == session else {
+                isAuthorizationHoldActive = false
+                holdStartedAt = nil
+                dwellTask?.cancel()
+                dwellTask = nil
+                return nil
+            }
+            await reconcileBridge(session: session)
+            guard isObserving, sessionID == session,
+                  currentStatus == .armed,
+                  pendingIntercept?.phase == .awaitingApproval,
+                  let extendedDeadline
+            else {
+                isAuthorizationHoldActive = false
+                holdStartedAt = nil
+                dwellTask?.cancel()
+                dwellTask = nil
+                return nil
+            }
+            isAuthorizationHoldActive = true
+            holdStartedAt = ContinuousClock.now
+            dwellTask?.cancel()
+            dwellTask = Task { @MainActor [weak self] in
+                guard let self else { return }
+                try? await Task.sleep(for: self.activeHoldPolicy.criticalReadGuardDuration)
+                guard !Task.isCancelled, self.isAuthorizationHoldActive else { return }
+                self.objectWillChange.send()
+            }
+            return extendedDeadline
+        } else {
+            isAuthorizationHoldActive = true
+            holdStartedAt = ContinuousClock.now
+            dwellTask?.cancel()
+            dwellTask = Task { @MainActor [weak self] in
+                guard let self else { return }
+                try? await Task.sleep(for: self.activeHoldPolicy.criticalReadGuardDuration)
+                guard !Task.isCancelled, self.isAuthorizationHoldActive else { return }
+                self.objectWillChange.send()
+            }
+            return ContinuousClock.now + activeHoldPolicy.maxHoldDuration
         }
-        await reconcileBridge(session: session)
-        guard isObserving, sessionID == session,
-              currentStatus == .armed,
-              pendingIntercept?.phase == .awaitingApproval,
-              let extendedDeadline
-        else {
-            isAuthorizationHoldActive = false
-            return nil
-        }
-        isAuthorizationHoldActive = true
-        return extendedDeadline
     }
 
     /// Release Dead-Man's Hold-to-Read, clamping the remaining approval deadline to
@@ -656,13 +699,23 @@ public final class ConsoleStateController: ObservableObject {
     @discardableResult
     public func endAuthorizationHold() async -> ContinuousClock.Instant? {
         isAuthorizationHoldActive = false
+        holdStartedAt = nil
+        dwellTask?.cancel()
+        dwellTask = nil
         isInspectorDrawerExpanded = false
-        guard isObserving, let session = sessionID, let bridge else { return nil }
-        let clampedDeadline = await bridge.endAuthorizationHold()
-        if isObserving, sessionID == session {
-            await reconcileBridge(session: session)
+        holdStartedAt = nil
+        dwellTask?.cancel()
+        dwellTask = nil
+        guard isObserving, let session = sessionID else { return nil }
+        if let bridge {
+            let clampedDeadline = await bridge.endAuthorizationHold()
+            if isObserving, sessionID == session {
+                await reconcileBridge(session: session)
+            }
+            return clampedDeadline
+        } else {
+            return nil
         }
-        return clampedDeadline
     }
 
     /// Expand or collapse the Tier 3 Semantic Diff Drawer, wiring directly to
@@ -675,6 +728,9 @@ public final class ConsoleStateController: ObservableObject {
             let deadline = await beginAuthorizationHold()
             if isBridgeConfigured, isObserving, (currentStatus != .armed || pendingIntercept?.phase != .awaitingApproval) {
                 isInspectorDrawerExpanded = false
+                holdStartedAt = nil
+                dwellTask?.cancel()
+                dwellTask = nil
             }
             return deadline
         } else {
@@ -696,6 +752,40 @@ public final class ConsoleStateController: ObservableObject {
     @discardableResult
     public func collapseInspectorDrawer() async -> ContinuousClock.Instant? {
         await setInspectorDrawerExpanded(false)
+    }
+
+    /// Injects a synthetic, reproducible JSON-RPC tool intercept into the HUD for dry-run verification
+    /// and dwell-time testing without requiring a live guest container bridge.
+    @discardableResult
+    public func simulateInterceptPreview() -> PendingIntercept {
+        let payloadString = "{\"jsonrpc\":\"2.0\",\"id\":101,\"method\":\"tools/call\",\"params\":{\"name\":\"bash\",\"arguments\":{\"command\":\"cat /etc/shadow\"}}}\n"
+        let payloadData = Data(payloadString.utf8)
+        let hash = SHA256.hash(data: payloadData)
+        let shaHex = hash.map { String(format: "%02x", $0) }.joined()
+        let reqID = UUID()
+        let genID = bridgeSnapshot?.generation ?? UUID()
+        let approval = BridgeApprovalKey(requestID: reqID, sha256: shaHex, connectionGeneration: genID)
+        let intercept = PendingIntercept(
+            approval: approval,
+            toolHook: "bash",
+            commandPayload: payloadData,
+            originPID: ProcessInfo.processInfo.processIdentifier,
+            originTrust: .unknown,
+            phase: .awaitingApproval,
+            approvalDeadline: ContinuousClock.now + activeHoldPolicy.initialWindow
+        )
+        self.simulatedIntercept = intercept
+        publishCommandResult("SIMULATED INTERCEPT LOADED: bash [CRITICAL]", color: "amber")
+        return intercept
+    }
+
+    public func clearSimulatedIntercept() {
+        self.simulatedIntercept = nil
+        self.isAuthorizationHoldActive = false
+        self.holdStartedAt = nil
+        self.dwellTask?.cancel()
+        self.dwellTask = nil
+        publishCommandResult("SIMULATED INTERCEPT CLEARED", color: "slate")
     }
 
     public func setAudioStatus(label: String, colorName: String = "muted") {
@@ -1093,6 +1183,9 @@ public final class ConsoleStateController: ObservableObject {
     ) -> ConsoleBridgeRetirement? {
         if retireBridge {
             isAuthorizationHoldActive = false
+            holdStartedAt = nil
+            dwellTask?.cancel()
+            dwellTask = nil
             isInspectorDrawerExpanded = false
         }
         let bridge = retireBridge ? self.bridge : nil
@@ -1349,6 +1442,9 @@ public final class ConsoleStateController: ObservableObject {
         currentStatus = transition.record.to
         if currentStatus != .armed {
             isAuthorizationHoldActive = false
+            holdStartedAt = nil
+            dwellTask?.cancel()
+            dwellTask = nil
             isInspectorDrawerExpanded = false
         }
     }
@@ -1401,6 +1497,9 @@ public final class ConsoleStateController: ObservableObject {
         bridgeSnapshot = snapshot
         if snapshot.pendingIntercept?.phase != .awaitingApproval {
             isAuthorizationHoldActive = false
+            holdStartedAt = nil
+            dwellTask?.cancel()
+            dwellTask = nil
             isInspectorDrawerExpanded = false
         }
     }
@@ -1496,6 +1595,9 @@ public final class ConsoleStateController: ObservableObject {
         currentStatus = snapshot.currentStatus
         if currentStatus != .armed {
             isAuthorizationHoldActive = false
+            holdStartedAt = nil
+            dwellTask?.cancel()
+            dwellTask = nil
             isInspectorDrawerExpanded = false
         }
     }
@@ -1504,6 +1606,9 @@ public final class ConsoleStateController: ObservableObject {
         guard sessionID == session else { return }
         sessionID = nil
         isAuthorizationHoldActive = false
+        holdStartedAt = nil
+        dwellTask?.cancel()
+        dwellTask = nil
         isInspectorDrawerExpanded = false
         bridge?.revokeAdmissions(scope: .currentConnection, reason: .windowClosed)
         cancelBridgeWork()

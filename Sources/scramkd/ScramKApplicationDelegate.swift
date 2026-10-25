@@ -188,7 +188,13 @@ final class ScramKApplicationDelegate: NSObject, NSApplicationDelegate, NSWindow
     }
 
     private func dispatch(_ command: ConsoleCommand) {
-        guard canDispatchCommands else { return }
+        guard canDispatch(command) else { return }
+        if command == .emergencyAbort {
+            dismissBridgeSheets()
+            if let window = consoleWindow, let sheet = window.attachedSheet {
+                window.endSheet(sheet)
+            }
+        }
         let id = UUID()
         let generation = windowGeneration
         let request = controller.commandRequest(command)
@@ -198,19 +204,26 @@ final class ScramKApplicationDelegate: NSObject, NSApplicationDelegate, NSWindow
             defer { self.commandTasks.removeValue(forKey: id) }
             guard !Task.isCancelled,
                   self.windowGeneration == generation,
-                  self.canDispatchCommands
+                  self.canDispatch(command)
             else { return }
             await controller.perform(request)
         }
     }
 
-    private var canDispatchCommands: Bool {
+    private func canDispatch(_ command: ConsoleCommand) -> Bool {
         guard !isTerminating, controller.isObserving, let window = consoleWindow else { return false }
+        let isConsoleOrSheetKey = (NSApplication.shared.keyWindow === window) ||
+            (window.attachedSheet != nil && NSApplication.shared.keyWindow === window.attachedSheet)
+        let sheetPermitted = (window.attachedSheet == nil || command == .emergencyAbort)
         return NSApplication.shared.isActive
-            && NSApplication.shared.keyWindow === window
+            && isConsoleOrSheetKey
             && window.isVisible
-            && window.attachedSheet == nil
+            && sheetPermitted
             && NSApplication.shared.modalWindow == nil
+    }
+
+    private var canDispatchCommands: Bool {
+        canDispatch(.armGate)
     }
 
     private func installKeyboardMonitor() {
@@ -253,13 +266,17 @@ final class ScramKApplicationDelegate: NSObject, NSApplicationDelegate, NSWindow
 
     private func routingContext(snapshot: ConsoleMenuKeySnapshot?) -> ConsoleKeyboardContext? {
         guard let window = consoleWindow else { return nil }
+        let isConsoleOrSheetKey = (NSApplication.shared.keyWindow === window) ||
+            (window.attachedSheet != nil && NSApplication.shared.keyWindow === window.attachedSheet)
+        let isConsoleOrSheetEvent = (snapshot?.windowID == ObjectIdentifier(window)) ||
+            (window.attachedSheet != nil && snapshot?.windowID == window.attachedSheet.map { ObjectIdentifier($0) })
         return ConsoleKeyboardContext(
             keyCode: snapshot?.keyCode ?? 0,
             modifiers: Self.routingModifiers(.init(rawValue: snapshot?.modifierFlags ?? 0)),
             isRepeat: snapshot?.isRepeat ?? false,
             isApplicationActive: NSApplication.shared.isActive,
-            isConsoleKeyWindow: NSApplication.shared.keyWindow === window && window.isVisible,
-            eventBelongsToConsoleWindow: snapshot?.windowID == ObjectIdentifier(window),
+            isConsoleKeyWindow: isConsoleOrSheetKey && window.isVisible,
+            eventBelongsToConsoleWindow: isConsoleOrSheetEvent,
             hasAttachedSheet: window.attachedSheet != nil,
             hasModalWindow: NSApplication.shared.modalWindow != nil,
             isMenuTracking: !trackingMenus.isEmpty,
@@ -380,6 +397,20 @@ final class ScramKApplicationDelegate: NSObject, NSApplicationDelegate, NSWindow
         let reset = gateMenu.addItem(withTitle: "Reset Abort", action: #selector(resetAbort(_:)), keyEquivalent: "r")
         reset.target = self
         reset.keyEquivalentModifierMask = [.command]
+        gateMenu.addItem(.separator())
+        let simIntercept = gateMenu.addItem(
+            withTitle: "Simulate Intercept Preview (Dry Run)",
+            action: #selector(simulateInterceptPreview(_:)),
+            keyEquivalent: "i"
+        )
+        simIntercept.target = self
+        simIntercept.keyEquivalentModifierMask = [.command, .shift]
+        let clearSim = gateMenu.addItem(
+            withTitle: "Clear Intercept Preview",
+            action: #selector(clearInterceptPreview(_:)),
+            keyEquivalent: ""
+        )
+        clearSim.target = self
         addSubmenu(gateMenu, to: mainMenu)
 
         let virtualizationMenu = makeMenu(title: "Virtualization")
@@ -466,11 +497,23 @@ final class ScramKApplicationDelegate: NSObject, NSApplicationDelegate, NSWindow
     }
 
     @objc private func emergencyAbort(_ sender: NSMenuItem) {
-        dispatchMenuCommand(.emergencyAbort)
+        if let window = consoleWindow, let sheet = window.attachedSheet {
+            window.endSheet(sheet)
+            dismissBridgeSheets()
+        }
+        dispatch(.emergencyAbort)
     }
 
     @objc private func resetAbort(_ sender: NSMenuItem) {
         dispatchMenuCommand(.resetEmergencyAbort)
+    }
+
+    @objc private func simulateInterceptPreview(_ sender: NSMenuItem) {
+        _ = controller.simulateInterceptPreview()
+    }
+
+    @objc private func clearInterceptPreview(_ sender: NSMenuItem) {
+        controller.clearSimulatedIntercept()
     }
 
     @objc private func showConsoleFromMenu(_ sender: NSMenuItem) {
@@ -563,9 +606,13 @@ final class ScramKApplicationDelegate: NSObject, NSApplicationDelegate, NSWindow
         case #selector(grantPermissive(_:)):
             return menuCommandAvailable(.grantPermissive)
         case #selector(emergencyAbort(_:)):
-            return menuCommandAvailable(.emergencyAbort)
+            return !isTerminating && controller.currentStatus != .emergencyAbort
         case #selector(resetAbort(_:)):
             return menuCommandAvailable(.resetEmergencyAbort)
+        case #selector(simulateInterceptPreview(_:)):
+            return !isTerminating && controller.isObserving && controller.simulatedIntercept == nil
+        case #selector(clearInterceptPreview(_:)):
+            return !isTerminating && controller.isObserving && controller.simulatedIntercept != nil
         case #selector(showConsoleFromMenu(_:)):
             return !isTerminating
         case #selector(attachScreenEnvBridge(_:)):

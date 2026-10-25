@@ -195,7 +195,7 @@ actor MCPProcessTransport {
         let child = Process()
         child.executableURL = configuration.executableURL
         child.arguments = configuration.arguments
-        child.environment = configuration.environment
+        child.environment = configuration.environment.map { DefaultSubprocessEnvironmentScrubber.scrub($0) }
         // These FileHandles do not own the descriptors. The launch scope closes each original
         // child end exactly once after run (or launch failure); libdispatch owns the parent ends.
         child.standardInput = FileHandle(fileDescriptor: pipes.descriptor(at: 0), closeOnDealloc: false)

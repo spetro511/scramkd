@@ -383,4 +383,101 @@ final class MakerBreakerVirtualizationSecurityTests: XCTestCase {
             }
         }
     }
+
+    // MARK: - SYS-01: Strict Airgap Container Creation Rejection
+
+    func testContainerCreationPolicyStrictAirgapRejectsNonNoneNetworkMode() {
+        // 1. HostConfig NetworkMode == "bridge" must be rejected under .strictAirgap
+        let bridgeNetworkJSON = #"""
+        {
+          "HostConfig": {
+            "Privileged": false,
+            "NetworkMode": "bridge",
+            "ReadonlyRootfs": true,
+            "CapDrop": ["ALL"]
+          }
+        }
+        """#
+        XCTAssertThrowsError(try ContainerCreationPolicy.inspectContainerCreatePayload(
+            Data(bridgeNetworkJSON.utf8),
+            profile: .strictAirgap
+        )) { error in
+            guard case .forbiddenDirective(let key, let detail) = error as? ContainerCreationPolicyError else {
+                return XCTFail("Expected forbiddenDirective, got \(error)")
+            }
+            XCTAssertEqual(key, "networkmode")
+            XCTAssertTrue(detail.contains("Strict airgap profile requires NetworkMode 'none'"))
+        }
+
+        // 2. Top-level NetworkMode: "none" shadowing missing HostConfig.NetworkMode must be rejected
+        let shadowingJSON = #"""
+        {
+          "NetworkMode": "none",
+          "HostConfig": {
+            "Privileged": false,
+            "ReadonlyRootfs": true,
+            "CapDrop": ["ALL"]
+          }
+        }
+        """#
+        XCTAssertThrowsError(try ContainerCreationPolicy.inspectContainerCreatePayload(
+            Data(shadowingJSON.utf8),
+            profile: .strictAirgap
+        )) { error in
+            guard case .missingRequiredDirective(let key) = error as? ContainerCreationPolicyError else {
+                return XCTFail("Expected missingRequiredDirective, got \(error)")
+            }
+            XCTAssertEqual(key, "networkmode")
+        }
+    }
+
+    // MARK: - SYS-05: ContainerSocketBridge endAuthorizationHold Invariant
+
+    func testEndAuthorizationHoldRequiresActiveHold() async throws {
+        let clock = BridgeManualClock()
+        let intercept = MCPIOCompletion<PendingIntercept>()
+        let hooks = BridgeTestHooks(pendingPublished: { intercept.finish(.success($0)) })
+
+        try await BridgeFixture.withSession(timing: clock.timing, hooks: hooks) { session in
+            try await session.gate.arm()
+
+            // 1. Calling endAuthorizationHold when hold is NOT active returns nil
+            let prematureEnd = await session.bridge.endAuthorizationHold()
+            XCTAssertNil(prematureEnd)
+            let holdActiveBefore = await session.bridge.isAuthorizationHoldActive
+            XCTAssertFalse(holdActiveBefore)
+
+            // 2. Start a tool call to produce a pending intercept
+            let callTask = Task {
+                try await session.bridge.submitTool(name: "fixture", argumentsJSON: Data("{}".utf8), generation: session.info.generation)
+            }
+            defer { callTask.cancel() }
+
+            let pending = try await intercept.wait(deadline: ContinuousClock.now.advanced(by: .seconds(5)))
+
+            // 3. Before beginAuthorizationHold, endAuthorizationHold returns nil
+            let unheldEnd = await session.bridge.endAuthorizationHold()
+            XCTAssertNil(unheldEnd)
+
+            // 4. Begin hold
+            let holdDeadline = await session.bridge.beginAuthorizationHold()
+            XCTAssertNotNil(holdDeadline)
+            let isHolding = await session.bridge.isAuthorizationHoldActive
+            XCTAssertTrue(isHolding)
+
+            // 5. First endAuthorizationHold succeeds and resets active hold
+            let validEnd = await session.bridge.endAuthorizationHold()
+            XCTAssertNotNil(validEnd)
+            let isHoldingAfter = await session.bridge.isAuthorizationHoldActive
+            XCTAssertFalse(isHoldingAfter)
+
+            // 6. Second immediate endAuthorizationHold returns nil because hold is no longer active
+            let redundantEnd = await session.bridge.endAuthorizationHold()
+            XCTAssertNil(redundantEnd)
+
+            _ = try await session.bridge.approve(pending.approval)
+            let result = try await callTask.value
+            XCTAssertEqual(result.receipt.outcome, .responseReceived)
+        }
+    }
 }

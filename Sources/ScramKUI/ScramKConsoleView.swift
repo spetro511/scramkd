@@ -58,6 +58,7 @@ public struct ScramKConsoleView: View {
                     isAuthorizationHoldActive: controller.isAuthorizationHoldActive,
                     isInspectorDrawerExpanded: controller.isInspectorDrawerExpanded,
                     semanticSummary: semanticSummary,
+                    pendingIntercept: controller.pendingIntercept,
                     toggleInspectorDrawer: { drawerToggleID = UUID() }
                 )
                 .frame(width: DesignTokens.Layout.cockpitWidth)

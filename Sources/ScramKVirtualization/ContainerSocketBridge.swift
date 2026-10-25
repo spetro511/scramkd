@@ -468,6 +468,7 @@ public actor ContainerSocketBridge {
     /// `activeHoldPolicy.initialWindow` countdown (clamped to `maxHoldDuration`).
     @discardableResult
     public func endAuthorizationHold(now: ContinuousClock.Instant? = nil) -> ContinuousClock.Instant? {
+        guard isAuthorizationHoldActive else { return nil }
         isAuthorizationHoldActive = false
         guard connectionState == .attached,
               let gen = generation,
