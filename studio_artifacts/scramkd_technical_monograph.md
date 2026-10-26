@@ -217,7 +217,7 @@ To prevent unattended or background execution dispatches, `scramkd` links interl
 
 ### 5.1 C11 SPSC Ring Buffer & Atomic Synchronization
 
-Real-time audio feedback is managed across a strict architectural boundary between high-level Swift management (`ScramKAudio`) and a lock-free C11 realtime engine (`CScramKAudioRealtime` / `CTacticalAudioRealtime`).
+Real-time audio feedback is managed across a strict architectural boundary between high-level Swift management (`ScramKAudio`) and a lock-free C11 realtime engine (`CScramKAudioRealtime`).
 
 ```
 +------------------------------------+          +--------------------------------------+

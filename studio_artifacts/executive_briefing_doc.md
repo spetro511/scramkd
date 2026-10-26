@@ -115,9 +115,9 @@ Traditional runtime protection for autonomous AI agents attempts to filter outpu
 |  ==============================================================================   |
 |                                                                                   |
 |  Actor-Isolated Safety & State Layer                                              |
-|  - TacticalCore / ScramKCore Actors (HardwareInterlockGate)                       |
-|  - TacticalVirtualization / ScramKVirtualization Actors (ContainerSocketBridge)   |
-|  - TacticalAudioSVS / ScramKAudio Actors (AudioGraphOwner, AudioReclamationControl)|
+|  - ScramKCore Actors (HardwareInterlockGate)                                       |
+|  - ScramKVirtualization Actors (ContainerSocketBridge)                           |
+|  - ScramKAudio Actors (AudioGraphOwner, AudioReclamationControl)                  |
 |                                                                                   |
 |  Synchronous Non-Suspending Mutex Layer                                           |
 |  - OSAllocatedUnfairLock (ContinuationWaiter, OneShotGate, AudioWaitSignal)       |

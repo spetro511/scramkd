@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-[#04060A] text-slate-100 antialiased selection:bg-[#EF4444] selection:text-white">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200, initial-scale=1.0">
+  <title>SCRAMKD // GitHub Repo Master Hero Header (1200x320)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['Geist Mono', 'monospace'],
+          },
+          colors: {
+            pitch: '#04060A',
+            chassis: '#070A10',
+            pocket: '#090D15',
+            milled: '#06080E',
+            scram: '#EF4444',
+            amber: '#F59E0B',
+            emerald: '#10B981',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #04060A;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    }
+    .grid-matrix {
+      background-size: 20px 20px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
+    .dot-matrix {
+      background-size: 16px 16px;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="p-0 m-0">
+
+  <!-- MASTER CONTAINER: 1200px x 320px EXACT -->
+  <div class="w-[1200px] h-[320px] bg-[#04060A] border border-white/[0.08] relative grid-matrix flex flex-col justify-between overflow-hidden select-none box-border">
+
+    <!-- TOP GLOBAL REGISTRATION RAIL (Height: 34px) -->
+    <header class="h-[34px] w-full bg-[#090D15] border-b border-white/[0.08] px-6 flex items-center justify-between font-mono text-[10px] tracking-wider text-slate-400 shrink-0 z-10">
+      <div class="flex items-center space-x-2.5">
+        <span class="w-2 h-2 bg-[#EF4444] inline-block"></span>
+        <span class="text-white font-bold tracking-widest">SCRAMKD // SPEC 2026.04-DARWIN // XNU KERNEL BOUNDARY</span>
+      </div>
+      <div class="flex items-center space-x-6 text-[10px]">
+        <span>CORE: <strong class="text-slate-300 font-semibold">SWIFT 6 STRICT</strong></span>
+        <span class="text-slate-600">|</span>
+        <span>TRIP LATENCY: <strong class="text-emerald font-semibold">&lt; 384 µs</strong></span>
+        <span class="text-slate-600">|</span>
+        <span>POSTURE: <strong class="text-[#EF4444] font-semibold">FAIL-SAFE: OPEN</strong></span>
+      </div>
+    </header>
+
+    <!-- MAIN BODY (60% Left Narrative / 40% Right Monogram Plate) -->
+    <main class="w-full h-[256px] flex flex-row items-stretch shrink-0">
+      
+      <!-- LEFT SECTION (720px Width, 60%) -->
+      <section class="w-[720px] h-full p-8 flex flex-col justify-between border-r border-white/[0.08] bg-[#04060A]/85 shrink-0 box-border z-10">
+        <div>
+          <!-- Category Tag -->
+          <div class="font-mono text-[10px] font-bold text-[#EF4444] tracking-[0.25em] uppercase mb-2 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 bg-[#EF4444] inline-block"></span>
+            <span>HIGH-ASSURANCE SAFETY MONOGRAPH // ED. 01</span>
+          </div>
+
+          <!-- Headline Lockup: SCRAMKD 64px -->
+          <div class="flex items-baseline tracking-[-0.05em] select-none uppercase font-sans">
+            <span class="text-[64px] font-[900] leading-none text-white tracking-[-0.05em]">SCRAM</span><span class="text-[64px] font-[700] leading-none text-[#94A3B8] tracking-[-0.05em]">KD</span>
+          </div>
+
+          <!-- Sub-heading -->
+          <p class="font-sans font-medium text-[15px] text-slate-200 mt-2.5 max-w-[580px] leading-snug">
+            Deterministic macOS Hardware Safety Interlock &amp; Kill Switch for Autonomous Agent Runtimes.
+          </p>
+
+          <!-- Contrarian Callout -->
+          <div class="mt-2.5 pl-3.5 border-l-2 border-[#EF4444] max-w-[560px]">
+            <p class="font-sans text-[12px] text-slate-400 font-normal leading-relaxed">
+              Probabilistic prompt guardrails fail. SCRAMKD enforces an immutable Darwin kernel boundary between tool-calling LLMs and your workstation.
+            </p>
+          </div>
+        </div>
+
+        <!-- INTERACTIVE ATTRIBUTION & STAR CTA STRIP -->
+        <div class="mt-4 flex items-center space-x-3 text-[12px] font-mono text-slate-400">
+          <span>Architect:</span>
+          <a href="https://www.linkedin.com/in/suren-sahaydachny" target="_blank" class="text-white font-medium hover:text-[#EF4444] transition-colors border-b border-transparent hover:border-[#EF4444]">Suren Sahaydachny</a>
+          <span class="text-slate-600">/</span>
+          <a href="https://github.com/spetro511/scramkd" target="_blank" class="inline-flex items-center space-x-1.5 px-2 py-0.5 bg-[#090D15] border border-white/10 text-slate-300 hover:text-white hover:border-white/20 transition-colors">
+            <svg class="w-3.5 h-3.5 fill-current text-slate-300" viewBox="0 0 24 24">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+            </svg>
+            <span class="font-medium text-slate-200">spetro511/scramkd</span>
+          </a>
+          <a href="https://github.com/spetro511/scramkd" target="_blank" class="inline-flex items-center space-x-1 px-2.5 py-0.5 bg-[#EF4444]/15 border border-[#EF4444]/40 text-[#EF4444] hover:bg-[#EF4444]/25 transition-colors font-bold uppercase text-[10.5px]">
+            <svg class="w-3.5 h-3.5 fill-current text-[#EF4444]" viewBox="0 0 24 24">
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+            </svg>
+            <span>STAR REPO</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- RIGHT SECTION (480px Width, 40%) -->
+      <section class="w-[480px] h-full bg-[#06080E] dot-matrix p-6 flex flex-col items-center justify-between shrink-0 box-border relative">
+        
+        <!-- Top Micro-Header -->
+        <div class="font-mono text-[9px] text-slate-500 w-full flex justify-between border-b border-white/[0.08] pb-1.5 shrink-0">
+          <span>FIG 1.1 // PRIMARY OPERATIONAL EMBLEM</span>
+          <span class="text-[#EF4444] font-semibold">28VDC INTERCEPT</span>
+        </div>
+
+        <!-- Centered 160x160px Monogram Box -->
+        <div class="w-[160px] h-[160px] bg-[#090D15] border border-white/15 p-3 relative flex items-center justify-center my-auto shrink-0 shadow-2xl">
+          <!-- Corner Metric Accents -->
+          <span class="absolute top-1.5 right-2 font-mono text-[8px] text-[#EF4444] font-semibold tracking-wider">TRIP // ARMED</span>
+          <span class="absolute bottom-1.5 left-2 font-mono text-[8px] text-slate-400 font-medium tracking-wider">ISO-99 DIELECTRIC</span>
+
+          <!-- Mechanical SVG Mark (64x64 viewbox) -->
+          <svg class="w-[116px] h-[116px]" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- 4 Chamfer Corner Brackets in pure white (stroke-width: 2.5px, square caps) -->
+            <path d="M 4 16 L 4 4 L 16 4" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter" />
+            <path d="M 48 4 L 60 4 L 60 16" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter" />
+            <path d="M 4 48 L 4 60 L 16 60" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter" />
+            <path d="M 48 60 L 60 60 L 60 48" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter" />
+
+            <!-- Conductive Bus Traces in Slate #64748B (stroke-width: 3px) -->
+            <!-- Left line from (8, 32) to (20, 32) terminating at circle (cx: 22, cy: 32, r: 2.5) -->
+            <line x1="8" y1="32" x2="20" y2="32" stroke="#64748B" stroke-width="3" stroke-linecap="square" />
+            <circle cx="22" cy="32" r="2.5" fill="#64748B" />
+
+            <!-- Right line from (44, 32) to (56, 32) terminating at circle (cx: 42, cy: 32, r: 2.5) -->
+            <line x1="44" y1="32" x2="56" y2="32" stroke="#64748B" stroke-width="3" stroke-linecap="square" />
+            <circle cx="42" cy="32" r="2.5" fill="#64748B" />
+
+            <!-- Physical 16px Isolation Air Gap between x=22 and x=42 -->
+            <!-- 45-degree Radical Red #EF4444 Sever Blade: line from (18, 46) to (46, 18), stroke-width: 4.5px, square caps -->
+            <line x1="18" y1="46" x2="46" y2="18" stroke="#EF4444" stroke-width="4.5" stroke-linecap="square" />
+
+            <!-- Scram Core Node: Circle at (cx: 32, cy: 32, r: 5) filled with #EF4444 and stroke #090D15 (width: 1.5px) -->
+            <circle cx="32" cy="32" r="5" fill="#EF4444" stroke="#090D15" stroke-width="1.5" />
+            <circle cx="32" cy="32" r="1.5" fill="#FFFFFF" />
+          </svg>
+        </div>
+
+        <!-- Inscription Footer -->
+        <div class="font-mono text-[9px] text-white font-bold w-full flex justify-between border-t border-white/[0.08] pt-1.5 shrink-0">
+          <span>FAIL-SAFE: OPEN // SPEC: MIL-STD-1472H</span>
+          <span class="text-slate-400 font-normal">SEVER: 45°</span>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- BOTTOM FOOTER REGISTRATION RAIL (Height: 30px) -->
+    <footer class="h-[30px] w-full bg-[#070A10] border-t border-white/[0.08] px-6 flex items-center justify-between text-[10px] font-mono text-slate-400 shrink-0 z-10">
+      <div class="flex items-center space-x-1.5 text-slate-300">
+        <span class="w-1.5 h-1.5 bg-[#10B981] inline-block"></span>
+        <span>REPO VERIFIED: <a href="https://github.com/spetro511/scramkd" target="_blank" class="hover:text-white underline transition-colors">github.com/spetro511/scramkd</a></span>
+      </div>
+      <div class="text-slate-400">
+        ARCH: APPLE SILICON / XNU DARWIN • 100% NON-PROBABILISTIC
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

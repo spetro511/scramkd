@@ -1,14 +1,21 @@
-# `scramkd` — Darwin Supervisor Daemon & Hardware Interlock Runtime
+<div align="center">
+  <a href="https://github.com/spetro511/scramkd">
+    <img src="docs/assets/scramkd-hero-banner.png" width="100%" alt="SCRAMKD // Hardware Interlock & Supervisor Daemon" />
+  </a>
+</div>
 
-> A deterministic, zero-AI-footprint macOS supervisor daemon (`scramkd`), operator control CLI (`scramkctl`), and hardware-grade human-approved interlock enforcing physical operator authority between autonomous agent swarms and host execution.
+<p align="center">
+  <a href="https://www.linkedin.com/in/suren-sahaydachny"><img src="https://img.shields.io/badge/Architect-Suren_Sahaydachny-blue?style=flat-square&logo=linkedin&color=0A66C2" alt="Architect: Suren Sahaydachny" /></a>
+  <a href="https://github.com/spetro511/scramkd"><img src="https://img.shields.io/github/stars/spetro511/scramkd?style=flat-square&label=%E2%98%85%20Star%20Repo&color=EF4444" alt="Star scramkd" /></a>
+  <a href="https://github.com/spetro511/scramkd/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue?style=flat-square" alt="Apache 2.0" /></a>
+  <a href="docs/brand/spec.html"><img src="https://img.shields.io/badge/Spec-Brand_Monograph-EF4444?style=flat-square" alt="Brand Spec" /></a>
+</p>
 
-**Architect:** Suren Sahaydachny · **Language:** Swift 6 / C11 · **Runtime:** macOS 14+ (Apple Silicon)
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Suren%20Sahaydachny-0A66C2?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/suren-sahaydachny-6a4a7a143)
-![Swift 6](https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white)
-![macOS 14+](https://img.shields.io/badge/macOS-14%2B-000000?logo=apple&logoColor=white)
-![Strict Concurrency](https://img.shields.io/badge/concurrency-complete%20%280%20warnings%29-green)
-![Tests](https://img.shields.io/badge/tests-372%20passing-brightgreen)
+<div align="center">
+  <a href="https://github.com/spetro511/scramkd">
+    <img src="docs/assets/hardware-badges-strip.png" width="100%" alt="SCRAMKD Hardware Telemetry Strip" />
+  </a>
+</div>
 
 ---
 
@@ -94,6 +101,13 @@ By adopting the Unix `d` suffix, `scramkd` ("scram-kay-dee" — **SCRAM** emerge
 ---
 
 ## System Architecture & Swift 6 Target Layout
+
+<div align="center">
+  <a href="docs/brand/architecture-pipeline.html">
+    <img src="docs/assets/architecture-interlock-flow.png" width="100%" alt="SCRAMKD Containment & Hardware Interlock Pipeline" />
+  </a>
+  <p><em>FIG 2.1: Deterministic Ingress Intercept, 16px Actor Isolation Dielectric Air-Gap, and Zero-Egress Detonation Runtime.</em></p>
+</div>
 
 To guarantee that an agent cannot corrupt or outrun its supervisor, `scramkd` is structured as an acyclic Swift 6 / C11 package compiled under complete strict concurrency enforcement (`-Xswiftc -strict-concurrency=complete`). There is no shared mutable global state. Subsystems communicate exclusively across actor boundaries and immutable `Sendable` telemetry frames:
 
@@ -329,7 +343,7 @@ plutil -lint LaunchDaemons/com.scramk.daemon.plist
 
 **Architect & Lead System Designer: Suren Sahaydachny**
 Principal Enterprise Architect, AI Systems SDLC Director & Adversarial Red Teamer
-San Francisco Bay Area · [LinkedIn Profile](https://www.linkedin.com/in/suren-sahaydachny-6a4a7a143) · [GitHub](https://github.com/spetro511)
+San Francisco Bay Area · [LinkedIn Profile](https://www.linkedin.com/in/suren-sahaydachny) · [GitHub](https://github.com/spetro511)
 
 I direct high-assurance enterprise systems architecture and agentic AI SDLC transformations. Over a 25-year career spanning foundational database infrastructure at Oracle, executive product leadership, and large-scale autonomous agent deployments at Sucoro AI, I have designed 56+ production platforms. I have been forward-deployed and client-facing my entire career, pitching to and closing enterprise C-level stakeholders and decision makers — securing accounts such as Disney, Netflix, Calvin Klein, Lufthansa, Cerberus, Apple, and Oracle (where I then worked) — winning major projects that generated over $100M in revenue. My platforms focus on:
 
