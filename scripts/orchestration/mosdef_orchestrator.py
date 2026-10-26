@@ -9,7 +9,7 @@ This script implements the 8-Agent Maker-Breaker topology defined in AGENTS.md.
 import os
 import subprocess
 from pathlib import Path
-from google_antigravity import (
+from google.antigravity import (
     Agent,
     LocalAgentConfig,
     ToolExecutionEvent,
@@ -226,7 +226,7 @@ async def run_scramkd_orchestrator(prompt: str = None, resume_id: str = None, ki
             
             print("\n✅ Orchestration Complete")
             print("Final Output:")
-            print(response.text)
+            print(await response.text())
     except Exception as e:
         print(f"\n❌ Orchestration Halted: {e}")
 

@@ -2,7 +2,7 @@
 import os
 import subprocess
 from pathlib import Path
-from google_antigravity import Agent, LocalAgentConfig
+from google.antigravity import Agent, LocalAgentConfig
 import asyncio
 
 async def run_sync():
@@ -53,14 +53,14 @@ async def run_sync():
     config = LocalAgentConfig(
         name="Meta-Observer (Sync)",
         system_instruction="You are a precise, stateless documentation agent. You output ONLY raw markdown.",
-        agent_behavior="autonomous",
-        # Using a fast model if default isn't fast enough, but default is fine for script.
+        agent_behavior="autonomous"
     )
 
     try:
         async with Agent(config) as agent:
             response = await agent.chat(prompt)
-            updated_markdown = response.text.strip()
+            updated_markdown = await response.text()
+            updated_markdown = updated_markdown.strip()
             
             # Clean up if the model wrapped it in markdown codeblocks
             if updated_markdown.startswith("```markdown"):
