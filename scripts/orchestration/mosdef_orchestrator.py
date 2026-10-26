@@ -179,9 +179,9 @@ orchestrator_config = LocalAgentConfig(
 
 import asyncio
 
-async def run_scramkd_orchestrator(prompt: str = None, resume_id: str = None):
+async def run_scramkd_orchestrator(prompt: str = None, resume_id: str = None, kickoff: bool = False):
     """
-    Executes the Master Orchestrator with the given task or resumes a session.
+    Executes the Master Orchestrator with the given task, resumes a session, or runs the Kickoff Protocol.
     """
     print("🚀 Initializing scramkd Darwin Supervisor Daemon A2A Pipeline...")
     
@@ -201,7 +201,27 @@ async def run_scramkd_orchestrator(prompt: str = None, resume_id: str = None):
             if not resume_id:
                 print(f"💾 New session created. To resume later, use: --resume {master_agent.conversation_id}")
                 
-            input_text = prompt if prompt else "Resume orchestration based on PROGRESS.md and current context."
+            # Determine the input prompt
+            if kickoff:
+                print("📋 Executing Mid-Stream Kickoff & Audit Protocol...")
+                input_text = (
+                    "CRITICAL MID-STREAM ONBOARDING & AUDIT PROTOCOL:\n"
+                    "You are taking over this project mid-stream. Do NOT execute any code changes or delegate to subagents yet.\n\n"
+                    "1. DISCOVERY: Read `HANDOFF.md`, `PROGRESS.md`, and `.system_generated/logs/review/STATE.md` (if they exist) to understand the project history, what is claimed as completed, and current blockers.\n"
+                    "2. ADVERSARIAL AUDIT: Do NOT trust the handoff document at face value. You must aggressively audit the 'Completed Work' ledger. Query the DO Precision RAG Steward and examine the codebase to verify:\n"
+                    "   - Are there placeholder/mock data structures where real data bindings should exist?\n"
+                    "   - Are there stubbed functions, `TODOs`, or `fatalError(\"Not implemented\")` in supposedly finished modules?\n"
+                    "   - Does the implementation actually meet the project's strict Definition of Done (e.g., no concurrency escapes, real tests exist)?\n"
+                    "   - Review recent git commits/history if necessary to understand the reality of the implementation.\n"
+                    "3. KICKOFF BRIEF & VERDICT: Output a comprehensive 'Kickoff Brief' artifact to the user detailing:\n"
+                    "   - Audit Report: Which 'completed' items are actually complete, and which are falsely reported (e.g., relying on mock data).\n"
+                    "   - Current State & Blockers: Based on the handoff AND your audit.\n"
+                    "   - Proposed Immediate Next Step: Prioritize fixing falsely completed work before advancing to new milestones.\n\n"
+                    "Wait for the user to reply 'Approved' or provide corrections before proceeding."
+                )
+            else:
+                input_text = prompt if prompt else "Resume orchestration based on PROGRESS.md and current context."
+                
             response = await master_agent.chat(input_text)
             
             print("\n✅ Orchestration Complete")
@@ -215,9 +235,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="scramkd Darwin Supervisor Daemon Orchestrator")
     parser.add_argument("prompt", type=str, nargs="?", help="The task to orchestrate")
     parser.add_argument("--resume", type=str, help="Resume a previous session by its ID")
+    parser.add_argument("--kickoff", action="store_true", help="Run the Mid-Stream Onboarding Protocol to safely start mid-project")
     args = parser.parse_args()
     
-    if not args.prompt and not args.resume:
-        parser.error("You must provide either a prompt or a --resume ID.")
+    if not args.prompt and not args.resume and not args.kickoff:
+        parser.error("You must provide a prompt, --resume ID, or the --kickoff flag.")
         
-    asyncio.run(run_scramkd_orchestrator(args.prompt, args.resume))
+    asyncio.run(run_scramkd_orchestrator(args.prompt, args.resume, args.kickoff))
