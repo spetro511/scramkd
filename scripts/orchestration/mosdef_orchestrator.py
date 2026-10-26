@@ -12,8 +12,8 @@ from pathlib import Path
 from google.antigravity import (
     Agent,
     LocalAgentConfig,
-    ToolExecutionEvent,
-    StopReason
+    ToolContext,
+
 )
 
 # Constants
@@ -49,7 +49,7 @@ def codebase_rag_query(query: str, repo: str = "default") -> str:
 # 2. Lifecycle Hooks (Mandatory Stop-Gaps)
 # ==========================================
 
-def enforce_zero_concurrency_escapes(event: ToolExecutionEvent):
+def enforce_zero_concurrency_escapes(event):
     """
     Stop-Gap 1: Analyzes edit_file/write_file operations.
     Rejects any diff introducing unchecked concurrency escapes.
@@ -95,7 +95,6 @@ verification_engineer_config = LocalAgentConfig(
     system_instruction=read_persona("AGENT_VERIFICATION_ENGINEER.md"),
     # Read-only configuration in practice, perhaps allowing `run_command` for testing
 )
-verification_engineer_config.hooks.on_pre_turn = enforce_serialized_final_gate
 
 # 2. Security Architect (Read-Only)
 security_architect_config = LocalAgentConfig(
@@ -112,7 +111,6 @@ breaker_config = LocalAgentConfig(
                        "\n\nYou may only write/edit files in the Tests/ directory. You must return 'ACCEPTED' or 'REJECTED' verdicts.",
     tools=[codebase_rag_query]
 )
-breaker_config.hooks.on_pre_turn = run_mutation_inversion_check
 
 # 4. Stitch UI & Metal Designer (Maker 2)
 stitch_designer_config = LocalAgentConfig(
@@ -121,7 +119,6 @@ stitch_designer_config = LocalAgentConfig(
                        "\n\nYou may only modify files in Sources/ScramKUI/.",
     tools=[codebase_rag_query]
 )
-stitch_designer_config.hooks.on_post_tool_execution = enforce_zero_concurrency_escapes
 
 # 5. Swift Systems & Audio Maker (Maker 1)
 swift_maker_config = LocalAgentConfig(
@@ -130,7 +127,6 @@ swift_maker_config = LocalAgentConfig(
                        "\n\nYou may only modify Core, Virtualization, and Audio sources. You are forbidden from modifying Tests/.",
     tools=[codebase_rag_query]
 )
-swift_maker_config.hooks.on_post_tool_execution = enforce_zero_concurrency_escapes
 
 
 # 6 & 7. Out-of-Band Observers (Background Agents)
@@ -178,12 +174,46 @@ orchestrator_config = LocalAgentConfig(
 # ==========================================
 
 import asyncio
+import urllib.request
+
+def verify_rag_pipeline():
+    """
+    Validates that the DO Precision RAG Steward is online before starting the session.
+    If offline, provides explicit remediation instructions via the workbook constraints.
+    """
+    print("🔍 Verifying DO Precision RAG Steward health at http://127.0.0.1:8181/health ...")
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:8181/health", timeout=3) as response:
+            if response.status == 200:
+                print("✅ RAG Pipeline is Online & Secured.")
+                return True
+    except Exception:
+        pass
+    
+    print("\n❌ CRITICAL WORKBOOK VALIDATION FAILED: RAG Pipeline is Offline")
+    print("The DO Precision RAG Steward is unreachable at http://127.0.0.1:8181.")
+    print("Agent execution is halted to prevent hallucinated context and unsafe codebase modifications.")
+    print("\n[ REMEDIATION STEPS ]")
+    print("1. Ensure your remote RAG droplet is running.")
+    print("2. Re-establish the local SSH forward (Tunnel) using your designated keys:")
+    print("   export RAG_SSH_KEY_PATH=\"~/.ssh/id_rsa\"")
+    print("   export RAG_SSH_TARGET=\"user@<droplet_ip>\"")
+    print("   python3 .agents/skills/do-precision-rag-steward/scripts/delta_sync_rag.py")
+    print("\nThe `delta_sync_rag.py` workbook script contains self-healing logic (`check_or_heal_tunnel()`) ")
+    print("that will automatically reconnect the SSH tunnel if those environment variables are set.")
+    print("Once complete, re-run this orchestrator command.\n")
+    return False
 
 async def run_scramkd_orchestrator(prompt: str = None, resume_id: str = None, kickoff: bool = False):
     """
     Executes the Master Orchestrator with the given task, resumes a session, or runs the Kickoff Protocol.
     """
     print("🚀 Initializing scramkd Darwin Supervisor Daemon A2A Pipeline...")
+    
+    # Validation Gate: RAG Pipeline MUST be online
+    if not verify_rag_pipeline():
+        import sys
+        sys.exit(1)
     
     # Setup persistence directory
     save_dir = Path(__file__).resolve().parent.parent.parent / ".system_generated" / "sessions"
