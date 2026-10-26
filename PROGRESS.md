@@ -9,8 +9,9 @@ Historical audit record of build progress, state verification, and roadmap for `
 | Package & Daemon Identity | `scramkd` / `scramkctl` (`LaunchDaemons/com.scramk.daemon.plist`) |
 | Language Mode | Swift 6 (`.v6`) + C11 (`.c11`), macOS 14 target |
 | Strict Concurrency Build | `swift build -c release -Xswiftc -strict-concurrency=complete` → **0 errors, 0 warnings** |
-| Unit & Stress Tests | **372 passing**, 0 failures, 0 unexpected (`swift test -Xswiftc -strict-concurrency=complete --skip 'ContainerSocketBridgeTests.testLiveContainerHandshakeUnderPermissiveGateState'`) |
+| Unit & Stress Tests | **379 passing**, 0 failures, 0 unexpected (`swift test -Xswiftc -strict-concurrency=complete --skip 'ContainerSocketBridgeTests.testLiveContainerHandshakeUnderPermissiveGateState'`) |
 | Live Integration Test | **1 / 1 passing** (`ContainerSocketBridgeTests.testLiveContainerHandshakeUnderPermissiveGateState` verified live FastMCP 2025-03-26 & 1080p RFB frame ingestion) |
+| CI Hygiene Gate | `scripts/ci/check_legacy_rebrand.sh` → **0 violations** (verifies namespace purity, target contracts, and zero CWE-200 path disclosures) |
 | Targets | 4 library targets (`ScramKCore`, `ScramKAudio`, `ScramKVirtualization`, `ScramKUI`), 1 private C11 target (`CScramKAudioRealtime`), 2 executable targets (`scramkd`, `scramkctl`), 4 test targets (`ScramKCoreTests`, `ScramKVirtualizationTests`, `ScramKAudioTests`, `ScramKUITests`) |
 
 ## Milestone Audit
@@ -45,6 +46,17 @@ Multi-target Swift Package Manager configuration with a `.macOS(.v14)` platform 
 - **`MB-06` Bounded `ActiveHoldPolicy`**: Enforced physical hold-to-grant dead-man switch with monotonic ceiling and instant relock on key-up or focus loss.
 - **`MB-07` 3-Tier Progressive Disclosure HUD**: Structured `ScramKUI` into Tier 1 Primary Flight Display, Tier 2 Collapsible Diagnostic Drawer, and Tier 3 Modal Inspection Sheets.
 - **`MB-08` Documentation & Governance Rebrand**: Synchronized `README.md`, `SECURITY.md`, `docs/GITHUB_ISSUES_BACKLOG.md`, and `PROGRESS.md` to canonical `scramkd` architecture.
+- **Automated CI Linter Gate (`scripts/ci/check_legacy_rebrand.sh`)**: Executable pre-commit and CI safeguard verifying zero legacy target/type regressions, zero unauthorized daemon references, and zero workstation path or local URI scheme leakage (`CWE-200`).
+- **Brand Identity & Vector Chassis Extraction**: Fully cataloged normative design specifications under `docs/assets/branding/` (authoritative SVG marks, optical chassis variants for 64px/32px/20px, high-resolution marketing banners, and icon suites) and local UI mockups in `stitch_screens/brand_guidelines/`.
+
+## Stage 3 Active Engineering Frontiers
+
+| Issue | Scope | Challenge & Invariant | Status |
+| :--- | :--- | :--- | :--- |
+| **#1 `[SEC-IPC-01]`** | POSIX Domain Socket IPC & `LOCAL_PEERCRED` | Wire `scramkctl` to `/var/run/scramkd/control.sock` via `launch_activate_socket`. Enforce Darwin `xucred.cr_uid` verification so non-root/non-wheel callers cannot issue `grant` or manipulate interlock state. | Queued |
+| **#2 `[SEC-INTERLOCK-02]`** | F12 Airgap Telemetry Dump & Panic Wipe | Cryptographic memory zeroization, socket descriptor retirement, and `fsync(2)` emergency audit ledger flushing upon unrecoverable interlock trip. Replace "F12 NOT IMPLEMENTED" stub. | Queued |
+| **#3 `[SEC-CI-03]`** | Live Container CI Runner & Route Table Probe | Deterministic bare-metal Apple Silicon CI harness launching container runtimes with live FastMCP loopback handshakes and kernel net-namespace route table audits. | Queued |
+| **#4 `[GOV-HYGIENE-04]`** | Continuous CI Lint Gate | Integrate `scripts/ci/check_legacy_rebrand.sh` into GitHub Actions to fail on any legacy namespace re-introduction or workstation path disclosure. | Complete (Linter Delivered) |
 
 ## Roadmap Status
 

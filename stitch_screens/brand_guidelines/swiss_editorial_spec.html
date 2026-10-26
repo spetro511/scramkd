@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-[#050608] text-slate-100 antialiased selection:bg-[#EF4444] selection:text-white">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCRAMKD // SWISS EDITORIAL MONOGRAPH & PROGRESSIVE DISCLOSURE ARCHITECTURE</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'Geist Mono', 'SF Mono', Menlo, Consolas, monospace;
+    }
+    body { font-family: var(--font-sans); }
+    .font-mono { font-family: var(--font-mono); }
+
+    .swiss-hairline { border: 1px solid rgba(255, 255, 255, 0.08); }
+    .swiss-b { border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+    .swiss-r { border-right: 1px solid rgba(255, 255, 255, 0.08); }
+    .swiss-t { border-top: 1px solid rgba(255, 255, 255, 0.08); }
+    .swiss-l { border-left: 1px solid rgba(255, 255, 255, 0.08); }
+
+    /* Progressive disclosure detail styling */
+    details summary::-webkit-details-marker { display: none; }
+    details summary { list-style: none; }
+    details[open] summary .disclosure-indicator { transform: rotate(90deg); }
+    details[open] { background-color: rgba(255, 255, 255, 0.015); }
+    
+    .grid-matrix-faint {
+      background-size: 28px 28px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#040507] text-slate-300 p-4 sm:p-8 lg:p-14 flex justify-center items-start">
+
+  <!-- Main Monograph Enclosure -->
+  <div class="w-full max-w-5xl bg-[#07090E] swiss-hairline shadow-2xl relative">
+
+    <!-- Top Marginal Header: Swiss Publishing & Standards Strip -->
+    <header class="flex flex-col sm:flex-row sm:items-center justify-between px-8 py-3.5 bg-[#090D14] swiss-b text-[11px] font-mono tracking-tight text-slate-400 gap-2">
+      <div class="flex items-center gap-3">
+        <span class="w-2 h-2 rounded-full bg-[#10B981]"></span>
+        <span class="text-white font-semibold tracking-wider">SCRAMKD MONOGRAPH // SPEC. 2026.04</span>
+        <span class="text-slate-600">/</span>
+        <span>ZURICH &bull; DARWIN KERNEL EDITION</span>
+      </div>
+      <div class="flex items-center gap-5 text-slate-400">
+        <span>COMPLIANCE: <strong class="text-slate-200">MIL-STD-1472H</strong></span>
+        <span class="text-slate-600">/</span>
+        <span>SECURITY TARGET: <strong class="text-[#10B981]">EAL6+ DETERMINISM</strong></span>
+      </div>
+    </header>
+
+    <!-- Editorial Masthead: Disciplined Asymmetry & Deliberate Whitespace -->
+    <section class="px-8 py-10 sm:px-14 sm:py-12 swiss-b bg-[#07090E]">
+      <div class="flex items-center justify-between mb-4">
+        <div class="text-[10px] font-mono tracking-[0.25em] uppercase text-[#EF4444] font-bold flex items-center gap-2">
+          <span class="w-1.5 h-1.5 bg-[#EF4444]"></span>
+          SECTION 00 // HIGH-ASSURANCE SYSTEMS RATIONALE
+        </div>
+        <div class="text-[11px] font-mono text-slate-500">
+          DOC REF: <span class="text-slate-300">ZH-DARWIN-01</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
+        <div class="lg:col-span-8">
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.035em] leading-[1.08] font-sans">
+            Deterministic Isolation & Physical Circuit Severance
+          </h1>
+          <p class="mt-4 text-sm sm:text-base text-slate-400 leading-relaxed max-w-2xl font-normal">
+            A normative architectural specification for autonomous agentic host protection. Implemented without heuristic policing, probabilistic LLM classifiers, or conversational runtime overhead.
+          </p>
+        </div>
+        <div class="lg:col-span-4 flex flex-col justify-end lg:items-end text-left lg:text-right font-mono text-xs text-slate-400 border-t lg:border-t-0 pt-4 lg:pt-0 swiss-t lg:border-none">
+          <div class="text-[10px] uppercase text-slate-500 font-semibold tracking-wider mb-1">AUTHORITY</div>
+          <div class="text-slate-200 font-bold">SUREN SAHAYDACHNY</div>
+          <div class="text-slate-400 text-[11px]">PRINCIPAL SYSTEMS ARCHITECT</div>
+          <div class="text-slate-400 text-[10px] mt-1.5 text-[#10B981]">VERIFIED REPOSITORY: spetro511/scramkd</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Primary Identity & Monogram: Dual-Column Swiss Drafting Grid -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 swiss-b">
+      
+      <!-- Left Column: Precision Monogram & Scaling Verification (5 Cols) -->
+      <div class="lg:col-span-5 p-8 sm:p-12 swiss-r bg-[#06080D] grid-matrix-faint flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-6">
+            <span>FIG. 01.1 // CORE GLYPH</span>
+            <span class="text-slate-400">64&times;64 MATRIX</span>
+          </div>
+
+          <!-- Monolithic Logomark Display Frame -->
+          <div class="flex flex-col items-center my-4">
+            <div class="relative w-48 h-48 bg-[#090D15] swiss-hairline p-7 shadow-2xl flex items-center justify-center">
+              <!-- Coordinate Registrations -->
+              <span class="absolute top-2 left-2.5 text-[8px] font-mono text-slate-400 select-none">0,0</span>
+              <span class="absolute top-2 right-2.5 text-[8px] font-mono text-slate-400 select-none">64,0</span>
+              <span class="absolute bottom-2 left-2.5 text-[8px] font-mono text-slate-400 select-none">0,64</span>
+              <span class="absolute bottom-2 right-2.5 text-[8px] font-mono text-slate-400 select-none">64,64</span>
+
+              <!-- Faint Center Crosshairs -->
+              <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div class="w-full h-[1px] bg-white/[0.05]"></div>
+                <div class="h-full w-[1px] bg-white/[0.05] absolute"></div>
+              </div>
+
+              <!-- High-Gauge SVG Monogram (Authentic Circuit Sever) -->
+              <svg class="w-full h-full relative z-10" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Outer Stamped Corner Notches -->
+                <path d="M 4 16 L 4 4 L 16 4" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="square" />
+                <path d="M 48 4 L 60 4 L 60 16" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="square" />
+                <path d="M 4 48 L 4 60 L 16 60" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="square" />
+                <path d="M 48 60 L 60 60 L 60 48" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="square" />
+                <!-- Terminal Bus Conductors -->
+                <line x1="8" y1="32" x2="20" y2="32" stroke="#64748B" stroke-width="3" stroke-linecap="square" />
+                <line x1="44" y1="32" x2="56" y2="32" stroke="#64748B" stroke-width="3" stroke-linecap="square" />
+                <!-- Contact Relays -->
+                <circle cx="22" cy="32" r="2.5" fill="#64748B" />
+                <circle cx="42" cy="32" r="2.5" fill="#64748B" />
+                <!-- 45-degree High-Shear Scram Sever Blade -->
+                <line x1="18" y1="46" x2="46" y2="18" stroke="#EF4444" stroke-width="4.5" stroke-linecap="square" />
+                <!-- Trip Terminal Nucleus with Protection Punch -->
+                <circle cx="32" cy="32" r="5.5" fill="#EF4444" stroke="#090D15" stroke-width="2" />
+              </svg>
+            </div>
+
+            <!-- Optical Scale Silhouette Verification -->
+            <div class="mt-6 flex items-center gap-6 font-mono text-[11px] text-slate-400">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-[#090D15] swiss-hairline p-1 flex items-center justify-center">
+                  <svg class="w-full h-full" viewBox="0 0 64 64" fill="none">
+                    <path d="M 4 16 L 4 4 L 16 4 M 48 4 L 60 4 L 60 16 M 4 48 L 4 60 L 16 60 M 48 60 L 60 60 L 60 48" stroke="#FFFFFF" stroke-width="4" stroke-linecap="square" />
+                    <line x1="18" y1="46" x2="46" y2="18" stroke="#EF4444" stroke-width="6" stroke-linecap="square" />
+                    <circle cx="32" cy="32" r="7" fill="#EF4444" />
+                  </svg>
+                </div>
+                <span>32px AppIcon</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-5 bg-[#090D15] swiss-hairline p-0.5 flex items-center justify-center">
+                  <svg class="w-full h-full" viewBox="0 0 64 64" fill="none">
+                    <line x1="16" y1="48" x2="48" y2="16" stroke="#EF4444" stroke-width="8" stroke-linecap="square" />
+                    <circle cx="32" cy="32" r="10" fill="#EF4444" />
+                  </svg>
+                </div>
+                <span>20px Menu Bar</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 swiss-t flex items-center justify-between font-mono text-[10px] text-slate-400">
+          <span>AIR GAP: NON-BYPASSABLE</span>
+          <span class="text-white font-medium">FAIL-SAFE: OPEN</span>
+        </div>
+      </div>
+
+      <!-- Right Column: Unified Wordmark & Architectural Invariants (7 Cols) -->
+      <div class="lg:col-span-7 p-8 sm:p-12 flex flex-col justify-between bg-[#07090E]">
+        <div>
+          <div class="text-[10px] font-mono tracking-widest uppercase text-slate-400 mb-3 font-semibold">
+            FIG. 01.2 // LOGOTYPE & CLASSIFICATION
+          </div>
+
+          <!-- Monumental Swiss Wordmark with Tight Negative Kerning -->
+          <div class="flex flex-wrap items-baseline gap-4 mb-4">
+            <span class="text-5xl sm:text-6xl font-black tracking-[-0.05em] text-white uppercase leading-none font-sans">
+              SCRAM<span class="text-[#94A3B8] font-bold">KD</span>
+            </span>
+            <span class="px-2.5 py-1 text-[10px] font-mono tracking-widest uppercase border border-[#EF4444]/40 text-[#EF4444] bg-[#EF4444]/10 font-bold">
+              FAIL-SAFE: OPEN
+            </span>
+          </div>
+
+          <p class="text-sm sm:text-base text-slate-300 font-normal leading-relaxed max-w-xl">
+            A deterministic hardware-grade safety interlock for autonomous agent runtimes. Every visual and typographic element maps directly to an explicit kernel barrier, non-bypassable actor state, or POSIX pipe gate.
+          </p>
+
+          <!-- Core Architectural Badges -->
+          <div class="mt-5 flex flex-wrap items-center gap-2 text-xs font-mono">
+            <span class="px-2.5 py-1 bg-white/[0.03] swiss-hairline text-slate-300 font-medium">SWIFT 6 STRICT</span>
+            <span class="px-2.5 py-1 bg-white/[0.03] swiss-hairline text-slate-300 font-medium">ACTOR ISOLATION</span>
+            <span class="px-2.5 py-1 bg-white/[0.03] swiss-hairline text-slate-300 font-medium">ZERO NETWORK EGRESS</span>
+            <span class="px-2.5 py-1 bg-white/[0.03] swiss-hairline text-slate-300 font-medium">ONE-SHOT LEASE</span>
+          </div>
+        </div>
+
+        <!-- High-Level Deterministic Summary -->
+        <div class="mt-8 pt-6 swiss-t grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs font-mono">
+          <div class="p-4 bg-[#090D15] swiss-hairline">
+            <div class="text-[10px] uppercase text-slate-400 tracking-wider">KERNEL ARBITRATION</div>
+            <div class="text-white font-semibold mt-1 text-sm">macOS Darwin 23.4+</div>
+            <div class="text-slate-400 text-[11px] mt-1">OSAllocatedUnfairLock with Mach lease broker</div>
+          </div>
+          <div class="p-4 bg-[#090D15] swiss-hairline">
+            <div class="text-[10px] uppercase text-slate-400 tracking-wider">CONTAINMENT TRANSPORT</div>
+            <div class="text-white font-semibold mt-1 text-sm">FastMCP Stdio Pipe</div>
+            <div class="text-slate-400 text-[11px] mt-1">16 KiB buffer with F_SETNOSIGPIPE trip flag</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Progressive Disclosure Architecture: Layered Editorial Specifications -->
+    <section class="bg-[#07090E]">
+      
+      <!-- Module 01: Semantic State Chromatic Hierarchy (Open by default) -->
+      <details open class="group swiss-b transition-colors duration-150">
+        <summary class="flex items-center justify-between px-8 sm:px-14 py-5 cursor-pointer select-none bg-[#090D14] hover:bg-[#0C121D] transition-colors">
+          <div class="flex items-center gap-4">
+            <span class="disclosure-indicator text-xs font-mono text-[#EF4444] transition-transform duration-200">▶</span>
+            <span class="text-xs font-mono uppercase tracking-widest text-white font-bold flex items-center gap-2.5">
+              <span class="w-2 h-2 rounded-[1px] bg-[#EF4444]"></span>
+              LAYER 01 // SEMANTIC CHROMATIC TELEMETRY HIERARCHY
+            </span>
+          </div>
+          <div class="flex items-center gap-4 text-xs font-mono text-slate-400">
+            <span class="hidden sm:inline">MIL-STD-1472H STATE CODES</span>
+            <span class="text-slate-600">/</span>
+            <span class="text-slate-300 font-semibold group-open:text-[#EF4444]">COLLAPSE &minus;</span>
+          </div>
+        </summary>
+
+        <div class="p-8 sm:p-14 bg-[#07090E]">
+          <p class="text-xs font-mono text-slate-400 mb-6 max-w-2xl leading-relaxed">
+            Functional, non-decorative color allocations. Colors serve exclusively as hardware state machine indicators, mapping directly to kernel latch conditions and operator clearance transitions.
+          </p>
+
+          <!-- 4 Calibrated Chromatic Tile Cells -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            
+            <!-- Red: SCRAM -->
+            <div class="p-5 bg-[#090D15] swiss-hairline flex flex-col justify-between">
+              <div>
+                <div class="w-full h-14 bg-[#EF4444] mb-4 flex items-end p-2.5 rounded-[1px]">
+                  <span class="text-[9px] font-mono text-white font-bold bg-black/75 px-1.5 py-0.5 tracking-wider">PANTONE 1795 C</span>
+                </div>
+                <div class="font-mono text-xs font-bold text-white flex items-center justify-between">
+                  <span>#EF4444</span>
+                  <span class="text-[#EF4444] font-extrabold uppercase">SCRAM</span>
+                </div>
+              </div>
+              <div class="text-xs text-slate-400 mt-3 leading-normal border-t border-white/[0.06] pt-3">
+                Emergency abort trip; immediate kernel drain of pending waiter continuations.
+              </div>
+            </div>
+
+            <!-- Amber: ARMED -->
+            <div class="p-5 bg-[#090D15] swiss-hairline flex flex-col justify-between">
+              <div>
+                <div class="w-full h-14 bg-[#F59E0B] mb-4 flex items-end p-2.5 rounded-[1px]">
+                  <span class="text-[9px] font-mono text-black font-bold bg-white/80 px-1.5 py-0.5 tracking-wider">PANTONE 137 C</span>
+                </div>
+                <div class="font-mono text-xs font-bold text-white flex items-center justify-between">
+                  <span>#F59E0B</span>
+                  <span class="text-[#F59E0B] font-extrabold uppercase">ARMED</span>
+                </div>
+              </div>
+              <div class="text-xs text-slate-400 mt-3 leading-normal border-t border-white/[0.06] pt-3">
+                High-risk tool call intercepted; locked awaiting explicit operator permissive grant.
+              </div>
+            </div>
+
+            <!-- Emerald: PERMISSIVE -->
+            <div class="p-5 bg-[#090D15] swiss-hairline flex flex-col justify-between">
+              <div>
+                <div class="w-full h-14 bg-[#10B981] mb-4 flex items-end p-2.5 rounded-[1px]">
+                  <span class="text-[9px] font-mono text-white font-bold bg-black/75 px-1.5 py-0.5 tracking-wider">PANTONE 340 C</span>
+                </div>
+                <div class="font-mono text-xs font-bold text-white flex items-center justify-between">
+                  <span>#10B981</span>
+                  <span class="text-[#10B981] font-extrabold uppercase">PERMISSIVE</span>
+                </div>
+              </div>
+              <div class="text-xs text-slate-400 mt-3 leading-normal border-t border-white/[0.06] pt-3">
+                Operator clearance active; ephemeral single-use wire lease dispatched to stdout pipe.
+              </div>
+            </div>
+
+            <!-- Slate: LOCKED -->
+            <div class="p-5 bg-[#090D15] swiss-hairline flex flex-col justify-between">
+              <div>
+                <div class="w-full h-14 bg-[#64748B] mb-4 flex items-end p-2.5 rounded-[1px]">
+                  <span class="text-[9px] font-mono text-white font-bold bg-black/75 px-1.5 py-0.5 tracking-wider">PANTONE 431 C</span>
+                </div>
+                <div class="font-mono text-xs font-bold text-white flex items-center justify-between">
+                  <span>#64748B</span>
+                  <span class="text-[#94A3B8] font-extrabold uppercase">LOCKED</span>
+                </div>
+              </div>
+              <div class="text-xs text-slate-400 mt-3 leading-normal border-t border-white/[0.06] pt-3">
+                Inert quiescent state; unauthorized tool dispatches immediately rejected without actor invocation.
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </details>
+
+      <!-- Module 02: Kernel Determinism & Invariant Matrix (Progressive Disclosure - Expandable) -->
+      <details class="group swiss-b transition-colors duration-150">
+        <summary class="flex items-center justify-between px-8 sm:px-14 py-5 cursor-pointer select-none bg-[#090D14] hover:bg-[#0C121D] transition-colors">
+          <div class="flex items-center gap-4">
+            <span class="disclosure-indicator text-xs font-mono text-slate-400 transition-transform duration-200">▶</span>
+            <span class="text-xs font-mono uppercase tracking-widest text-slate-200 font-bold flex items-center gap-2.5">
+              <span class="w-2 h-2 rounded-[1px] bg-slate-500"></span>
+              LAYER 02 // KERNEL INVARIANT & CONCURRENCY MATRIX
+            </span>
+          </div>
+          <div class="flex items-center gap-4 text-xs font-mono text-slate-400">
+            <span class="hidden sm:inline">4 SYSTEM GUARANTEES</span>
+            <span class="text-slate-600">/</span>
+            <span class="text-slate-400 font-semibold group-open:text-white">REVEAL +</span>
+          </div>
+        </summary>
+
+        <div class="p-8 sm:p-14 bg-[#07090E]">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs font-mono">
+            <div class="p-5 bg-[#090D15] swiss-hairline">
+              <div class="flex items-center justify-between pb-2 border-b border-white/[0.06] mb-3">
+                <span class="text-slate-400 uppercase text-[10px] tracking-wider">01 / ACTOR CONCURRENCY</span>
+                <span class="text-[#10B981] font-bold">PURE SWIFT 6</span>
+              </div>
+              <p class="text-slate-300 leading-relaxed font-sans text-xs">
+                Zero data races verified at compile-time via strict Sendable closures. The daemon operates on an independent Darwin dispatch thread isolated from host system application runtimes.
+              </p>
+            </div>
+
+            <div class="p-5 bg-[#090D15] swiss-hairline">
+              <div class="flex items-center justify-between pb-2 border-b border-white/[0.06] mb-3">
+                <span class="text-slate-400 uppercase text-[10px] tracking-wider">02 / GATE ARBITRATION</span>
+                <span class="text-slate-200 font-bold">OSAllocatedUnfairLock</span>
+              </div>
+              <p class="text-slate-300 leading-relaxed font-sans text-xs">
+                Microsecond-deterministic Mach port leases establish mutual exclusion. Priority inversion is eliminated via kernel-assisted priority donation without user-space spin locks.
+              </p>
+            </div>
+
+            <div class="p-5 bg-[#090D15] swiss-hairline">
+              <div class="flex items-center justify-between pb-2 border-b border-white/[0.06] mb-3">
+                <span class="text-slate-400 uppercase text-[10px] tracking-wider">03 / CONTAINMENT TRANSPORT</span>
+                <span class="text-slate-200 font-bold">FastMCP Stdio Wire</span>
+              </div>
+              <p class="text-slate-300 leading-relaxed font-sans text-xs">
+                Docker ScreenEnv containment communicating across atomic 16 KiB buffer chunks. Interlock trigger immediately asserts F_SETNOSIGPIPE termination across the descriptor boundary.
+              </p>
+            </div>
+
+            <div class="p-5 bg-[#090D15] swiss-hairline">
+              <div class="flex items-center justify-between pb-2 border-b border-white/[0.06] mb-3">
+                <span class="text-slate-400 uppercase text-[10px] tracking-wider">04 / ZERO EGRESS AIRGAP</span>
+                <span class="text-[#EF4444] font-bold">STRICT HARDENED</span>
+              </div>
+              <p class="text-slate-300 leading-relaxed font-sans text-xs">
+                Zero socket allocations permitted within the interlock control boundary. Pending token leases cryptographically expire automatically upon state trip or timeout.
+              </p>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- Module 03: Typographic Standards & Swiss Layout Discipline (Expandable) -->
+      <details class="group swiss-b transition-colors duration-150">
+        <summary class="flex items-center justify-between px-8 sm:px-14 py-5 cursor-pointer select-none bg-[#090D14] hover:bg-[#0C121D] transition-colors">
+          <div class="flex items-center gap-4">
+            <span class="disclosure-indicator text-xs font-mono text-slate-400 transition-transform duration-200">▶</span>
+            <span class="text-xs font-mono uppercase tracking-widest text-slate-200 font-bold flex items-center gap-2.5">
+              <span class="w-2 h-2 rounded-[1px] bg-slate-500"></span>
+              LAYER 03 // TYPOGRAPHIC RIGOR & MONOGRAPH PROPORTIONS
+            </span>
+          </div>
+          <div class="flex items-center gap-4 text-xs font-mono text-slate-400">
+            <span class="hidden sm:inline">INTER / GEIST MONO SPEC</span>
+            <span class="text-slate-600">/</span>
+            <span class="text-slate-400 font-semibold group-open:text-white">REVEAL +</span>
+          </div>
+        </summary>
+
+        <div class="p-8 sm:p-14 bg-[#07090E]">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 font-mono text-xs">
+            <div>
+              <div class="text-slate-400 uppercase text-[10px] tracking-wider mb-2 font-bold">01 / PROSE & DISPLAY HIERARCHY (INTER)</div>
+              <p class="font-sans text-sm text-white font-bold mb-1">Uncompromising Institutional Clarity</p>
+              <p class="text-slate-400 leading-relaxed font-sans text-xs mb-4">
+                Inter variable is deployed across weights 400 (normative specifications), 700 (cardinal headings), and 900 (primary logotype). High legibility at extreme scanning speeds with zero sci-fi or decorative mannerisms.
+              </p>
+              <div class="p-3 bg-[#090D15] swiss-hairline text-slate-300 text-[11px]">
+                Letter-spacing: -0.05em on primary wordmark; -0.02em on section headings.
+              </div>
+            </div>
+
+            <div>
+              <div class="text-slate-400 uppercase text-[10px] tracking-wider mb-2 font-bold">02 / DETERMINISTIC VALUES (GEIST MONO)</div>
+              <p class="font-mono text-sm text-[#10B981] font-semibold mb-1">0x7FFF5FBFFD98 &bull; TABULAR NUMERALS</p>
+              <p class="text-slate-400 leading-relaxed font-sans text-xs mb-4">
+                Strict tabular figures ensure real-time telemetry streams, memory addresses, and sub-millisecond latency counters never cause optical layout jitter during high-throughput I/O.
+              </p>
+              <div class="p-3 bg-[#090D15] swiss-hairline text-slate-300 text-[11px]">
+                Reserved exclusively for addresses, POSIX signals, hex tables, and status codes.
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+    </section>
+
+    <!-- Institutional Swiss Colophon & Provenance Footer -->
+    <footer class="px-8 py-5 sm:px-14 bg-[#05070B] flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-slate-500 gap-3">
+      <div class="flex items-center gap-2">
+        <span class="text-slate-300 font-medium">SCRAMKD PROTOCOL GROUP</span>
+        <span>&bull;</span>
+        <span>APACHE-2.0 OPEN SPECIFICATION</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span>ZURICH / CUPERTINO</span>
+        <span>&bull;</span>
+        <span class="text-[#10B981] font-semibold">VERIFIED ARCHITECTURE</span>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

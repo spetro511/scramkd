@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 120" width="540" height="120" fill="none">
+  <!-- Pitch Black Base Background -->
+  <rect width="540" height="120" fill="#030508"/>
+
+  <!-- Subtle Tactical Cartesian Grid -->
+  <path d="M 0 30 L 540 30 M 0 60 L 540 60 M 0 90 L 540 90" stroke="#0B1220" stroke-width="1"/>
+  <path d="M 60 0 L 60 120 M 120 0 L 120 120 M 180 0 L 180 120 M 240 0 L 240 120 M 300 0 L 300 120 M 360 0 L 360 120 M 420 0 L 420 120 M 480 0 L 480 120" stroke="#0B1220" stroke-width="1"/>
+
+  <!-- Top-left coordinate and status telemetry -->
+  <text x="24" y="24" fill="#64748B" font-family="'JetBrains Mono', 'SF Mono', monospace" font-size="8" font-weight="700" letter-spacing="1">LOCKUP // SEVER-SPEC: 45° HARDWARE CUT</text>
+  
+  <!-- Right status badge: DEF-CRITICAL -->
+  <rect x="424" y="44" width="92" height="18" fill="#0F172A" stroke="#F59E0B" stroke-width="1"/>
+  <text x="470" y="56" fill="#F59E0B" font-family="'JetBrains Mono', 'SF Mono', monospace" font-size="8.5" font-weight="700" letter-spacing="1" text-anchor="middle">DEF-CRITICAL</text>
+
+  <!-- Main Wordmark: SCRAM KD in pure #FFFFFF ultra-heavy extended monospace -->
+  <!-- "SCRAM" Left Segment -->
+  <g fill="#FFFFFF" font-family="'JetBrains Mono', 'Space Mono', 'SF Mono', monospace" font-weight="900" font-size="52" letter-spacing="1">
+    <text x="24" y="74">SCRAM</text>
+  </g>
+
+  <!-- 45-Degree Radical Red (#EF4444) Severed Interlock Break Slash -->
+  <!-- Intersecting the glyph boundary between M and K -->
+  <line x1="222" y1="84" x2="252" y2="34" stroke="#EF4444" stroke-width="4.5" stroke-linecap="square"/>
+  
+  <!-- "KD" Right Segment -->
+  <g fill="#FFFFFF" font-family="'JetBrains Mono', 'Space Mono', 'SF Mono', monospace" font-weight="900" font-size="52" letter-spacing="1">
+    <text x="260" y="74">KD</text>
+  </g>
+
+  <!-- Sub-label in Tactical Emerald (#10B981) with deterministic hardware interlock copy -->
+  <rect x="24" y="94" width="7" height="7" fill="#10B981"/>
+  <text x="38" y="101" fill="#10B981" font-family="'JetBrains Mono', 'SF Mono', monospace" font-size="9" font-weight="700" letter-spacing="1.5">SYS.DEF // DETERMINISTIC HARDWARE INTERLOCK // V1.0</text>
+</svg>

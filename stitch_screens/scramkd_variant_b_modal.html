@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>SCRAMKD // OPERATOR CONSOLE — VARIANT B (APPLE STUDIO PRO GLASS)</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com" rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@200..600,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "canvas-vantablack": "#030508",
+            "glass-card": "rgba(255, 255, 255, 0.03)",
+            "glass-card-hover": "rgba(255, 255, 255, 0.06)",
+            "glass-card-inner": "rgba(10, 14, 22, 0.75)",
+            "glass-border": "rgba(255, 255, 255, 0.08)",
+            "glass-border-focus": "rgba(255, 255, 255, 0.22)",
+            "apple-accent": "#2997FF",
+            "p3-green": "#30D158",
+            "p3-amber": "#FF9F0A",
+            "p3-red": "#FF453A",
+            "p3-purple": "#BF5AF2"
+          },
+          fontFamily: {
+            sans: ["'Plus Jakarta Sans'", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+            mono: ["'JetBrains Mono'", "monospace"],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+    body {
+      background-color: #030508;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(41, 151, 255, 0.08) 0%, transparent 60%),
+        radial-gradient(circle at 85% 90%, rgba(255, 69, 58, 0.04) 0%, transparent 50%);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .double-bezel {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 1.25rem;
+      padding: 0.375rem;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+    .double-bezel-inner {
+      background: rgba(10, 14, 23, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: calc(1.25rem - 0.375rem);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08);
+    }
+    .glass-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 9999px;
+    }
+    .apple-spring {
+      transition: all 400ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .apple-spring-fast {
+      transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    /* Pulse glow */
+    @keyframes subtlePulse {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+    .status-pulse {
+      animation: subtlePulse 2.5s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="w-[1440px] h-[900px] overflow-hidden text-slate-200 antialiased flex flex-col justify-between p-5 relative">
+
+  <!-- TOP FLOATING ISLAND NAVIGATION & BREADCRUMB SIGNPOST -->
+  <header class="w-full flex items-center justify-between z-20">
+    <!-- Left: Brand + Breadcrumbs -->
+    <div class="flex items-center gap-3">
+      <div class="glass-pill px-4 py-2 flex items-center gap-3 border border-white/10 shadow-lg">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-p3-green status-pulse shadow-[0_0_8px_#30D158]"></span>
+          <span class="font-mono font-bold tracking-wider text-xs text-white">SCRAMKD</span>
+        </div>
+        <span class="text-white/20 text-xs">/</span>
+        <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+          <span class="text-slate-400 hover:text-white cursor-pointer transition-colors">SUPERVISOR</span>
+          <span class="text-white/20">/</span>
+          <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-p3-amber"></span>
+            INTERCEPT #9042
+          </span>
+        </div>
+      </div>
+
+      <!-- Live Gate Status Indicator -->
+      <div class="glass-pill px-3 py-1.5 flex items-center gap-2 border border-white/5">
+        <span class="text-[10px] font-mono tracking-widest text-slate-400 uppercase">GATE INTERLOCK:</span>
+        <span class="text-[10px] font-mono font-bold text-p3-amber px-2 py-0.5 rounded-full bg-p3-amber/10 border border-p3-amber/30">LOCKED (ONE-SHOT)</span>
+      </div>
+    </div>
+
+    <!-- Center: Primary Notification Pill (Alert Escalation) -->
+    <div class="glass-pill px-4 py-1.5 flex items-center gap-3 border border-p3-amber/30 bg-p3-amber/[0.04] shadow-[0_0_20px_rgba(255,159,10,0.12)]">
+      <span class="material-symbols-outlined text-p3-amber text-base">warning</span>
+      <span class="text-xs font-mono text-slate-200">
+        <strong class="text-p3-amber font-semibold">1 UNVERIFIED CALL:</strong> Guest runtime invoked <code class="text-white bg-white/10 px-1 py-0.5 rounded text-[11px]">tools.execute</code>
+      </span>
+      <div class="h-3 w-px bg-white/10"></div>
+      <button onclick="openModal('sheet-escalate')" class="text-[11px] font-mono font-semibold text-p3-amber hover:text-amber-200 flex items-center gap-1 apple-spring">
+        <span>ESCALATE THREAT</span>
+        <span class="material-symbols-outlined text-xs">arrow_forward</span>
+      </button>
+    </div>
+
+    <!-- Right: Telemetry & Profile Badges -->
+    <div class="flex items-center gap-2.5">
+      <div class="glass-pill px-3 py-1.5 flex items-center gap-2 text-xs font-mono text-slate-300 border border-white/10">
+        <span class="text-[10px] text-slate-500 uppercase">PID</span>
+        <span class="font-bold text-white">19482</span>
+      </div>
+      <div class="glass-pill px-3 py-1.5 flex items-center gap-2 text-xs font-mono text-slate-300 border border-white/10">
+        <span class="text-[10px] text-slate-500 uppercase">SANDBOX</span>
+        <span class="text-p3-green font-semibold">DARWIN HARDENED</span>
+      </div>
+      <div class="glass-pill p-1.5 flex items-center justify-center text-slate-400 hover:text-white border border-white/10 cursor-pointer apple-spring">
+        <span class="material-symbols-outlined text-sm">settings</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN OPERATOR STAGE (CENTRAL COCKPIT) -->
+  <main class="w-full flex-1 grid grid-cols-12 gap-5 my-4 items-stretch">
+
+    <!-- LEFT 7 COLS: HERO INTERCEPT INSPECTOR -->
+    <section class="col-span-7 flex flex-col gap-4">
+      
+      <!-- Primary Intercept Card (Double Bezel) -->
+      <div class="double-bezel flex-1 flex flex-col">
+        <div class="double-bezel-inner flex-1 p-5 flex flex-col justify-between relative overflow-hidden">
+          
+          <!-- Top Card Meta -->
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b border-white/5">
+              <div class="flex items-center gap-2.5">
+                <span class="w-2 h-2 rounded-full bg-p3-amber"></span>
+                <span class="text-[10px] font-mono tracking-widest text-slate-400 uppercase">INCOMING INTERCEPT DETAILS</span>
+                <span class="text-[10px] font-mono text-slate-500">•</span>
+                <span class="text-[10px] font-mono text-slate-400">UID: <span class="text-slate-200">501 (daemon)</span></span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-mono text-slate-500">TTL EXPIRATION:</span>
+                <span class="text-xs font-mono font-bold text-p3-amber bg-p3-amber/10 px-2 py-0.5 rounded border border-p3-amber/20">04:42.18</span>
+              </div>
+            </div>
+
+            <!-- Intercept Headline & Risk Vector -->
+            <div class="mt-4 flex items-start justify-between">
+              <div>
+                <h2 class="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                  <span>Subprocess Shell Ingress Attempt</span>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-p3-red/10 text-p3-red border border-p3-red/30 uppercase">HIGH RISK</span>
+                </h2>
+                <p class="text-xs text-slate-400 mt-1 max-w-xl leading-relaxed">
+                  The guest model has formulated a high-privilege JSON-RPC payload targeting host socket endpoints. Execution is suspended at the Darwin supervisor interlock pending cryptographic lease grant.
+                </p>
+              </div>
+            </div>
+
+            <!-- JSON Payload Diff Box -->
+            <div class="mt-4 rounded-xl bg-black/60 border border-white/5 p-3.5 font-mono text-[11px] relative">
+              <div class="flex items-center justify-between pb-2 mb-2 border-b border-white/5 text-[10px] text-slate-400">
+                <span class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-xs text-apple-accent">code</span>
+                  <span>TRAPPED JSON-RPC CALL: <code class="text-slate-200 font-bold">mcp.tools.execute</code></span>
+                </span>
+                <span class="text-slate-500">SHA-256: 8a4f91c...e09b</span>
+              </div>
+              <pre class="text-slate-300 leading-tight overflow-x-auto"><span class="text-slate-500">{</span>
+  <span class="text-p3-green">"jsonrpc"</span>: <span class="text-amber-200">"2.0"</span>,
+  <span class="text-p3-green">"id"</span>: <span class="text-slate-300">"req-9042-perm"</span>,
+  <span class="text-p3-green">"method"</span>: <span class="text-amber-200">"execute"</span>,
+  <span class="text-p3-green">"params"</span>: <span class="text-slate-500">{</span>
+    <span class="text-p3-green">"command"</span>: <span class="text-p3-red-glow font-bold">"/usr/bin/security find-generic-password -s AppleService"</span>,
+    <span class="text-p3-green">"sandbox_enforced"</span>: <span class="text-p3-amber">false</span>,
+    <span class="text-p3-green">"env_scrubbed"</span>: <span class="text-p3-green">true</span>
+  <span class="text-slate-500">}</span>
+<span class="text-slate-500">}</span></pre>
+            </div>
+          </div>
+
+          <!-- Bottom Action Buttons: Clear, 2-Stage Dwell and Release -->
+          <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <!-- Dead-Man Dwell Progress Tracker -->
+              <div class="flex items-center gap-2">
+                <div class="w-24 h-1.5 rounded-full bg-white/10 overflow-hidden relative">
+                  <div id="dwell-progress-bar" class="h-full bg-p3-green w-0 transition-all duration-75"></div>
+                </div>
+                <span id="dwell-label" class="text-[10px] font-mono text-slate-400">HOLD SPACE (1.5s)</span>
+              </div>
+            </div>
+
+            <!-- Action CTAs -->
+            <div class="flex items-center gap-3">
+              <!-- Abort Button -->
+              <button onclick="triggerAbort()" class="px-4 py-2 rounded-xl bg-p3-red/10 hover:bg-p3-red/20 border border-p3-red/30 text-p3-red font-mono text-xs font-bold flex items-center gap-2 apple-spring-fast active:scale-95 shadow-[0_0_12px_rgba(255,69,58,0.15)]">
+                <span class="material-symbols-outlined text-sm">cancel</span>
+                <span>EMERGENCY ABORT (ESC)</span>
+              </button>
+
+              <!-- Gated Grant Button (Button-in-Button Pattern) -->
+              <button id="btn-grant" disabled class="opacity-50 cursor-not-allowed pl-4 pr-1.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-mono text-xs font-bold flex items-center gap-3 shadow-[0_0_20px_rgba(48,209,88,0.3)] apple-spring">
+                <span>GRANT PERMIT</span>
+                <span class="w-6 h-6 rounded-lg bg-black/20 flex items-center justify-center">
+                  <span class="material-symbols-outlined text-sm">lock_open</span>
+                </span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Bottom Progressive Disclosure Strip -->
+      <div class="double-bezel py-2 px-3">
+        <div class="double-bezel-inner p-3 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono font-semibold text-slate-300">DEEP DRILL-DOWN:</span>
+            <div class="flex items-center gap-1.5">
+              <button onclick="openDrawer('drawer-scrubber')" class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/5 font-mono text-[10px] flex items-center gap-1.5 apple-spring">
+                <span class="material-symbols-outlined text-xs text-p3-green">verified_user</span>
+                <span>7-KEY ENV SCRUBBER</span>
+              </button>
+              <button onclick="openDrawer('drawer-audit')" class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/5 font-mono text-[10px] flex items-center gap-1.5 apple-spring">
+                <span class="material-symbols-outlined text-xs text-apple-accent">history</span>
+                <span>AUDIT BUS (14,920 OPS)</span>
+              </button>
+              <button onclick="openDrawer('drawer-metal')" class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/5 font-mono text-[10px] flex items-center gap-1.5 apple-spring">
+                <span class="material-symbols-outlined text-xs text-p3-purple">graphic_eq</span>
+                <span>METAL VIEWPORT STATE</span>
+              </button>
+            </div>
+          </div>
+          <span class="text-[10px] font-mono text-slate-500">PRESS TAB TO CYCLE PANELS</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT 5 COLS: SECURITY PROFILE & REALTIME TELEMETRY DOCK -->
+    <section class="col-span-5 flex flex-col gap-4">
+      
+      <!-- Security Status Matrix (Double Bezel) -->
+      <div class="double-bezel flex-1 flex flex-col">
+        <div class="double-bezel-inner flex-1 p-5 flex flex-col justify-between">
+          
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b border-white/5">
+              <span class="text-[10px] font-mono tracking-widest text-slate-400 uppercase">CONTAINER PROFILE HARNESS</span>
+              <span class="px-2 py-0.5 rounded-full text-[9px] font-mono bg-emerald-500/10 text-p3-green border border-emerald-500/20 font-bold">ISOLATED</span>
+            </div>
+
+            <div class="mt-4 space-y-3 font-mono text-xs">
+              <div class="flex items-center justify-between p-2 rounded-lg bg-white/[0.02] border border-white/5">
+                <span class="text-slate-400 text-[11px]">CONTAINER ID</span>
+                <span class="text-slate-200 font-bold">scramkd-guest-mcp-vm0</span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded-lg bg-white/[0.02] border border-white/5">
+                <span class="text-slate-400 text-[11px]">DARWIN SEATBELT</span>
+                <span class="text-p3-green font-semibold flex items-center gap-1">
+                  <span class="material-symbols-outlined text-xs">check_circle</span> ACTIVE
+                </span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded-lg bg-white/[0.02] border border-white/5">
+                <span class="text-slate-400 text-[11px]">NETWORK INGRESS</span>
+                <span class="text-p3-green font-semibold">127.0.0.1 ONLY (LOOPBACK)</span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded-lg bg-white/[0.02] border border-white/5">
+                <span class="text-slate-400 text-[11px]">AUDIO CUE ENGINE</span>
+                <span class="text-slate-300">REALTIME C11 (48.0 kHz)</span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded-lg bg-white/[0.02] border border-white/5">
+                <span class="text-slate-400 text-[11px]">METAL FRAMEBUFFER</span>
+                <span class="text-p3-purple font-semibold">DISPLAY P3 (60 FPS)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Micro Realtime Metric Tiles -->
+          <div class="mt-4 pt-3 border-t border-white/5 grid grid-cols-2 gap-2.5">
+            <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
+              <span class="text-[9px] font-mono text-slate-500 block uppercase">IPC Latency</span>
+              <span class="text-sm font-mono font-bold text-white">0.38 <span class="text-[10px] text-slate-400">ms</span></span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
+              <span class="text-[9px] font-mono text-slate-500 block uppercase">Entropy State</span>
+              <span class="text-sm font-mono font-bold text-p3-green">99.87%</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Quick Escalation Actions Card -->
+      <div class="double-bezel">
+        <div class="double-bezel-inner p-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-p3-red/10 border border-p3-red/30 flex items-center justify-center text-p3-red">
+              <span class="material-symbols-outlined text-base">emergency_home</span>
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-white">Need Incident Isolation?</h4>
+              <p class="text-[10px] text-slate-400">Hard-sever loopback sockets and dump memory</p>
+            </div>
+          </div>
+          <button onclick="openModal('sheet-escalate')" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white font-mono text-[10px] font-bold border border-white/10 apple-spring">
+            OPEN ESCALATION SHEET
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ESCALATION MODAL SHEET (OVERLAY) -->
+  <div id="sheet-escalate" class=" fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-6">
+    <div class="double-bezel w-full max-w-2xl shadow-2xl">
+      <div class="double-bezel-inner p-6 flex flex-col gap-5">
+        
+        <!-- Sheet Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-white/10">
+          <div class="flex items-center gap-3">
+            <span class="w-3 h-3 rounded-full bg-p3-red shadow-[0_0_10px_#FF453A]"></span>
+            <h3 class="text-sm font-mono font-bold text-white uppercase tracking-wider">SECURITY INCIDENT ESCALATION PROTOCOL</h3>
+          </div>
+          <button onclick="closeModal('sheet-escalate')" class="text-slate-400 hover:text-white">
+            <span class="material-symbols-outlined text-base">close</span>
+          </button>
+        </div>
+
+        <!-- Sheet Body -->
+        <div class="space-y-4">
+          <div class="p-3.5 rounded-xl bg-p3-red/10 border border-p3-red/20 text-xs text-slate-300">
+            <strong class="text-p3-red font-bold">WARNING:</strong> Triggering an escalation disconnects the MCP bridge immediately. The Darwin supervisor will execute a zero-tolerance memory scrub on PID 19482.
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[11px] font-mono text-slate-400 uppercase">SELECT ESCALATION REMEDIATION LEVEL:</label>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="p-3 rounded-xl bg-white/[0.03] border border-p3-amber/30 cursor-pointer hover:bg-white/[0.06] apple-spring">
+                <span class="text-xs font-mono font-bold text-p3-amber block">LEVEL 1: SUSPEND &amp; QUARANTINE</span>
+                <span class="text-[10px] text-slate-400 mt-1 block">Freezes process execution threads; dumps stack trace to audit log.</span>
+              </div>
+              <div class="p-3 rounded-xl bg-white/[0.03] border border-p3-red/30 cursor-pointer hover:bg-white/[0.06] apple-spring">
+                <span class="text-xs font-mono font-bold text-p3-red block">LEVEL 2: HARD SCRAM &amp; PURGE</span>
+                <span class="text-[10px] text-slate-400 mt-1 block">Issues immediate SIGKILL, severs Unix socket, resets sandbox root.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sheet Footer -->
+        <div class="pt-3 border-t border-white/10 flex items-center justify-between">
+          <button onclick="closeModal('sheet-escalate')" class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-mono font-semibold">
+            CANCEL &amp; RETURN
+          </button>
+          <button onclick="triggerHardPurge()" class="px-5 py-2 rounded-xl bg-p3-red hover:bg-red-600 text-white font-mono text-xs font-bold shadow-[0_0_16px_rgba(255,69,58,0.4)] apple-spring">
+            EXECUTE IMMEDIATE HARD PURGE
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- DRILL-DOWN SLIDING DRAWER: 7-KEY ENV SCRUBBER -->
+  <div id="drawer-scrubber" class="hidden fixed inset-x-0 bottom-0 z-40 bg-black/90 backdrop-blur-2xl border-t border-white/10 p-6 shadow-2xl transition-all">
+    <div class="max-w-6xl mx-auto flex flex-col gap-4">
+      <div class="flex items-center justify-between pb-2 border-b border-white/10">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-p3-green text-lg">sanitizer</span>
+          <h3 class="text-xs font-mono font-bold text-white uppercase">7-KEY SUBPROCESS ENVIRONMENT SCRUBBER STATUS</h3>
+        </div>
+        <button onclick="closeDrawer('drawer-scrubber')" class="text-slate-400 hover:text-white">
+          <span class="material-symbols-outlined text-base">close</span>
+        </button>
+      </div>
+      <div class="grid grid-cols-4 gap-3 text-xs font-mono">
+        <div class="p-2.5 rounded-lg bg-white/[0.02] border border-white/5">
+          <span class="text-slate-500 block text-[9px]">API KEYS</span>
+          <span class="text-p3-green font-bold">SCRUBBED (0 DETECTED)</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-white/[0.02] border border-white/5">
+          <span class="text-slate-500 block text-[9px]">SSH CREDENTIALS</span>
+          <span class="text-p3-green font-bold">SCRUBBED (0 DETECTED)</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-white/[0.02] border border-white/5">
+          <span class="text-slate-500 block text-[9px]">AWS / CLOUD TOKENS</span>
+          <span class="text-p3-green font-bold">SCRUBBED (0 DETECTED)</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-white/[0.02] border border-white/5">
+          <span class="text-slate-500 block text-[9px]">SHELL PATH INJECTIONS</span>
+          <span class="text-p3-green font-bold">SANITIZED (/usr/bin ONLY)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER STATUS STRIP -->
+  <footer class="w-full flex items-center justify-between text-[10px] font-mono text-slate-500 z-10 pt-2 border-t border-white/5">
+    <div class="flex items-center gap-4">
+      <span>BUILD: <span class="text-slate-400">scramkd-0.4.1-darwin-arm64</span></span>
+      <span>•</span>
+      <span>RUNTIME: <span class="text-p3-green">STRICT CONCURRENCY (SWIFT 6)</span></span>
+      <span>•</span>
+      <span>AUDIO: <span class="text-slate-400">CScramKAudioRealtime</span></span>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="text-slate-400">HOLD [SPACE] 1.5s TO ARM PERMIT</span>
+      <span>•</span>
+      <span class="text-p3-red">[ESC] HARD SCRAM</span>
+    </div>
+  </footer>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    let dwellStart = 0;
+    let dwellTimer = null;
+    let dwellSatisfied = false;
+    const DWELL_MS = 1500;
+
+    const progressBar = document.getElementById('dwell-progress-bar');
+    const dwellLabel = document.getElementById('dwell-label');
+    const btnGrant = document.getElementById('btn-grant');
+
+    function startDwell() {
+      if (dwellSatisfied) return;
+      dwellStart = Date.now();
+      dwellTimer = setInterval(() => {
+        const elapsed = Date.now() - dwellStart;
+        const pct = Math.min(100, (elapsed / DWELL_MS) * 100);
+        progressBar.style.width = pct + '%';
+        dwellLabel.textContent = `HOLDING... ${Math.round(pct)}%`;
+        
+        if (elapsed >= DWELL_MS) {
+          clearInterval(dwellTimer);
+          dwellSatisfied = true;
+          dwellLabel.textContent = "CLEARANCE ARMED";
+          dwellLabel.classList.add('text-p3-green', 'font-bold');
+          btnGrant.disabled = false;
+          btnGrant.classList.remove('opacity-50', 'cursor-not-allowed');
+          btnGrant.classList.add('cursor-pointer', 'ring-2', 'ring-emerald-400');
+        }
+      }, 30);
+    }
+
+    function cancelDwell() {
+      if (dwellSatisfied) return;
+      clearInterval(dwellTimer);
+      progressBar.style.width = '0%';
+      dwellLabel.textContent = "HOLD SPACE (1.5s)";
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !e.repeat) {
+        e.preventDefault();
+        if (!dwellSatisfied) startDwell();
+        else btnGrant.click();
+      } else if (e.code === 'Escape') {
+        e.preventDefault();
+        triggerAbort();
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'Space' && !dwellSatisfied) cancelDwell();
+    });
+
+    btnGrant.addEventListener('click', () => {
+      if (!dwellSatisfied) return;
+      alert("PERMISSIVE CLEARANCE DISPATCHED: Cryptographic lease signed.");
+    });
+
+    window.triggerAbort = function() {
+      alert("EMERGENCY HARD SCRAM: Loopback connection severed.");
+    };
+
+    window.triggerHardPurge = function() {
+      alert("LEVEL 2 HARD SCRAM EXECUTED: Process memory sanitized and purged.");
+      closeModal('sheet-escalate');
+    };
+
+    window.openModal = function(id) {
+      document.getElementById(id).classList.remove('hidden');
+    };
+
+    window.closeModal = function(id) {
+      document.getElementById(id).classList.add('hidden');
+    };
+
+    window.openDrawer = function(id) {
+      document.getElementById(id).classList.remove('hidden');
+    };
+
+    window.closeDrawer = function(id) {
+      document.getElementById(id).classList.add('hidden');
+    };
+  </script>
+</body>
+</html>

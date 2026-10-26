@@ -33,7 +33,7 @@ gh label create "subsystem:scramkctl"            --color "006B75" --description 
 | [#1](https://github.com/spetro511/scramkd/issues/1) | `[SEC-IPC-01]` Wire `scramkctl` to `/var/run/scramkd/control.sock` with `LOCAL_PEERCRED` Verification | `P1` | `HIGH` | `CWE-284`, `CWE-306` | `OPEN` |
 | [#2](https://github.com/spetro511/scramkd/issues/2) | `[SEC-INTERLOCK-02]` Implement F12 Airgap Telemetry Dump & Cryptographic Wipe (`forceAirgapDump`) | `P2` | `MEDIUM` | `CWE-665`, `CWE-325` | `OPEN` |
 | [#3](https://github.com/spetro511/scramkd/issues/3) | `[SEC-CI-03]` Live Container Runtime E2E CI Runner & `LOOPBACK_FB` / `STRICT_AIRGAP` Probe | `P2` | `MEDIUM` | `CWE-693`, `CWE-436` | `OPEN` |
-| [#4](https://github.com/spetro511/scramkd/issues/4) | `[GOV-HYGIENE-04]` Continuous CI Lint Gate Preventing Legacy Namespace Drift & Hardcoded Host Paths | `P3` | `LOW` | `CWE-1059`, `CWE-200` | `OPEN` |
+| [#4](https://github.com/spetro511/scramkd/issues/4) | `[GOV-HYGIENE-04]` Continuous CI Lint Gate Preventing Legacy Namespace Drift & Hardcoded Host Paths | `P3` | `LOW` | `CWE-1059`, `CWE-200` | `IN_PROGRESS (Linter Delivered)` |
 
 ---
 
@@ -151,6 +151,7 @@ Across multi-environment contributors and automated tooling, two regressions hap
 
 ### Definition of Done (`XCTest` & Runtime Gate)
 
-- [ ] Add a fast, zero-dependency shell lint script and GitHub Actions check that scans `Package.swift`, `Sources/**`, `Tests/**`, `LaunchDaemons/**`, `.github/**`, and `docs/**` on every PR and push.
-- [ ] Fail the build immediately on any occurrence of legacy pre-cutover `Tactical*` module/symbol identifiers (outside explicit historical deprecation notes in `SECURITY.md`).
-- [ ] Fail the build immediately on any hardcoded `/Users/` workstation path or `file://` local URI across all tracked source, configuration, and Markdown files.
+- [x] Add a fast, zero-dependency shell lint script (`scripts/ci/check_legacy_rebrand.sh`) that scans `Package.swift`, `Sources/**`, `Tests/**`, `LaunchDaemons/**`, `.github/**`, and `docs/**` on every PR and push.
+- [x] Fail the build immediately on any occurrence of legacy pre-cutover `Tactical*` module/symbol identifiers (outside explicit historical deprecation notes in `SECURITY.md`).
+- [x] Fail the build immediately on any hardcoded `/Users/` workstation path or `file://` local URI across all tracked source, configuration, and Markdown files.
+- [ ] Connect `scripts/ci/check_legacy_rebrand.sh` to a GitHub Actions PR/push workflow in `.github/workflows/ci.yml`.

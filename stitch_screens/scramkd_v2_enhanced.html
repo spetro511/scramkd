@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>SCRAMKD // SUPERVISOR DAEMON [NODE: UNBOUND]</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "canvas-obsidian": "#070A10",
+            "panel-slate": "#0D131F",
+            "card-surface": "#111827",
+            "card-hover": "#162033",
+            "border-subtle": "#1F293D",
+            "border-active": "#334466",
+            "p3-green": "#238636",
+            "p3-green-glow": "#2EA043",
+            "p3-amber": "#D29922",
+            "p3-red": "#DA3633",
+            "p3-red-dark": "#B62324",
+            "p3-blue": "#58A6FF",
+          },
+          fontFamily: {
+            mono: ["'JetBrains Mono'", "monospace"],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      border-radius: 0px !important;
+    }
+    .keycap {
+      border-radius: 2px !important;
+    }
+    .traffic-light {
+      border-radius: 9999px !important;
+    }
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #070A10;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1F293D;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334466;
+    }
+    .hazard-stripes {
+      background-image: repeating-linear-gradient(45deg, rgba(218, 54, 51, 0.15), rgba(218, 54, 51, 0.15) 10px, transparent 10px, transparent 20px);
+    }
+    @keyframes pulse-ring {
+      0% { box-shadow: 0 0 0 0 rgba(210, 153, 34, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(210, 153, 34, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(210, 153, 34, 0); }
+    }
+    .target-highlight {
+      animation: highlight-glow 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes highlight-glow {
+      0% { outline: 3px solid #D29922; background-color: rgba(210, 153, 34, 0.25); }
+      100% { outline: 1px solid #334466; background-color: transparent; }
+    }
+  </style>
+</head>
+<body class="bg-[#030508] text-[#DFE4F0] font-mono text-[11px] leading-tight flex items-center justify-center min-h-screen p-0 m-0 antialiased overflow-hidden">
+
+<!-- FIXED MACOS SUPERVISOR CANVAS: 1440x900 -->
+<div class="w-[1440px] h-[900px] max-w-[1440px] max-h-[900px] flex flex-col bg-canvas-obsidian border border-border-subtle shadow-2xl relative overflow-hidden select-none">
+
+  <!-- ========================================================================= -->
+  <!-- 1. TIER 1: WINDOW CHROME & TOP TELEMETRY BAR (44px)                       -->
+  <!-- ========================================================================= -->
+  <header class="h-[44px] min-h-[44px] bg-[#0A0E17] border-b border-border-subtle flex items-center justify-between px-4 z-40">
+    <!-- Left: macOS Traffic Lights + Supervisor Identity -->
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-[8px]">
+        <span class="w-[12px] h-[12px] bg-[#FF5F56] border border-[#E0443E] traffic-light inline-block shadow-sm"></span>
+        <span class="w-[12px] h-[12px] bg-[#FFBD2E] border border-[#DEA123] traffic-light inline-block shadow-sm"></span>
+        <span class="w-[12px] h-[12px] bg-[#27C93F] border border-[#1AAB29] traffic-light inline-block shadow-sm"></span>
+      </div>
+      <div class="h-4 w-[1px] bg-border-subtle"></div>
+      <div class="flex flex-col justify-center">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-[#3FB950] tracking-wider text-[11px]">SCRAMKD // SUPERVISOR DAEMON [NODE: UNBOUND]</span>
+          <span class="px-1.5 py-0.2 bg-[#1F293D] text-[#94A3B8] text-[8px] font-extrabold tracking-widest keycap">PROD-01</span>
+        </div>
+        <span class="text-[#64748B] text-[9px] font-medium tracking-tight">DARWIN HARDWARE INTERLOCK SUPERVISOR v0.4.0-RELEASE (SWIFT 6 / DISPLAY P3)</span>
+      </div>
+    </div>
+
+    <!-- Center: Authoritative Global Status Badges -->
+    <div class="flex items-center gap-2 text-[9px]">
+      <div class="px-2 py-0.5 bg-panel-slate border border-border-subtle flex items-center gap-1.5">
+        <span class="text-[#64748B]">PROFILE:</span>
+        <span class="text-p3-blue font-bold">STRICT_AIRGAP</span>
+      </div>
+      <div class="px-2 py-0.5 bg-panel-slate border border-border-subtle flex items-center gap-1.5">
+        <span class="text-[#64748B]">TRANSPORT:</span>
+        <span class="text-[#CBD5E1] font-bold">STDIO_RPC</span>
+      </div>
+      <div class="px-2 py-0.5 bg-p3-amber/15 border border-p3-amber/40 flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 bg-p3-amber traffic-light animate-ping"></span>
+        <span class="text-[#64748B]">GATE:</span>
+        <span class="text-p3-amber font-extrabold tracking-wide">ARMED &amp; TRAPPED</span>
+      </div>
+      <div class="px-2 py-0.5 bg-panel-slate border border-border-subtle flex items-center gap-1.5">
+        <span class="text-[#64748B]">SVS AUDIO:</span>
+        <span class="text-p3-red font-bold">440Hz ACTIVE</span>
+      </div>
+      <div class="px-2 py-0.5 bg-panel-slate border border-border-subtle flex items-center gap-1.5">
+        <span class="text-[#64748B]">MEM RSS:</span>
+        <span class="text-[#F1F5F9] font-bold">142.8 MB</span>
+      </div>
+    </div>
+
+    <!-- Right: TTL Auto-Abort Countdown Pill -->
+    <div class="flex items-center">
+      <div class="bg-p3-amber text-black font-extrabold text-[11px] px-3 py-1 tracking-wider flex items-center gap-2 border border-[#B45309] shadow-[0_0_12px_rgba(210,153,34,0.3)]">
+        <span class="material-symbols-outlined text-[14px]">timer</span>
+        <span>AUTO-ABORT TTL: <span class="font-black tabular-nums" id="top-timer">00:00.38s</span></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- 2. HIGH-PRIORITY ALERT & ESCALATION BANNER (40px)                         -->
+  <!-- ========================================================================= -->
+  <section class="h-[40px] min-h-[40px] bg-[#1A0B0E] border-b border-p3-red/40 px-4 flex items-center justify-between z-30 shadow-md" id="alert-banner">
+    <!-- Alert Identification & Signposting -->
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-1.5 px-2 py-0.5 bg-p3-red text-white text-[9px] font-black tracking-widest keycap">
+        <span class="material-symbols-outlined text-[12px]">warning</span>
+        <span>CRITICAL ESCALATION</span>
+      </div>
+      <div class="flex items-center gap-2 text-[10px]">
+        <span class="text-p3-red font-bold">#9042-A:</span>
+        <span class="text-[#F1F5F9] font-semibold">SYSCALL INTERCEPTED:</span>
+        <code class="px-1.5 py-0.2 bg-black/60 border border-p3-red/30 text-p3-amber font-mono font-bold">sys_execve(59)</code>
+        <span class="text-[#94A3B8] font-normal">from Peer <span class="text-[#F1F5F9] font-semibold">autonomous_agent_v4 (PID 19482)</span></span>
+      </div>
+    </div>
+
+    <!-- Actionable Escalation & Jump-To Deep Links -->
+    <div class="flex items-center gap-2">
+      <span class="text-[9px] text-[#94A3B8] uppercase tracking-wider font-semibold mr-1">Escalate Focus:</span>
+      <button class="px-2.5 py-1 bg-[#2C1217] hover:bg-[#3D1A21] border border-p3-red/50 text-[#FCA5A5] hover:text-white text-[9px] font-bold tracking-wider flex items-center gap-1 transition-colors cursor-pointer" onclick="jumpTo('trapped-instruction', 'Viewport Trapped Instruction')">
+        <span class="material-symbols-outlined text-[11px]">search</span>
+        <span>[ JUMP TO TRAP ]</span>
+      </button>
+      <button class="px-2.5 py-1 bg-[#2C1217] hover:bg-[#3D1A21] border border-p3-red/50 text-[#FCA5A5] hover:text-white text-[9px] font-bold tracking-wider flex items-center gap-1 transition-colors cursor-pointer" onclick="jumpTo('clearance-record-slip', 'Clearance Record Slip')">
+        <span class="material-symbols-outlined text-[11px]">fact_check</span>
+        <span>[ JUMP TO CLEARANCE ]</span>
+      </button>
+      <button class="px-2.5 py-1 bg-[#2C1217] hover:bg-[#3D1A21] border border-p3-red/50 text-[#FCA5A5] hover:text-white text-[9px] font-bold tracking-wider flex items-center gap-1 transition-colors cursor-pointer" onclick="jumpTo('audit-log-section', 'Audit Bus Stream')">
+        <span class="material-symbols-outlined text-[11px]">format_list_bulleted</span>
+        <span>[ JUMP TO AUDIT LOG ]</span>
+      </button>
+      <button class="px-2.5 py-1 bg-p3-red hover:bg-p3-red-dark text-white text-[9px] font-black tracking-wider flex items-center gap-1 transition-colors cursor-pointer shadow-[0_0_8px_rgba(218,54,51,0.5)]" onclick="escalateTrip()">
+        <span class="material-symbols-outlined text-[11px]">dangerous</span>
+        <span>[ ESCALATE TRIP ]</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 3. TIER 2: MAIN WORKSPACE (540px)                                         -->
+  <!-- Left Rail (160px) | Center Viewport (794px) | Right Safety Cockpit (486px)-->
+  <!-- ========================================================================= -->
+  <section class="h-[540px] min-h-[540px] max-h-[540px] grid grid-cols-[160px_1fr_486px] bg-canvas-obsidian border-b border-border-subtle overflow-hidden">
+
+    <!-- --------------------------------------------------------------------- -->
+    <!-- PANEL A: LEFT NAVIGATION RAIL (160px)                                 -->
+    <!-- --------------------------------------------------------------------- -->
+    <aside class="w-[160px] bg-[#090D15] border-r border-border-subtle flex flex-col justify-between overflow-hidden">
+      <div class="flex flex-col">
+        <!-- Rail Header -->
+        <div class="h-8 px-3 flex items-center justify-between border-b border-border-subtle bg-[#060910]">
+          <span class="text-[9px] font-bold text-[#64748B] tracking-widest uppercase">SUPERVISOR BAYS</span>
+          <span class="w-1.5 h-1.5 bg-p3-green"></span>
+        </div>
+
+        <!-- Navigation Bays -->
+        <nav class="flex flex-col py-1 space-y-0.5">
+          <!-- BAY-01: OVERVIEW (Active) -->
+          <a class="px-3 py-2.5 bg-p3-green/15 text-p3-green border-l-2 border-p3-green font-bold text-[10px] tracking-wider flex flex-col gap-0.5 border-y border-p3-green/30" href="#" id="bay-01">
+            <span class="text-[#94A3B8] text-[8px] font-normal">BAY-01</span>
+            <span>SUPERVISOR OVERVIEW</span>
+          </a>
+          <!-- BAY-02: BRIDGE DETONATE (Alert Flagged) -->
+          <a class="px-3 py-2 text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-card-surface border-l-2 border-transparent text-[10px] tracking-wider flex flex-col gap-0.5 transition-colors group" href="#" id="bay-02">
+            <div class="flex items-center justify-between">
+              <span class="text-[#64748B] text-[8px]">BAY-02</span>
+              <span class="px-1 py-0.1 bg-p3-amber/20 text-p3-amber text-[8px] font-extrabold border border-p3-amber/40">INTERCEPT</span>
+            </div>
+            <span>BRIDGE DETONATE</span>
+          </a>
+          <!-- BAY-03: CLEARANCE RECORD -->
+          <a class="px-3 py-2 text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-card-surface border-l-2 border-transparent text-[10px] tracking-wider flex flex-col gap-0.5 transition-colors" href="#" id="bay-03">
+            <span class="text-[#64748B] text-[8px]">BAY-03</span>
+            <span>CLEARANCE RECORD</span>
+          </a>
+          <!-- BAY-04: AIRGAP INTERLOCK -->
+          <a class="px-3 py-2 text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-card-surface border-l-2 border-transparent text-[10px] tracking-wider flex flex-col gap-0.5 transition-colors" href="#" id="bay-04">
+            <span class="text-[#64748B] text-[8px]">BAY-04</span>
+            <span>AIRGAP INTERLOCK</span>
+          </a>
+          <!-- BAY-05: AUDIT BUS -->
+          <a class="px-3 py-2 text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-card-surface border-l-2 border-transparent text-[10px] tracking-wider flex flex-col gap-0.5 transition-colors" href="#" id="bay-05">
+            <span class="text-[#64748B] text-[8px]">BAY-05</span>
+            <span>AUDIT BUS</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Rail Footer: Link Integrity & Monospace Stats -->
+      <div class="border-t border-border-subtle p-3 bg-[#060910] space-y-1.5">
+        <div class="text-[8px] text-[#64748B] tracking-wider font-semibold uppercase">HARDWARE BUS</div>
+        <div class="flex justify-between items-center text-[9px]">
+          <span class="text-[#94A3B8]">BRIDGE LINK:</span>
+          <span class="text-p3-green font-bold">SYNCHRONIZED</span>
+        </div>
+        <div class="flex justify-between items-center text-[9px]">
+          <span class="text-[#94A3B8]">ROUNDTRIP:</span>
+          <span class="text-p3-green font-bold">0.14 ms</span>
+        </div>
+        <div class="flex justify-between items-center text-[9px]">
+          <span class="text-[#94A3B8]">F_SETNOSIGPIPE:</span>
+          <span class="text-[#CBD5E1] font-bold">ENFORCED</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- --------------------------------------------------------------------- -->
+    <!-- PANEL B: CENTER CONTAINER VIEWPORT (794px) — CLEANED & STREAMLINED     -->
+    <!-- --------------------------------------------------------------------- -->
+    <main class="bg-canvas-obsidian flex flex-col justify-between overflow-hidden relative border-r border-border-subtle">
+      <!-- Viewport Header -->
+      <div class="h-9 bg-[#0B101B] border-b border-border-subtle px-3 flex items-center justify-between z-20">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 bg-p3-green"></span>
+          <span class="text-[11px] font-bold tracking-wider text-[#F1F5F9]">CONTAINER VIEWPORT <span class="text-[#64748B] font-medium">// METAL STREAM</span></span>
+          <span class="text-p3-amber text-[10px] font-semibold">(127.0.0.1:7860)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="px-2.5 py-1 bg-card-surface hover:bg-card-hover border border-border-subtle text-[#CBD5E1] hover:text-white text-[9px] font-bold tracking-wider transition-colors cursor-pointer flex items-center gap-1" id="btn-dry-run">
+            <span class="material-symbols-outlined text-[11px] text-p3-blue">play_circle</span>
+            <span>[ SIMULATE DRY RUN ]</span>
+          </button>
+          <div class="px-2 py-0.5 bg-p3-green/10 border border-p3-green/40 text-p3-green text-[9px] font-bold tracking-wider">
+            [MTKView 60FPS | VSYNC LOCKED]
+          </div>
+        </div>
+      </div>
+
+      <!-- Viewport Canvas & Clean Terminal Session Frame -->
+      <div class="flex-1 p-5 flex flex-col justify-center items-center relative overflow-hidden bg-[#06080E]">
+        <!-- Terminal Container -->
+        <div class="w-full max-w-[700px] bg-[#090D17] border border-border-subtle shadow-2xl relative z-10 flex flex-col transition-all" id="trapped-instruction">
+          <!-- Terminal Titlebar -->
+          <div class="h-7 bg-[#0E1524] border-b border-border-subtle px-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 bg-[#FF5F56] traffic-light inline-block"></span>
+              <span class="w-2.5 h-2.5 bg-[#FFBD2E] traffic-light inline-block"></span>
+              <span class="w-2.5 h-2.5 bg-[#27C93F] traffic-light inline-block"></span>
+              <span class="text-[10px] text-[#CBD5E1] ml-2 font-mono font-semibold">guest@agent-sandbox:/opt/workstation</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[9px] bg-[#162033] px-2 py-0.5 text-[#94A3B8] font-bold border border-border-subtle">DARWIN INTERLOCK TRAP ACTIVE</span>
+            </div>
+          </div>
+
+          <!-- Terminal Content Body -->
+          <div class="p-4 space-y-2.5 text-[11px] font-mono leading-relaxed bg-[#050810]">
+            <div class="text-[#64748B] flex items-center gap-2">
+              <span class="text-p3-blue">guest@sandbox$</span>
+              <span class="text-[#CBD5E1]">./detonate_sample.sh --isolated --quarantine-net</span>
+            </div>
+
+            <!-- Intercepted Syscall Alert Box -->
+            <div class="border-2 border-p3-red bg-[#1D0C10] p-3 my-2 space-y-1.5 shadow-lg">
+              <div class="flex items-center justify-between pb-1.5 border-b border-p3-red/30">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-p3-red text-[16px]">lock</span>
+                  <span class="text-p3-red font-extrabold text-[11px] uppercase tracking-wider">[SCRAMK-GATE] HARD INTERCEPT ENGAGED</span>
+                </div>
+                <span class="px-2 py-0.5 bg-p3-red text-white font-black text-[9px] tracking-widest keycap animate-pulse">CLOCK PAUSED</span>
+              </div>
+              <div class="text-[#F1F5F9] text-[10px] leading-relaxed">
+                Syscall <span class="text-p3-amber font-bold">sys_execve (ID: 59)</span> trapped at instruction pointer <span class="text-p3-amber font-bold">0x7fff5fc0</span>.<br/>
+                Origin process: <span class="text-[#CBD5E1] font-semibold">PID 19482 (autonomous_agent_v4)</span> | Target: <span class="text-p3-green font-bold">/bin/bash ./detonate_sample.sh</span>
+              </div>
+            </div>
+
+            <!-- Prompt Status -->
+            <div class="pt-1 text-[#CBD5E1] text-[10px] flex items-center gap-2">
+              <span class="text-p3-amber font-bold">&gt;&gt;&gt;</span>
+              <span class="text-[#94A3B8]">Awaiting operator physical dwell clearance in Cockpit...</span>
+              <span class="w-2 h-3.5 bg-p3-green inline-block animate-pulse"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Viewport Footer -->
+      <div class="h-8 bg-[#0B101B] border-t border-border-subtle px-3 flex items-center justify-between text-[10px] z-20">
+        <div class="flex items-center gap-4 text-[#64748B]">
+          <span>RING BUFFER: <span class="text-[#F1F5F9] font-bold">0x981FA00</span></span>
+          <span class="text-border-subtle">|</span>
+          <span>PAGE FAULTS: <span class="text-p3-green font-bold">0/SEC</span></span>
+          <span class="text-border-subtle">|</span>
+          <span>FPS: <span class="text-p3-green font-bold">60.0 LOCKED</span></span>
+        </div>
+        <div class="text-p3-green font-bold tracking-wider text-[9px] flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 bg-p3-green traffic-light"></span>
+          <span>CONTAINMENT STATUS: ZERO_ESCAPE_VERIFIED</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- --------------------------------------------------------------------- -->
+    <!-- PANEL C: RIGHT SAFETY COCKPIT (486px) — CLEANED, STREAMLINED CTAS     -->
+    <!-- --------------------------------------------------------------------- -->
+    <aside class="w-[486px] bg-[#0A0E18] border-l border-border-subtle p-4 flex flex-col justify-between overflow-y-auto">
+      <div class="flex flex-col gap-3">
+
+        <!-- 1. Interlock State & TTL Status Card -->
+        <div class="bg-p3-amber/10 border-2 border-p3-amber p-3 flex items-center justify-between">
+          <div class="flex flex-col gap-0.5">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 bg-p3-amber traffic-light animate-ping"></span>
+              <span class="text-p3-amber font-extrabold text-[12px] tracking-wider uppercase">GATE STATUS: ARMED // LOCKED</span>
+            </div>
+            <span class="text-[#F1F5F9] text-[9px] font-semibold tracking-wider">HARD INTERCEPT ACTIVE // KERNEL PREEMPTION READY</span>
+          </div>
+          <div class="bg-p3-amber text-black font-black px-2.5 py-1 text-[11px] tracking-wider text-right tabular-nums keycap">
+            TTL AUTO-ABORT:<br/><span id="cockpit-timer" class="font-extrabold">00:00.38s</span>
+          </div>
+        </div>
+
+        <!-- 2. Clean Clearance Record Slip -->
+        <div class="border border-border-active bg-[#0E1524] p-3 flex flex-col gap-2 transition-all" id="clearance-record-slip">
+          <div class="flex items-center justify-between pb-1.5 border-b border-border-subtle">
+            <div class="flex items-center gap-1.5 font-bold text-[#F1F5F9] text-[10px] tracking-wider">
+              <span class="material-symbols-outlined text-p3-amber text-[15px]">verified_user</span>
+              <span>CLEARANCE RECORD #9042-A</span>
+            </div>
+            <span class="bg-p3-red text-white font-extrabold text-[8px] px-2 py-0.5 tracking-wider keycap">[CRITICAL TIER-1]</span>
+          </div>
+
+          <div class="space-y-1.5 text-[9px]">
+            <div class="flex justify-between items-center py-0.5 border-b border-border-subtle/50">
+              <span class="text-[#64748B]">PEER / ORIGIN</span>
+              <span class="text-[#F1F5F9] font-bold">autonomous_agent_v4 <span class="text-p3-green font-semibold">(PID 19482)</span></span>
+            </div>
+            <div class="flex justify-between items-center py-0.5 border-b border-border-subtle/50">
+              <span class="text-[#64748B]">TOOL HOOK</span>
+              <span class="text-p3-green font-bold font-mono">screenenv.bash_execute</span>
+            </div>
+            <div class="flex flex-col gap-0.5 py-0.5 border-b border-border-subtle/50">
+              <span class="text-[#64748B] text-[8px] uppercase">Command Payload</span>
+              <div class="bg-black/60 p-2 border border-border-subtle text-p3-green font-bold text-[10px] break-all font-mono">
+                ./detonate_sample.sh --isolated --quarantine-net
+              </div>
+            </div>
+            <div class="flex justify-between items-center py-0.5">
+              <span class="text-[#64748B]">SHA-256 HASH</span>
+              <span class="font-mono text-[8px] text-[#94A3B8]">e3b0c44298fc1c14...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Signposted Operator Flow: Step 1 (Dwell Guard) -->
+        <div class="border-2 border-p3-amber/60 bg-[#121827] p-3 flex flex-col gap-2 shadow-md">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-1.5 text-p3-amber font-extrabold text-[10px] tracking-wider uppercase">
+              <span class="material-symbols-outlined text-[15px]">fingerprint</span>
+              <span>STEP 1: DEAD-MAN DWELL GUARD</span>
+            </div>
+            <span class="text-p3-amber text-[9px] font-black bg-p3-amber/15 px-2 py-0.5 border border-p3-amber/40 keycap" id="dwell-status-badge">
+              DWELL: PENDING (0/1500ms)
+            </span>
+          </div>
+
+          <!-- Dwell Progress Bar -->
+          <div class="w-full bg-[#070A10] h-2.5 border border-border-subtle relative overflow-hidden">
+            <div class="bg-p3-amber h-full w-0 transition-all duration-75" id="dwell-progress-bar"></div>
+          </div>
+
+          <!-- Dwell Action Button -->
+          <button class="w-full py-2 bg-p3-amber/15 hover:bg-p3-amber/25 active:bg-p3-amber/35 text-p3-amber border border-p3-amber font-bold text-[10px] tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 select-none keycap shadow-sm" id="btn-dwell">
+            <span class="material-symbols-outlined text-[14px]">touch_app</span>
+            <span id="dwell-btn-text">[ HOLD TO AUDIT &amp; UNLOCK CLEARANCE ]</span>
+          </button>
+          <span class="text-[8px] text-[#94A3B8] text-center tracking-tight uppercase font-medium">
+            PRESS &amp; HOLD FOR 1.5 SECONDS TO VERIFY PAYLOAD INTEGRITY
+          </span>
+        </div>
+
+      </div>
+
+      <!-- 4. Signposted Operator Flow: Step 2 (Decision Dock) -->
+      <div class="flex flex-col gap-2 pt-3 border-t border-border-subtle">
+        <div class="text-[8px] text-[#64748B] font-bold tracking-widest uppercase mb-0.5">
+          STEP 2: AUTHORITATIVE DISPATCH CONTROLS
+        </div>
+
+        <!-- Grant Permissive Button (Gated until dwell satisfied) -->
+        <button class="w-full h-11 bg-p3-green/20 text-[#64748B] font-extrabold text-[11px] tracking-wider px-3 flex items-center justify-between border border-p3-green/30 transition-all cursor-not-allowed select-none keycap" disabled="" id="btn-permissive">
+          <span class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[16px]" id="grant-icon">lock</span>
+            <span id="grant-label">[ GRANT PERMISSIVE ]</span>
+            <span class="text-[8px] bg-black/80 text-p3-amber px-2 py-0.5 border border-p3-amber/50 font-bold tracking-widest keycap" id="grant-badge">
+              [ 🔒 DWELL REQUIRED ]
+            </span>
+          </span>
+          <span class="bg-black text-[#64748B] font-black text-[9px] px-2 py-0.5 border border-border-subtle keycap" id="grant-keycap">
+            [ SPACE ]
+          </span>
+        </button>
+
+        <!-- Emergency Abort Button (Instant Level-0 Trip) -->
+        <button class="w-full h-11 bg-p3-red hover:bg-p3-red-dark active:translate-y-[1px] text-white font-extrabold text-[11px] tracking-wider px-3 flex items-center justify-between border border-[#F87171] hazard-stripes transition-all cursor-pointer shadow-[0_0_15px_rgba(218,54,51,0.4)] keycap" id="btn-abort">
+          <span class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[16px]">cancel</span>
+            <span>[ EMERGENCY ABORT ]</span>
+            <span class="text-[8px] bg-black text-white px-2 py-0.5 border border-white/50 font-extrabold tracking-widest keycap">
+              LEVEL-0 PREEMPTION
+            </span>
+          </span>
+          <span class="bg-black text-white font-black text-[9px] px-2 py-0.5 border border-white/60 keycap">
+            [ ESC ]
+          </span>
+        </button>
+
+        <!-- Safety Notice -->
+        <div class="text-[8px] text-[#64748B] text-center tracking-wider font-semibold uppercase pt-1">
+          ESC OR CMD+. OVERRIDES ALL DIALOGS (INSTANT GATE TRIP)
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 4. TIER 3: PROGRESSIVE DISCLOSURE DRAWERS & AUDIT STREAM (276px)           -->
+  <!-- ========================================================================= -->
+  <section class="h-[276px] min-h-[276px] max-h-[276px] bg-[#070A12] flex flex-col overflow-hidden" id="audit-log-section">
+
+    <!-- Segmented Navigation & Progressive Disclosure Tabs Bar -->
+    <div class="h-9 bg-[#0B101C] border-b border-border-subtle px-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <!-- Live Stream Identifier -->
+        <div class="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#F1F5F9]">
+          <span class="w-2 h-2 bg-p3-green"></span>
+          <span>AUDIT BUS &amp; DISCLOSURE SUITE</span>
+        </div>
+
+        <!-- Progressive Disclosure Segmented Tabs -->
+        <div class="flex items-center gap-1 ml-3 text-[10px]">
+          <button class="px-2.5 py-1 bg-card-surface text-p3-green border-t-2 border-p3-green border-x border-border-subtle font-bold text-[9px] cursor-pointer" id="tab-audit" onclick="showDisclosure('audit')">
+            [ AUDIT LOG STREAM (8,192) ]
+          </button>
+          <button class="px-2.5 py-1 bg-[#090D17] text-[#94A3B8] hover:text-[#CBD5E1] border border-border-subtle font-medium text-[9px] cursor-pointer" id="tab-diff" onclick="showDisclosure('diff')">
+            [ ▼ EXPAND JSON-RPC PAYLOAD DIFF ]
+          </button>
+          <button class="px-2.5 py-1 bg-[#090D17] text-[#94A3B8] hover:text-[#CBD5E1] border border-border-subtle font-medium text-[9px] cursor-pointer" id="tab-security" onclick="showDisclosure('security')">
+            [ ▼ EXPAND KERNEL PROFILE &amp; ENV SCRUBBER ]
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Socket Status -->
+      <div class="flex items-center gap-2 text-[9px]">
+        <span class="text-[#64748B] font-mono">[ WS://127.0.0.1:9001/AUDIT ]</span>
+        <span class="px-2 py-0.5 bg-p3-amber/15 border border-p3-amber/40 text-p3-amber font-bold">
+          [ AUTO-SCROLL: ACTIVE ]
+        </span>
+      </div>
+    </div>
+
+    <!-- --------------------------------------------------------------------- -->
+    <!-- VIEW A: REAL-TIME MONOSPACE AUDIT BUS STREAM (Default)                -->
+    <!-- --------------------------------------------------------------------- -->
+    <div class="flex-1 flex flex-col overflow-hidden" id="view-audit">
+      <!-- Table Header -->
+      <div class="grid grid-cols-[120px_90px_1fr_140px_100px] px-3 py-1 bg-[#080C16] border-b border-border-subtle text-[9px] font-bold text-[#64748B] tracking-wider uppercase">
+        <div>TIMESTAMP</div>
+        <div>SUBSYSTEM</div>
+        <div>EVENT DESCRIPTION</div>
+        <div class="text-right pr-3">LATENCY / METRIC</div>
+        <div class="text-right">ACTION</div>
+      </div>
+
+      <!-- Table Body with Click-to-Jump rows -->
+      <div class="flex-1 overflow-y-auto divide-y divide-border-subtle/30 text-[10px] font-mono select-text" id="audit-table">
+        <!-- Event 1 -->
+        <div class="grid grid-cols-[120px_90px_1fr_140px_100px] px-3 py-1.5 hover:bg-card-surface/70 items-center transition-colors cursor-pointer group" onclick="jumpTo('trapped-instruction', 'Instruction 0x7fff5fc0')">
+          <span class="text-[#64748B]">22:10:59.858</span>
+          <div><span class="px-1.5 py-0.5 bg-[#162033] text-[#CBD5E1] text-[9px] font-bold keycap">CORE</span></div>
+          <span class="text-[#F1F5F9] font-medium">State transition: .locked -&gt; .armed (Seq: 00921)</span>
+          <span class="text-right pr-3 text-p3-green font-semibold">SYS: 0.12ms</span>
+          <span class="text-right text-[8px] text-p3-blue group-hover:underline">[INSPECT]</span>
+        </div>
+        <!-- Event 2 -->
+        <div class="grid grid-cols-[120px_90px_1fr_140px_100px] px-3 py-1.5 hover:bg-card-surface/70 items-center transition-colors cursor-pointer group" onclick="jumpTo('trapped-instruction', 'CoreAudio Alert Tone')">
+          <span class="text-[#64748B]">22:11:00.129</span>
+          <div><span class="px-1.5 py-0.5 bg-p3-amber/20 text-p3-amber border border-p3-amber/40 text-[9px] font-bold keycap">SVS</span></div>
+          <span class="text-p3-amber">CoreAudio alert tone emitted: 440Hz Sine Wave (Duration: 150ms)</span>
+          <span class="text-right pr-3 text-p3-amber font-semibold">AUDIO: 440Hz</span>
+          <span class="text-right text-[8px] text-p3-blue group-hover:underline">[INSPECT]</span>
+        </div>
+        <!-- Event 3 -->
+        <div class="grid grid-cols-[120px_90px_1fr_140px_100px] px-3 py-1.5 hover:bg-card-surface/70 items-center transition-colors cursor-pointer group" onclick="jumpTo('clearance-record-slip', 'ContainerSocketBridge')">
+          <span class="text-[#64748B]">22:11:00.478</span>
+          <div><span class="px-1.5 py-0.5 bg-[#162033] text-[#CBD5E1] text-[9px] font-bold keycap">MCP</span></div>
+          <span class="text-[#94A3B8]">ContainerSocketBridge: Outbound 16KiB chunk dispatched</span>
+          <span class="text-right pr-3 text-[#94A3B8]">SHM: 16KiB</span>
+          <span class="text-right text-[8px] text-p3-blue group-hover:underline">[INSPECT]</span>
+        </div>
+        <!-- Event 4 (Critical) -->
+        <div class="grid grid-cols-[120px_90px_1fr_140px_100px] px-3 py-1.5 bg-p3-red/15 border-l-2 border-p3-red items-center cursor-pointer group" onclick="jumpTo('trapped-instruction', 'Critical Gate Intercept')">
+          <span class="text-[#64748B]">22:11:00.617</span>
+          <div><span class="px-1.5 py-0.5 bg-p3-red text-white text-[9px] font-black keycap">GATE</span></div>
+          <span class="text-p3-red font-bold">HARDWARE INTERLOCK TRAP: sys_execve trapped from PID 19482</span>
+          <span class="text-right pr-3 text-p3-red font-bold">TRAP: 0.04ms</span>
+          <span class="text-right text-[8px] text-p3-red group-hover:underline font-bold">[ESCALATE]</span>
+        </div>
+        <!-- Event 5 -->
+        <div class="grid grid-cols-[120px_90px_1fr_140px_100px] px-3 py-1.5 hover:bg-card-surface/70 items-center transition-colors cursor-pointer group" onclick="jumpTo('clearance-record-slip', 'Dwell Guard Waiter')">
+          <span class="text-[#64748B]">22:11:00.620</span>
+          <div><span class="px-1.5 py-0.5 bg-p3-amber/20 text-p3-amber border border-p3-amber/40 text-[9px] font-bold keycap">DWELL</span></div>
+          <span class="text-[#CBD5E1]">1.5s Dwell Guard waiter initialized for Request #9042-A</span>
+          <span class="text-right pr-3 text-p3-amber font-semibold">DWELL: 0ms</span>
+          <span class="text-right text-[8px] text-p3-blue group-hover:underline">[INSPECT]</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- --------------------------------------------------------------------- -->
+    <!-- VIEW B: PROGRESSIVE DISCLOSURE — JSON-RPC SEMANTIC PAYLOAD DIFF       -->
+    <!-- --------------------------------------------------------------------- -->
+    <div class="flex-1 hidden grid-cols-2 p-3 gap-3 overflow-y-auto bg-[#070A12]" id="view-diff">
+      <!-- Left: Inbound Untrusted Request -->
+      <div class="border border-p3-red/40 bg-[#0C111C] p-3 flex flex-col gap-1.5">
+        <div class="flex items-center justify-between pb-1 border-b border-border-subtle text-[9px]">
+          <span class="text-p3-red font-bold uppercase tracking-wider">UNTRASTED GUEST PAYLOAD (RAW RPC)</span>
+          <span class="text-[#64748B]">PID: 19482</span>
+        </div>
+        <pre class="text-[10px] text-[#CBD5E1] font-mono leading-tight overflow-x-auto p-2 bg-black/60 border border-border-subtle select-text">{
+  "jsonrpc": "2.0",
+  "method": "screenenv.bash_execute",
+  "params": {
+    "cmd": "./detonate_sample.sh",
+    "flags": ["--isolated", "--quarantine-net"],
+    "network_egress": <span class="text-p3-red font-bold">"PROMISCUOUS_ALLOW"</span>,
+    "raw_socket_access": <span class="text-p3-red font-bold">true</span>
+  },
+  "id": "req-9042-a"
+}</pre>
+      </div>
+
+      <!-- Right: scramkd Permitted Specification -->
+      <div class="border border-p3-green/40 bg-[#0C111C] p-3 flex flex-col gap-1.5">
+        <div class="flex items-center justify-between pb-1 border-b border-border-subtle text-[9px]">
+          <span class="text-p3-green font-bold uppercase tracking-wider">SCRAMKD PERMITTED SPECIFICATION</span>
+          <span class="text-[#64748B]">POLICY: AIRGAP-STRICT</span>
+        </div>
+        <pre class="text-[10px] text-[#CBD5E1] font-mono leading-tight overflow-x-auto p-2 bg-black/60 border border-border-subtle select-text">{
+  "jsonrpc": "2.0",
+  "method": "screenenv.bash_execute",
+  "params": {
+    "cmd": "./detonate_sample.sh",
+    "flags": ["--isolated", "--quarantine-net"],
+    "network_egress": <span class="text-p3-green font-bold">"HARD_LOOPBACK_ONLY"</span>,
+    "raw_socket_access": <span class="text-p3-green font-bold">false</span>
+  },
+  "id": "req-9042-a"
+}</pre>
+      </div>
+    </div>
+
+    <!-- --------------------------------------------------------------------- -->
+    <!-- VIEW C: PROGRESSIVE DISCLOSURE — KERNEL PROFILE & 7-KEY ENV SCRUBBER -->
+    <!-- --------------------------------------------------------------------- -->
+    <div class="flex-1 hidden grid-cols-2 p-3 gap-3 overflow-y-auto bg-[#070A12]" id="view-security">
+      <!-- 7-Key Environment Scrubber -->
+      <div class="border border-border-active bg-[#0C111C] p-3 flex flex-col gap-1.5">
+        <div class="flex items-center justify-between pb-1 border-b border-border-subtle text-[9px]">
+          <span class="text-p3-blue font-bold uppercase tracking-wider">7-KEY SUBPROCESS ENVIRONMENT SCRUBBER</span>
+          <span class="text-p3-green font-bold">ACTIVE (LEAKAGE: ZERO)</span>
+        </div>
+        <div class="space-y-1 text-[9px]">
+          <div class="flex justify-between py-0.5 border-b border-border-subtle/50">
+            <span class="text-[#64748B]">PASSTHROUGH ALLOWED:</span>
+            <span class="text-[#CBD5E1] font-mono">PATH, HOME, USER, SHELL, TMPDIR</span>
+          </div>
+          <div class="flex justify-between py-0.5 border-b border-border-subtle/50">
+            <span class="text-p3-red font-bold">STRIPPED CREDENTIAL KEYS:</span>
+            <span class="text-p3-red font-mono font-bold">AWS_*, OPENAI_*, GITHUB_TOKEN, ANTHROPIC_*</span>
+          </div>
+          <div class="flex justify-between py-0.5">
+            <span class="text-[#64748B]">INJECTED ISOLATION FLAGS:</span>
+            <span class="text-p3-green font-mono">SCRAMK_AIRGAP=1, SCRAMK_STRICT=1</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- seccomp-bpf & Gate State -->
+      <div class="border border-border-active bg-[#0C111C] p-3 flex flex-col gap-1.5">
+        <div class="flex items-center justify-between pb-1 border-b border-border-subtle text-[9px]">
+          <span class="text-p3-blue font-bold uppercase tracking-wider">SECCOMP-BPF FILTER PROFILE</span>
+          <span class="text-p3-amber font-bold">ENFORCING</span>
+        </div>
+        <div class="space-y-1 text-[9px]">
+          <div class="flex justify-between py-0.5 border-b border-border-subtle/50">
+            <span class="text-[#64748B]">POLICY ID:</span>
+            <span class="text-[#CBD5E1] font-mono">STRICT_AIRGAP_V2</span>
+          </div>
+          <div class="flex justify-between py-0.5 border-b border-border-subtle/50">
+            <span class="text-[#64748B]">INTERCEPT ACTION:</span>
+            <span class="text-p3-red font-bold">SECCOMP_RET_TRAP</span>
+          </div>
+          <div class="flex justify-between py-0.5">
+            <span class="text-[#64748B]">CRYPTOGRAPHIC NONCE:</span>
+            <span class="text-p3-amber font-mono font-bold">0x8F9A2 (MONOTONIC)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+</div>
+
+<!-- INTERACTIVE SCRIPTS: DWELL GUARD, ALERT DEEP-LINKS, PROGRESSIVE DISCLOSURE -->
+<script>
+  (function() {
+    let timeLeft = 0.38;
+    let dwellProgress = 0;
+    let dwellInterval = null;
+    let dwellSatisfied = false;
+
+    const topTimer = document.getElementById('top-timer');
+    const cockpitTimer = document.getElementById('cockpit-timer');
+    const dwellBar = document.getElementById('dwell-progress-bar');
+    const dwellBadge = document.getElementById('dwell-status-badge');
+    const btnDwell = document.getElementById('btn-dwell');
+    const dwellBtnText = document.getElementById('dwell-btn-text');
+    const btnPermissive = document.getElementById('btn-permissive');
+    const grantLabel = document.getElementById('grant-label');
+    const grantBadge = document.getElementById('grant-badge');
+    const grantIcon = document.getElementById('grant-icon');
+    const grantKeycap = document.getElementById('grant-keycap');
+    const btnAbort = document.getElementById('btn-abort');
+    const auditTable = document.getElementById('audit-table');
+
+    // Countdown TTL timer simulation
+    const timerInterval = setInterval(() => {
+      timeLeft = Math.max(0, timeLeft - 0.01);
+      const str = `00:00.${Math.round(timeLeft * 100).toString().padStart(2, '0')}s`;
+      if (topTimer) topTimer.textContent = str;
+      if (cockpitTimer) cockpitTimer.textContent = str;
+
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+      }
+    }, 50);
+
+    // Dwell Guard Press Handler (1500ms hold)
+    function startDwell() {
+      if (dwellSatisfied) return;
+      if (dwellInterval) clearInterval(dwellInterval);
+
+      dwellInterval = setInterval(() => {
+        dwellProgress += 50;
+        const pct = Math.min(100, (dwellProgress / 1500) * 100);
+        dwellBar.style.width = pct + '%';
+        dwellBadge.textContent = `DWELL: HOLDING (${Math.round(dwellProgress)}/1500ms)`;
+
+        if (dwellProgress >= 1500) {
+          clearInterval(dwellInterval);
+          dwellSatisfied = true;
+          dwellBar.classList.remove('bg-p3-amber');
+          dwellBar.classList.add('bg-p3-green');
+          dwellBadge.textContent = 'DWELL: COMPLETE // VERIFIED';
+          dwellBadge.className = 'text-p3-green text-[9px] font-black bg-p3-green/20 px-2 py-0.5 border border-p3-green keycap';
+          dwellBtnText.textContent = '[ DWELL VERIFIED // PROCEED TO STEP 2 ]';
+
+          // Unlock Grant Permissive Button
+          btnPermissive.removeAttribute('disabled');
+          btnPermissive.className = "w-full h-11 bg-p3-green hover:bg-p3-green-glow active:scale-[0.99] text-white font-extrabold text-[11px] tracking-wider px-3 flex items-center justify-between border border-[#34D399] transition-all cursor-pointer select-none keycap shadow-[0_0_15px_rgba(35,134,54,0.4)]";
+          grantLabel.textContent = "[ GRANT PERMISSIVE CLEARANCE ]";
+          grantBadge.textContent = "[ READY FOR OPERATOR ]";
+          grantBadge.className = "text-[8px] bg-black text-p3-green px-2 py-0.5 border border-p3-green font-black tracking-widest keycap animate-pulse";
+          grantIcon.textContent = "verified";
+          grantKeycap.className = "bg-black text-white font-black text-[9px] px-2 py-0.5 border border-white/80 keycap";
+
+          logEvent('DWELL', 'bg-p3-green text-black font-bold', '1.5s Dwell Guard satisfied. Grant Permissive button UNLOCKED.', 'DWELL: 1500ms', 'text-p3-green');
+        }
+      }, 50);
+    }
+
+    function cancelDwell() {
+      if (dwellSatisfied) return;
+      if (dwellInterval) clearInterval(dwellInterval);
+      dwellProgress = 0;
+      dwellBar.style.width = '0%';
+      dwellBadge.textContent = 'DWELL: PENDING (0/1500ms)';
+    }
+
+    btnDwell.addEventListener('mousedown', startDwell);
+    btnDwell.addEventListener('mouseup', cancelDwell);
+    btnDwell.addEventListener('mouseleave', cancelDwell);
+
+    // Keyboard controls
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !e.repeat) {
+        e.preventDefault();
+        if (!dwellSatisfied) {
+          startDwell();
+        } else {
+          btnPermissive.click();
+        }
+      } else if (e.code === 'Escape') {
+        e.preventDefault();
+        btnAbort.click();
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'Space' && !dwellSatisfied) {
+        cancelDwell();
+      }
+    });
+
+    btnPermissive.addEventListener('click', () => {
+      if (!dwellSatisfied) return;
+      logEvent('OPR-BAY1', 'bg-p3-green text-black font-extrabold', 'GRANT PERMISSIVE APPROVED: Operator clearance dispatched for PID 19482.', 'CLEAR: 0.01ms');
+      alert("PERMISSIVE LEASE GRANTED: Single-use PermissivePermit issued for Request #9042-A.");
+    });
+
+    btnAbort.addEventListener('click', () => {
+      logEvent('OPR-BAY1', 'bg-p3-red text-white font-black', 'EMERGENCY ABORT DELIVERED: Interlock tripped. Sandbox process killed.', 'TRIP: 0.00ms', 'text-p3-red');
+      alert("EMERGENCY ABORT TRIPPED: Level-0 hardware kill signal sent. Waiters drained.");
+    });
+
+    function logEvent(subsys, tagColor, desc, metric, metricColor) {
+      const d = new Date();
+      const ts = d.toTimeString().split(' ')[0] + '.' + String(d.getMilliseconds()).padStart(3, '0');
+      const row = document.createElement('div');
+      row.className = "grid grid-cols-[120px_90px_1fr_140px_100px] px-3 py-1.5 hover:bg-card-surface/70 items-center transition-colors cursor-pointer group";
+      row.innerHTML = `
+        <span class="text-[#64748B]">${ts}</span>
+        <div><span class="px-1.5 py-0.5 text-[9px] font-bold keycap ${tagColor}">${subsys}</span></div>
+        <span class="text-[#F1F5F9] font-medium">${desc}</span>
+        <span class="text-right pr-3 font-semibold ${metricColor || 'text-p3-green'}">${metric}</span>
+        <span class="text-right text-[8px] text-p3-blue group-hover:underline">[INSPECT]</span>
+      `;
+      auditTable.prepend(row);
+    }
+
+    // Deep-Link Jump-To Navigation Function
+    window.jumpTo = function(elementId, label) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.remove('target-highlight');
+      void el.offsetWidth; // trigger reflow
+      el.classList.add('target-highlight');
+      logEvent('NAV', 'bg-p3-blue text-black font-bold', `Operator deep-linked focus to ${label}`, 'NAV: 0ms');
+    };
+
+    window.escalateTrip = function() {
+      if (confirm("ESCALATE TO LEVEL-0 HARD ABORT IMMEDIATELY? This will sever the sandbox bus and trip the interlock.")) {
+        btnAbort.click();
+      }
+    };
+
+    // Progressive Disclosure Tab Switcher
+    window.showDisclosure = function(type) {
+      document.getElementById('view-audit').classList.add('hidden');
+      document.getElementById('view-diff').classList.add('hidden');
+      document.getElementById('view-diff').classList.remove('grid');
+      document.getElementById('view-security').classList.add('hidden');
+      document.getElementById('view-security').classList.remove('grid');
+
+      document.getElementById('tab-audit').className = "px-2.5 py-1 bg-[#090D17] text-[#94A3B8] hover:text-[#CBD5E1] border border-border-subtle font-medium text-[9px] cursor-pointer";
+      document.getElementById('tab-diff').className = "px-2.5 py-1 bg-[#090D17] text-[#94A3B8] hover:text-[#CBD5E1] border border-border-subtle font-medium text-[9px] cursor-pointer";
+      document.getElementById('tab-security').className = "px-2.5 py-1 bg-[#090D17] text-[#94A3B8] hover:text-[#CBD5E1] border border-border-subtle font-medium text-[9px] cursor-pointer";
+
+      if (type === 'audit') {
+        document.getElementById('view-audit').classList.remove('hidden');
+        document.getElementById('tab-audit').className = "px-2.5 py-1 bg-card-surface text-p3-green border-t-2 border-p3-green border-x border-border-subtle font-bold text-[9px] cursor-pointer";
+      } else if (type === 'diff') {
+        document.getElementById('view-diff').classList.remove('hidden');
+        document.getElementById('view-diff').classList.add('grid');
+        document.getElementById('tab-diff').className = "px-2.5 py-1 bg-card-surface text-p3-green border-t-2 border-p3-green border-x border-border-subtle font-bold text-[9px] cursor-pointer";
+      } else if (type === 'security') {
+        document.getElementById('view-security').classList.remove('hidden');
+        document.getElementById('view-security').classList.add('grid');
+        document.getElementById('tab-security').className = "px-2.5 py-1 bg-card-surface text-p3-green border-t-2 border-p3-green border-x border-border-subtle font-bold text-[9px] cursor-pointer";
+      }
+    };
+
+  })();
+</script>
+</body>
+</html>

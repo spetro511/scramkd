@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCRAMKD // GitHub Repository Master Hero Banner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=Inter:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #030406;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #F8FAFC;
+      -webkit-font-smoothing: antialiased;
+    }
+    .font-mono-spec {
+      font-family: 'JetBrains Mono', 'Geist Mono', monospace;
+    }
+    .grid-matrix {
+      background-image: 
+        linear-gradient(to right, rgba(30, 41, 59, 0.45) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(30, 41, 59, 0.45) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+  </style>
+</head>
+<body class="p-8">
+
+  <!-- Master GitHub Hero Banner Frame: 800px x 260px Strict Dimensioning -->
+  <div class="relative w-[800px] h-[260px] bg-[#050608] border border-[#1E293B] overflow-hidden select-none box-border flex flex-col justify-between p-6">
+    
+    <!-- Background Technical Hairline Matrix Grid -->
+    <div class="absolute inset-0 grid-matrix pointer-events-none opacity-40"></div>
+
+    <!-- Top Status Bar & Corner Alignment Calibrations -->
+    <div class="relative z-10 flex items-center justify-between w-full border-b border-[#1E293B]/70 pb-2">
+      <div class="flex items-center space-x-3">
+        <span class="inline-flex items-center gap-1.5 font-mono-spec text-[9px] uppercase tracking-[0.18em] text-[#64748B]">
+          <span class="w-1.5 h-1.5 bg-[#EF4444] rounded-none"></span>
+          SYS.SPEC // MIL-STD-1472H
+        </span>
+        <span class="text-[#334155] text-[10px]">|</span>
+        <span class="font-mono-spec text-[9px] tracking-[0.14em] text-[#94A3B8]">
+          DARWIN.MACH-LEASE.REV_01
+        </span>
+      </div>
+      <div class="flex items-center space-x-3 font-mono-spec text-[9px] tracking-[0.18em] text-[#64748B]">
+        <span>FAIL-SAFE: OPEN</span>
+        <span class="text-[#334155]">|</span>
+        <span class="text-[#10B981] font-semibold">TRIP_LATENCY &lt; 400µs</span>
+      </div>
+    </div>
+
+    <!-- Core Main Deck: Left Column (Monogram & Identity) + Right Column (Telemetry Console) -->
+    <div class="relative z-10 flex items-center justify-between mt-1 gap-6">
+
+      <!-- LEFT COLUMN: Monogram & Primary Identity -->
+      <div class="flex items-center gap-5">
+        
+        <!-- Precision Monogram (80x80) -->
+        <div class="relative w-[80px] h-[80px] bg-[#090D15] border border-[#1E293B] shrink-0 flex items-center justify-center">
+          
+          <!-- Corner Registration Brackets (1.5px White Stroke) -->
+          <!-- Top-Left -->
+          <div class="absolute top-[4px] left-[4px] w-[9px] h-[9px] border-t-[1.5px] border-l-[1.5px] border-white pointer-events-none"></div>
+          <!-- Top-Right -->
+          <div class="absolute top-[4px] right-[4px] w-[9px] h-[9px] border-t-[1.5px] border-r-[1.5px] border-white pointer-events-none"></div>
+          <!-- Bottom-Left -->
+          <div class="absolute bottom-[4px] left-[4px] w-[9px] h-[9px] border-b-[1.5px] border-l-[1.5px] border-white pointer-events-none"></div>
+          <!-- Bottom-Right -->
+          <div class="absolute bottom-[4px] right-[4px] w-[9px] h-[9px] border-b-[1.5px] border-r-[1.5px] border-white pointer-events-none"></div>
+
+          <!-- Micro Coordinate Benchmarks -->
+          <div class="absolute top-[3px] left-[15px] font-mono-spec text-[6px] tracking-tight text-[#475569]">01</div>
+          <div class="absolute bottom-[3px] right-[15px] font-mono-spec text-[6px] tracking-tight text-[#475569]">80</div>
+
+          <!-- Inside Engineered Circuit Bus: SVG with slate traces, 16px air gap, and 45° Radical Red sever blade with trip node -->
+          <svg class="w-[60px] h-[60px]" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background isolation guide lines -->
+            <line x1="8" y1="30" x2="22" y2="30" stroke="#334155" stroke-width="1" stroke-dasharray="2 2" />
+            <line x1="38" y1="30" x2="52" y2="30" stroke="#334155" stroke-width="1" stroke-dasharray="2 2" />
+
+            <!-- Slate-Gray Lead Traces (#64748B) separated by intentional 16px air gap -->
+            <!-- Input trace (entering left, stepping towards center air gap) -->
+            <path d="M 10 44 L 10 34 L 22 34" stroke="#64748B" stroke-width="2.5" stroke-linecap="square" />
+            <!-- Output trace (leaving right, stepping away from center air gap) -->
+            <path d="M 38 26 L 50 26 L 50 16" stroke="#64748B" stroke-width="2.5" stroke-linecap="square" />
+            
+            <!-- Air gap boundary markers (16px physical isolation threshold) -->
+            <line x1="22" y1="22" x2="22" y2="38" stroke="#334155" stroke-width="1" />
+            <line x1="38" y1="22" x2="38" y2="38" stroke="#334155" stroke-width="1" />
+
+            <!-- 45-degree Radical Red (#EF4444) Circuit Sever Blade with solid central trip terminal -->
+            <!-- Diagonal Sever Blade -->
+            <line x1="15" y1="45" x2="45" y2="15" stroke="#EF4444" stroke-width="3.5" stroke-linecap="square" />
+            
+            <!-- Central Solid Trip Node / Scram Actuator Dot -->
+            <circle cx="30" cy="30" r="4.5" fill="#EF4444" />
+            <circle cx="30" cy="30" r="1.5" fill="#090D15" />
+          </svg>
+        </div>
+
+        <!-- Wordmark Lockup & System Subtitle -->
+        <div class="flex flex-col justify-center">
+          <div class="flex items-baseline tracking-[-0.05em] leading-none">
+            <span class="text-[40px] font-[900] text-white">SCRAM</span>
+            <span class="text-[40px] font-[900] text-[#94A3B8]">KD</span>
+          </div>
+          <div class="mt-2 font-mono-spec text-[9px] font-medium tracking-[0.12em] text-[#94A3B8] uppercase">
+            DETERMINISTIC macOS HARDWARE SAFETY INTERLOCK // V1.0
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: Hardware Security Status Readout Console -->
+      <div class="w-[316px] bg-[#0A0E16] border border-[#1E293B] p-3 flex flex-col justify-center shrink-0">
+        
+        <!-- Panel Header Tag -->
+        <div class="flex items-center justify-between border-b border-[#1E293B]/70 pb-1.5 mb-2">
+          <span class="font-mono-spec text-[8px] font-semibold uppercase tracking-[0.18em] text-[#475569]">
+            HARDWARE TELEMETRY READOUT
+          </span>
+          <span class="font-mono-spec text-[8px] text-[#475569]">
+            BUS: POSIX_0
+          </span>
+        </div>
+
+        <!-- Telemetry Rows -->
+        <div class="flex flex-col space-y-1.5 font-mono-spec text-[10px]">
+          
+          <!-- Row 1: GATE STATUS -->
+          <div class="flex items-center justify-between bg-[#050608]/60 px-2 py-1 border border-[#1E293B]/40">
+            <span class="text-[#64748B] text-[9px] tracking-wider uppercase">GATE STATUS</span>
+            <span class="text-[#EF4444] font-semibold tracking-tight text-[10px]">
+              [ ARMED // FAIL-SAFE: OPEN ]
+            </span>
+          </div>
+
+          <!-- Row 2: CONCURRENCY -->
+          <div class="flex items-center justify-between bg-[#050608]/60 px-2 py-1 border border-[#1E293B]/40">
+            <span class="text-[#64748B] text-[9px] tracking-wider uppercase">CONCURRENCY</span>
+            <span class="text-[#10B981] font-semibold tracking-tight text-[10px]">
+              [ SWIFT 6 STRICT // 45/45 TESTS ]
+            </span>
+          </div>
+
+          <!-- Row 3: ISOLATION -->
+          <div class="flex items-center justify-between bg-[#050608]/60 px-2 py-1 border border-[#1E293B]/40">
+            <span class="text-[#64748B] text-[9px] tracking-wider uppercase">ISOLATION</span>
+            <span class="text-[#F59E0B] font-semibold tracking-tight text-[10px]">
+              [ AIR-GAP STRICT // ZERO EGRESS ]
+            </span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Bottom Chassis Metadata & Registration Line -->
+    <div class="relative z-10 flex items-center justify-between w-full border-t border-[#1E293B]/70 pt-2 font-mono-spec text-[8px] text-[#475569] uppercase tracking-[0.16em]">
+      <div class="flex items-center space-x-4">
+        <span>SECURITY LEVEL: HIGH-ASSURANCE</span>
+        <span class="text-[#1E293B]">•</span>
+        <span>ARCH: APPLE SILICON / XNU RING-0</span>
+        <span class="text-[#1E293B]">•</span>
+        <span>ZERO PROBABILISTIC / NO LLM IN LOOP</span>
+      </div>
+      <div>
+        <span>DOC REF: GITHUB-HERO-800X260</span>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

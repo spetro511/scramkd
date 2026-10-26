@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SCRAMKD // SUPERVISOR DAEMON [NODE: UNBOUND]</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "pitch-black": "#030508",
+            "canvas-dark": "#030509",
+            "rail-dark": "#050811",
+            "chrome-dark": "#080C16",
+            "cockpit-dark": "#090E1A",
+            "panel-dark": "#0B1220",
+            "card-slip": "#0C1322",
+            "audit-dark": "#04060C",
+            "slate-border": "#1E293B",
+            "slate-border-light": "#334155",
+            "tactical-green": "#10B981",
+            "armed-amber": "#F59E0B",
+            "radical-red": "#EF4444",
+          },
+          fontFamily: {
+            mono: ["'JetBrains Mono'", "monospace"],
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      border-radius: 0px !important;
+    }
+    .keycap-radius {
+      border-radius: 2px !important;
+    }
+    .traffic-light {
+      border-radius: 9999px !important;
+    }
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #04060C;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1E293B;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+    .hazard-stripes {
+      background-image: repeating-linear-gradient(45deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.15) 10px, transparent 10px, transparent 20px);
+    }
+  </style>
+</head>
+<body class="bg-[#020306] text-[#DFE2F0] font-mono text-[11px] leading-tight flex items-center justify-center min-h-screen p-0 m-0 antialiased overflow-hidden">
+<!-- PRODUCTION MACOS 1440x900 FIXED VIEWPORT CONTAINER -->
+<div class="w-[1440px] h-[900px] max-w-[1440px] max-h-[900px] flex flex-col bg-pitch-black border border-slate-border shadow-2xl relative overflow-hidden select-none">
+<!-- 1. WINDOW CHROME & TOP BAR (Height: 44px, Background: #080C16, Border-Bottom: 1px solid #1E293B) -->
+<header class="h-[44px] min-h-[44px] bg-chrome-dark border-b border-slate-border flex items-center justify-between px-4 z-30"><!-- Left: macOS traffic lights + node identifier -->
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-[8px] pl-0">
+<span class="w-[12px] h-[12px] bg-[#FF5F56] border border-[#E0443E] traffic-light inline-block shadow-sm cursor-pointer hover:opacity-80"></span>
+<span class="w-[12px] h-[12px] bg-[#FFBD2E] border border-[#DEA123] traffic-light inline-block shadow-sm cursor-pointer hover:opacity-80"></span>
+<span class="w-[12px] h-[12px] bg-[#27C93F] border border-[#1AAB29] traffic-light inline-block shadow-sm cursor-pointer hover:opacity-80"></span>
+</div>
+<div class="h-4 w-[1px] bg-slate-border ml-1"></div>
+<div class="flex flex-col text-xs leading-none justify-center">
+<span class="font-bold text-[#3fb950] tracking-wider text-[11px]">SCRAMKD // SUPERVISOR DAEMON [NODE: UNBOUND]</span>
+<span class="text-[#64748B] text-[9px] font-medium tracking-tight mt-0.5">DARWIN HARDWARE INTERLOCK SUPERVISOR v0.4.0-RELEASE (SWIFT 6 / DISPLAY P3)</span>
+</div>
+</div>
+<!-- Center: 7 High-Contrast Telemetry Status Pills -->
+<div class="hidden lg:flex items-center gap-1.5 text-[9px]">
+<div class="px-2 py-0.5 bg-[#050811] border border-slate-border flex items-center gap-1 text-[#CBD5E1]">
+<span class="text-[#64748B] font-medium">PROF:</span>
+<span class="text-[#58A6FF] font-bold">STRICT_AIRGAP</span>
+</div>
+<div class="px-2 py-0.5 bg-[#050811] border border-slate-border flex items-center gap-1 text-[#CBD5E1]">
+<span class="text-[#64748B] font-medium">HOLD:</span>
+<span class="text-[#F1F5F9] font-bold">COUNTDOWN</span>
+</div>
+<div class="px-2 py-0.5 bg-[#050811] border border-slate-border flex items-center gap-1 text-[#CBD5E1]">
+<span class="text-[#64748B] font-medium">PROV:</span>
+<span class="text-tactical-green font-bold">UNBOUND</span>
+</div>
+<div class="px-2 py-0.5 bg-armed-amber/15 border border-armed-amber/40 flex items-center gap-1">
+<span class="text-[#64748B] font-medium">GATE:</span>
+<span class="text-armed-amber font-extrabold tracking-wide">LOCKED</span>
+</div>
+<div class="px-2 py-0.5 bg-[#050811] border border-slate-border flex items-center gap-1 text-[#CBD5E1]">
+<span class="text-[#64748B] font-medium">MCP:</span>
+<span class="text-[#94A3B8] font-semibold">DETACHED</span>
+</div>
+<div class="px-2 py-0.5 bg-[#050811] border border-slate-border flex items-center gap-1 text-[#CBD5E1]">
+<span class="text-[#64748B] font-medium">SVS:</span>
+<span class="text-radical-red font-semibold">OFFLINE</span>
+</div>
+<div class="px-2 py-0.5 bg-[#050811] border border-slate-border flex items-center gap-1 text-[#CBD5E1]">
+<span class="text-[#64748B] font-medium">MEM:</span>
+<span class="text-[#F1F5F9] font-bold">142.8MB</span>
+</div>
+</div>
+<!-- Right: State Alert Pill With Countdown Clock -->
+<div class="flex items-center">
+<div class="bg-armed-amber text-black font-extrabold text-[11px] px-3 py-1.5 tracking-wider flex items-center gap-2 border border-[#d97706] shadow-[0_0_12px_rgba(245,158,11,0.25)]">
+<span class="w-2 h-2 bg-black traffic-light animate-ping"></span>
+<span>[ GATE INTERLOCK: ARMED // TTL: <span class="font-black tabular-nums" id="top-timer">00:00.38s</span> ]</span>
+</div>
+</div></header>
+<!-- 2. MAIN WORKSPACE GRID (Height: 580px, flex / grid layout) -->
+<div class="h-[38px] min-h-[38px] bg-[#160b0c] border-b border-[#EF4444]/60 px-4 flex items-center justify-between text-[11px] font-mono z-30 select-none shadow-[0_2px_10px_rgba(239,68,68,0.15)]" id="alert-escalation-bar"><div class="flex items-center gap-3"><div class="flex items-center gap-2 px-2 py-0.5 bg-[#EF4444] text-black font-black tracking-wider text-[10px]"><span class="w-2 h-2 bg-black traffic-light animate-ping"></span><span>SEVERITY: LEVEL-0 CRITICAL</span></div><div class="flex items-center gap-2"><span class="text-[#EF4444] font-bold">[ CRITICAL ALERT #9042 ]</span><span class="text-[#CBD5E1]">SYSCALL TRAPPED: <span class="text-[#F59E0B] font-bold">sys_execve</span> (Origin PID: <span class="text-[#10B981] font-bold">19482</span>)</span><span class="text-[#64748B]">|</span><span class="text-[#EF4444] font-semibold tracking-wide">STRICT_AIRGAP VIOLATION RISK</span></div></div><div class="flex items-center gap-2"><button class="px-2 py-0.5 bg-[#050811] hover:bg-[#1E293B] text-[#58A6FF] border border-[#58A6FF]/40 text-[9px] font-bold tracking-wider transition-colors cursor-pointer flex items-center gap-1" onclick="document.getElementById('trapped-instruction-card').scrollIntoView({behavior:'smooth'});document.getElementById('trapped-instruction-card').classList.add('ring-2','ring-[#EF4444]');setTimeout(()=&gt;document.getElementById('trapped-instruction-card').classList.remove('ring-2','ring-[#EF4444]'),2000)"><span>[ 🔍 JUMP TO INTERCEPT ]</span></button><button class="px-2 py-0.5 bg-[#050811] hover:bg-[#1E293B] text-[#F59E0B] border border-[#F59E0B]/40 text-[9px] font-bold tracking-wider transition-colors cursor-pointer flex items-center gap-1" onclick="document.getElementById('clearance-record-slip').scrollIntoView({behavior:'smooth'});document.getElementById('clearance-record-slip').classList.add('ring-2','ring-[#F59E0B]');setTimeout(()=&gt;document.getElementById('clearance-record-slip').classList.remove('ring-2','ring-[#F59E0B]'),2000)"><span>[ 📋 JUMP TO CLEARANCE ]</span></button><button class="px-2 py-0.5 bg-[#050811] hover:bg-[#1E293B] text-[#10B981] border border-[#10B981]/40 text-[9px] font-bold tracking-wider transition-colors cursor-pointer flex items-center gap-1" onclick="document.getElementById('audit-table').scrollTop = document.getElementById('audit-row-gate').offsetTop - 30;document.getElementById('audit-row-gate').classList.add('bg-[#EF4444]/30');setTimeout(()=&gt;document.getElementById('audit-row-gate').classList.remove('bg-[#EF4444]/30'),2000)"><span>[ 📊 JUMP TO AUDIT TRACE ]</span></button><button class="px-2.5 py-0.5 bg-[#EF4444] hover:bg-[#DA3633] text-white font-extrabold text-[9px] tracking-wider transition-colors cursor-pointer shadow-sm flex items-center gap-1" onclick="document.getElementById('btn-abort').click()"><span>[ ⚡ ESCALATE TO EMERGENCY TRIP ]</span></button></div></div><section class="h-[542px] min-h-[542px] max-h-[542px] grid grid-cols-[160px_1fr_486px] bg-pitch-black border-b border-slate-border overflow-hidden"><aside class="w-[160px] bg-rail-dark border-r border-slate-border flex flex-col justify-between overflow-hidden"><div class="flex flex-col"><div class="h-8 px-3 flex items-center justify-between border-b border-slate-border bg-[#03060c]"><span class="text-[9px] font-bold text-[#64748B] tracking-widest uppercase">SUPERVISOR BAYS</span><span class="w-1.5 h-1.5 bg-tactical-green"></span></div><nav class="flex flex-col py-1"><a class="px-3 py-2 bg-tactical-green/15 text-tactical-green border-l-2 border-tactical-green font-bold text-[10px] tracking-wider flex flex-col gap-0.5 border-y border-tactical-green/30" href="#"><span class="text-[#94A3B8] text-[8px] font-normal">BAY-01</span><span>SUPERVISOR OVERVIEW</span></a><a class="px-3 py-2 text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-panel-dark/50 border-l-2 border-transparent text-[10px] tracking-wider flex flex-col gap-0.5 transition-colors" href="#"><span class="text-[#475569] text-[8px]">BAY-02</span><span>BRIDGE DETONATE</span></a><a class="px-3 py-2 text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-panel-dark/50 border-l-2 border-transparent text-[10px] tracking-wider flex flex-col gap-0.5 transition-colors" href="#"><span class="text-[#475569] text-[8px]">BAY-03</span><span>CLEARANCE RECORD</span></a><a class="px-3 py-2 text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-panel-dark/50 border-l-2 border-transparent text-[10px] tracking-wider flex flex-col gap-0.5 transition-colors" href="#"><span class="text-[#475569] text-[8px]">BAY-04</span><span>AIRGAP INTERLOCK</span></a><a class="px-3 py-2 text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-panel-dark/50 border-l-2 border-transparent text-[10px] tracking-wider flex flex-col gap-0.5 transition-colors" href="#"><span class="text-[#475569] text-[8px]">BAY-05</span><span>AUDIT BUS</span></a></nav></div><div class="border-t border-slate-border p-2.5 bg-[#03060c] space-y-1"><div class="text-[9px] text-[#64748B] tracking-wider font-semibold uppercase">LINK INTEGRITY</div><div class="flex justify-between items-center text-[10px] font-bold"><span class="text-tactical-green">UPLINK: 99.98%</span></div><div class="flex justify-between items-center text-[9px] text-[#94A3B8]"><span>LATENCY:</span><span class="text-tactical-green font-bold">1.2ms</span></div><div class="flex justify-between items-center text-[9px] text-[#94A3B8]"><span>SHM_BUFFER:</span><span class="text-[#F1F5F9] font-mono text-[9px]">0x981FA00</span></div><div class="w-full bg-[#1e293b] h-[2px]"><div class="bg-tactical-green h-full w-[99.9%]"></div></div></div></aside><main class="bg-[#070B14] flex flex-col justify-between overflow-hidden relative border-r border-slate-border"><div class="h-8 bg-[#090E1A] border-b border-slate-border px-3 flex items-center justify-between z-20"><div class="flex items-center gap-2"><span class="w-2 h-2 bg-tactical-green"></span><span class="text-[11px] font-bold tracking-wider text-[#F1F5F9]">CONTAINER VIEWPORT <span class="text-[#64748B] font-medium">// METAL STREAM</span></span><span class="text-armed-amber text-[10px] font-semibold">(127.0.0.1:7860)</span></div><div class="flex items-center gap-2"><button class="px-2 py-0.5 bg-[#050811] hover:bg-[#0B1220] border border-slate-border text-[#94A3B8] hover:text-[#CBD5E1] text-[9px] font-bold tracking-wider transition-colors cursor-pointer">[ SIMULATE INTERCEPT (DRY RUN) ]</button><div class="px-2 py-0.5 bg-tactical-green/10 border border-tactical-green/40 text-tactical-green text-[10px] font-bold tracking-wider">[MTKView Direct | VSYNC LOCKED | ZERO-COPY]</div></div></div><div class="flex-1 relative p-4 flex flex-col justify-center items-center bg-[#070B14] overflow-hidden"><div class="w-full max-w-[700px] bg-[#0A0F1D] border border-slate-border shadow-2xl relative z-10 flex flex-col"><div class="h-6 bg-[#0B1220] border-b border-slate-border px-3 flex items-center justify-between"><div class="flex items-center gap-1.5"><span class="w-2 h-2 bg-[#FF5F56] traffic-light inline-block"></span><span class="w-2 h-2 bg-[#FFBD2E] traffic-light inline-block"></span><span class="w-2 h-2 bg-[#27C93F] traffic-light inline-block"></span><span class="text-[10px] text-[#94A3B8] ml-2 font-mono">guest@sandbox-jail:/opt/workstation</span></div><div class="flex items-center gap-2"><span class="text-[9px] text-tactical-green font-bold tracking-wider bg-tactical-green/10 px-1.5 py-0.2 border border-tactical-green/30">NAMESPACE: ISOLATED</span><span class="text-[9px] text-[#64748B] font-bold tracking-wider">SECCOMP-BPF: ENFORCED</span></div></div><div class="p-3.5 space-y-2 text-[11px] font-mono leading-relaxed bg-[#03060C]"><div class="text-[#475569]">$ env -i PATH=/bin:/usr/bin /bin/sh</div><div class="text-[#64748B]">Sandbox isolation active. Ephemeral namespaces mounted.</div><div class="text-tactical-green font-semibold">$ ./detonate_sample.sh --isolated --quarantine-net</div><div class="border-2 border-radical-red bg-radical-red/10 p-3 my-2 transition-all duration-300" id="trapped-instruction-card"><div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-radical-red/40"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-radical-red text-[16px]">gitte</span><span class="text-radical-red font-extrabold text-[11px] uppercase tracking-wider">[SCRAMK-GATE] LOCKED: HARD INTERCEPT ACTIVE</span></div><span class="px-2 py-0.5 bg-radical-red text-white font-black text-[9px] tracking-widest">CLOCK HALTED</span></div><div class="text-[#F1F5F9] text-[10px] leading-relaxed">Instruction pointer <span class="text-armed-amber font-extrabold">0x7fff5fc0</span> paused | SYSCALL_ID: <span class="text-tactical-green font-extrabold">59 (sys_execve)</span> trapped by darwin supervisor <span class="text-[#F1F5F9] font-bold underline decoration-radical-red">k_scramkd_interlock.kext</span></div><div class="mt-2 pt-1.5 border-t border-radical-red/20 flex items-center justify-between text-[9px] text-[#CBD5E1]"><span>TARGET: <strong class="text-[#F1F5F9]">/bin/bash</strong></span><span>RETURN RESTRICTION: <strong class="text-radical-red">DENY_NON_AIRGAP</strong></span><span>INTERCEPT DELAY: <strong class="text-tactical-green">0.02ms</strong></span></div></div><div class="pt-1 text-[#CBD5E1] text-[10px] flex items-center gap-1.5"><span class="text-armed-amber font-bold">&gt;&gt;&gt;</span><span>Awaiting dead-man clearance sequence from BAY-01...</span><span class="w-2 h-3.5 bg-tactical-green inline-block animate-pulse"></span></div></div></div></div><div class="h-7 bg-[#090E1A] border-t border-slate-border px-3 flex items-center justify-between text-[10px] z-20"><div class="flex items-center gap-4 text-[#64748B]"><span>SHM_BUFFER: <span class="text-[#F1F5F9] font-bold">0x981FA00</span></span><span class="text-slate-border">|</span><span>PAGE_FAULTS: <span class="text-tactical-green font-bold">0/SEC</span></span><span class="text-slate-border">|</span><span>VSYNC: <span class="text-tactical-green font-bold">LOCKED (60 FPS)</span></span></div><div class="text-tactical-green font-bold tracking-wider text-[10px]">CONTAINMENT BUS: ZERO_ESCAPE_CONFIRMED</div></div></main><aside class="w-[486px] bg-cockpit-dark border-l border-slate-border p-3.5 flex flex-col justify-between overflow-y-auto"><div class="flex flex-col gap-2.5"><div class="bg-armed-amber/15 border-2 border-armed-amber p-2.5 flex items-center justify-between"><div class="flex flex-col gap-0.5"><div class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-armed-amber traffic-light animate-ping"></span><span class="text-armed-amber font-extrabold text-[12px] tracking-widest uppercase">GATE STATUS: ARMED // LEVEL-0 ISOLATION</span></div><span class="text-white text-[9px] font-semibold tracking-wider">HARD INTERCEPT ACTIVE // KERNEL PREEMPTION READY</span></div><div class="bg-armed-amber text-black font-black px-2 py-1 text-[11px] tracking-wider text-right tabular-nums">TTL AUTO-ABORT:<br/><span id="cockpit-timer">00:00.38s</span></div></div><div class="grid grid-cols-2 gap-1.5 bg-[#03060C] p-1 border border-slate-border text-[9px] font-bold tracking-wider text-center"><div class="py-1 bg-armed-amber/20 text-armed-amber border border-armed-amber/50 flex items-center justify-center gap-1.5" id="stage-indicator-1"><span class="material-symbols-outlined text-[13px]">looks_one</span><span>STAGE 1: AUDIT &amp; DWELL</span></div><div class="py-1 bg-[#070B14] text-[#64748B] border border-transparent flex items-center justify-center gap-1.5" id="stage-indicator-2"><span class="material-symbols-outlined text-[13px]">looks_two</span><span>STAGE 2: DISPATCH</span></div></div><div class="border border-slate-border-light bg-card-slip p-2.5 flex flex-col gap-1.5 transition-all duration-300" id="clearance-record-slip"><div class="flex items-center justify-between pb-1.5 border-b border-slate-border"><div class="flex items-center gap-1.5 font-bold text-[#F1F5F9] text-[10px] tracking-wider"><span class="material-symbols-outlined text-armed-amber text-[14px]">verified_user</span><span>CLEARANCE RECORD #9042-A</span><span class="text-[#64748B] text-[9px] font-normal">(REQ: #9042-A-UNBOUND)</span></div><span class="bg-radical-red text-white font-extrabold text-[8px] px-1.5 py-0.5 tracking-wider">[CRITICAL // TIER-1]</span></div><div class="space-y-1 text-[9px]"><div class="flex justify-between items-center py-0.5 border-b border-slate-border/50"><span class="text-[#64748B]">PEER / ORIGIN</span><span class="text-[#F1F5F9] font-bold">autonomous_agent_v4 <span class="text-tactical-green">(PID 19482)</span></span></div><div class="flex justify-between items-center py-0.5 border-b border-slate-border/50"><span class="text-[#64748B]">TOOL HOOK</span><span class="text-tactical-green font-bold font-mono">screenenv.bash_execute</span></div><div class="flex flex-col gap-0.5 py-0.5 border-b border-slate-border/50"><span class="text-[#64748B] text-[8px] uppercase">Command Payload</span><div class="bg-[#04060C] p-1.5 border border-slate-border text-tactical-green font-bold text-[10px] break-all font-mono">./detonate_sample.sh --isolated</div></div><div class="flex flex-col gap-0.5 py-0.5 border-b border-slate-border/50"><div class="flex justify-between items-center text-[8px]"><span class="text-[#64748B]">SHA-256 CHECKSUM</span><span class="text-radical-red font-bold">[UNVERIFIED]</span></div><div class="font-mono text-[8px] text-[#94A3B8] bg-[#04060C] p-1 border border-slate-border break-all select-all leading-none">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</div></div><div class="grid grid-cols-3 gap-1 pt-0.5 text-center"><div class="bg-[#050811] border border-slate-border p-1 flex flex-col"><span class="text-[#64748B] text-[7px] font-bold">SWITCH_1</span><span class="text-tactical-green font-bold text-[9px]">ENGAGED</span></div><div class="bg-[#050811] border border-slate-border p-1 flex flex-col"><span class="text-[#64748B] text-[7px] font-bold">CRYPTO NONCE</span><span class="text-armed-amber font-bold text-[9px]">0x8F9A2</span></div><div class="bg-[#050811] border border-slate-border p-1 flex flex-col"><span class="text-[#64748B] text-[7px] font-bold">RULESET</span><span class="text-[#58A6FF] font-bold text-[9px]">AIRGAP-STRICT</span></div></div></div></div><div class="border border-armed-amber/40 bg-[#070B14] p-2 flex flex-col gap-1.5"><div class="flex justify-between items-center"><div class="flex items-center gap-1.5 text-armed-amber font-bold text-[10px] uppercase tracking-wider"><span class="material-symbols-outlined text-[14px]">touch_app</span><span>STAGE 1: DEAD-MAN DWELL GUARD</span></div><span class="text-armed-amber text-[9px] font-extrabold bg-armed-amber/10 px-1.5 py-0.2 border border-armed-amber/30" id="dwell-status-text">DWELL: PENDING (0/1500ms)</span></div><div class="w-full bg-[#1e293b] h-2 relative overflow-hidden"><div class="bg-armed-amber h-full w-0 transition-all duration-75" id="dwell-progress-bar"></div></div><button class="w-full py-2 bg-armed-amber/10 hover:bg-armed-amber/20 active:bg-armed-amber/30 text-armed-amber border border-armed-amber/50 font-extrabold text-[10px] tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1.5 select-none" id="btn-dwell-action" onmousedown="startDwellSimulation()" onmouseleave="stopDwellSimulation()" onmouseup="stopDwellSimulation()"><span class="material-symbols-outlined text-[13px]">fingerprint</span><span id="dwell-btn-label">[ HOLD SPACE OR CLICK TO AUDIT (1.5S DWELL GUARD) ]</span></button><span class="text-[8px] text-[#64748B] text-center tracking-tight uppercase font-medium">PHYSICAL 1.5S DWELL COMPLIANCE REQUIRED TO UNLOCK DISPATCH</span></div></div><div class="flex flex-col gap-2 pt-2 border-t border-slate-border"><div class="text-[8px] text-[#64748B] font-bold tracking-wider uppercase text-center">STAGE 2: AUTHORITATIVE DISPATCH</div><button class="w-full h-10 bg-[#238636]/30 text-[#DFE2F0]/50 font-extrabold text-[11px] tracking-wider px-3 flex items-center justify-between border border-[#238636]/40 transition-colors cursor-not-allowed select-none" disabled="" id="btn-permissive"><span class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">verified</span><span id="permissive-label-text">[ GRANT PERMISSIVE ]</span><span class="text-[8px] bg-black/60 text-armed-amber px-1.5 py-0.5 border border-armed-amber/40 font-bold tracking-widest" id="permissive-badge">[ 🔒 DWELL REQUIRED ]</span></span><span class="bg-black text-[#64748B] font-black text-[9px] px-2 py-0.5 border border-slate-border keycap-radius">[ SPACE ]</span></button><button class="w-full h-10 bg-[#DA3633] hover:bg-[#b62324] active:translate-y-[1px] text-white font-extrabold text-[11px] tracking-wider px-3 flex items-center justify-between border border-[#F87171] hazard-stripes transition-colors cursor-pointer shadow-[0_0_15px_rgba(218,54,51,0.35)]" id="btn-abort"><span class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">cancel</span><span>[ EMERGENCY ABORT ]</span><span class="text-[8px] bg-black/60 text-white px-1.5 py-0.5 border border-white/40 font-bold tracking-widest">LEVEL-0 IMMEDIATE TRIP</span></span><span class="bg-black text-white font-black text-[9px] px-2 py-0.5 border border-white/50 keycap-radius">[ ESC ]</span></button><div class="flex flex-col gap-1 text-center pt-0.5"><div class="text-[8px] text-[#64748B] tracking-wider font-semibold uppercase">ESC OR CMD+. OVERRIDES ALL DIALOGS (INSTANT GATE TRIP)</div><button class="w-full py-1 bg-[#050811] hover:bg-slate-border text-[#64748B] hover:text-[#CBD5E1] border border-slate-border text-[8px] font-bold tracking-widest uppercase transition-colors cursor-pointer" id="btn-airgap">[ F12: FORCE AIRGAP DUMP &amp; RESEED NONCE ]</button></div></div></aside></section>
+<!-- 3. BOTTOM AUDIT LEDGER (Height: 276px, Background: #04060C, Border-Top: 1px solid #1E293B, flex flex-col) -->
+<section class="h-[276px] min-h-[276px] max-h-[276px] bg-audit-dark flex flex-col overflow-hidden border-t border-slate-border"><div class="h-8 bg-[#070B16] border-b border-slate-border px-3 flex items-center justify-between"><div class="flex items-center gap-3"><div class="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#F1F5F9]"><span class="w-2 h-2 bg-tactical-green"></span><span>REAL-TIME AUDIT LOG // ASYNCSTREAM BUS</span></div><div class="flex items-center gap-1 ml-3 text-[10px]"><button class="px-2 py-0.5 bg-panel-dark text-tactical-green border-t-2 border-tactical-green border-x border-slate-border font-bold text-[9px] cursor-pointer" id="btn-filter-all" onclick="filterAuditLogs('all')">[ ALL EVENTS (8,192) ]</button><button class="px-2 py-0.5 bg-[#050811] text-[#64748B] hover:text-[#94A3B8] border border-slate-border font-medium text-[9px] cursor-pointer" id="btn-filter-sec" onclick="filterAuditLogs('security')">[ SECURITY (14) ]</button><button class="px-2 py-0.5 bg-[#050811] text-[#64748B] hover:text-[#94A3B8] border border-slate-border font-medium text-[9px] cursor-pointer" id="btn-filter-cont" onclick="filterAuditLogs('container')">[ CONTAINER BUS ]</button></div></div><div class="flex items-center gap-2 text-[10px]"><span class="text-[#64748B] font-mono text-[9px]">[ WS://127.0.0.1:9001/AUDIT ]</span><span class="px-2 py-0.5 bg-armed-amber/15 border border-armed-amber/40 text-armed-amber font-bold text-[9px]">[ AUTO-SCROLL: ON ]</span></div></div><div class="grid grid-cols-[55%_45%] flex-1 overflow-hidden"><div class="flex flex-col border-r border-slate-border overflow-hidden"><div class="grid grid-cols-[90px_70px_1fr_100px] px-3 py-1 bg-[#080C17] border-b border-slate-border text-[9px] font-bold text-[#64748B] tracking-wider uppercase"><div>TIMESTAMP</div><div>SUBSYS</div><div>EVENT DESCRIPTION</div><div class="text-right pr-2">METRIC</div></div><div class="flex-1 overflow-y-auto divide-y divide-slate-border/30 text-[10px] font-mono select-text" id="audit-table"><div class="grid grid-cols-[90px_70px_1fr_100px] px-3 py-1.5 hover:bg-[#0B1220]/60 items-center cursor-pointer"><span class="text-[#64748B]">22:10:59.858</span><div><span class="px-1.5 py-0.5 bg-slate-800 text-[#CBD5E1] text-[9px] font-bold">CORE</span></div><span class="text-[#F1F5F9]">State transition: .locked -&gt; .armed (Seq: 00921)</span><span class="text-right pr-2 text-tactical-green font-semibold">SYS: 0.12ms</span></div><div class="grid grid-cols-[90px_70px_1fr_100px] px-3 py-1.5 hover:bg-[#0B1220]/60 items-center cursor-pointer"><span class="text-[#64748B]">22:11:00.129</span><div><span class="px-1.5 py-0.5 bg-armed-amber/20 text-armed-amber border border-armed-amber/40 text-[9px] font-bold">SVS</span></div><span class="text-armed-amber">CoreAudio alert tone emitted: 440Hz Sine Wave (Duration: 150ms)</span><span class="text-right pr-2 text-armed-amber font-semibold">AUDIO: 440Hz</span></div><div class="grid grid-cols-[90px_70px_1fr_100px] px-3 py-1.5 hover:bg-[#0B1220]/60 items-center cursor-pointer"><span class="text-[#64748B]">22:11:00.478</span><div><span class="px-1.5 py-0.5 bg-slate-800 text-[#CBD5E1] text-[9px] font-bold">MCP</span></div><span class="text-[#94A3B8]">ContainerSocketBridge: Outbound 16KiB chunk dispatched</span><span class="text-right pr-2 text-[#94A3B8]">SHM: 16KiB</span></div><div class="grid grid-cols-[90px_70px_1fr_100px] px-3 py-1.5 bg-radical-red/10 border-l-2 border-radical-red items-center cursor-pointer transition-colors duration-300" id="audit-row-gate"><span class="text-[#64748B]">22:11:00.617</span><div><span class="px-1.5 py-0.5 bg-radical-red text-white text-[9px] font-black">GATE</span></div><span class="text-radical-red font-bold">Hardware Interlock tripping active: Awaiting manual operator clearance...</span><span class="text-right pr-2 text-radical-red font-bold">HARD_TO: 5.0s</span></div><div class="grid grid-cols-[90px_70px_1fr_100px] px-3 py-1.5 hover:bg-[#0B1220]/60 items-center cursor-pointer"><span class="text-[#64748B]">22:11:01.004</span><div><span class="px-1.5 py-0.5 bg-slate-800 text-[#CBD5E1] text-[9px] font-bold">NET</span></div><span class="text-[#CBD5E1]">Airgap rule #4 applied: outbound packet drop 192.168.1.1:443</span><span class="text-right pr-2 text-armed-amber font-semibold">DROP: 0.04ms</span></div><div class="grid grid-cols-[90px_70px_1fr_100px] px-3 py-1.5 hover:bg-[#0B1220]/60 items-center cursor-pointer"><span class="text-[#64748B]">22:11:01.380</span><div><span class="px-1.5 py-0.5 bg-tactical-green/20 text-tactical-green border border-tactical-green/40 text-[9px] font-bold">DEADMAN</span></div><span class="text-[#F1F5F9]">Dwell guard initialized: 1500ms threshold pending user interaction</span><span class="text-right pr-2 text-tactical-green font-semibold">GUARD: OK</span></div></div></div><div class="bg-[#03060C] flex flex-col overflow-hidden font-mono text-[9px]"><div class="flex border-b border-slate-border bg-[#080C16]"><button class="flex-1 py-1.5 px-2 font-bold text-tactical-green border-b-2 border-tactical-green bg-[#0B1220] transition-colors cursor-pointer text-center text-[9px]" id="tab-btn-payload" onclick="switchDisclosureTab('payload')">▼ JSON-RPC PAYLOAD DIFF</button><button class="flex-1 py-1.5 px-2 font-bold text-[#64748B] border-b-2 border-transparent hover:text-[#CBD5E1] transition-colors cursor-pointer text-center text-[9px]" id="tab-btn-kernel" onclick="switchDisclosureTab('kernel')">▼ KERNEL PROFILE &amp; SCRUBBER</button><button class="flex-1 py-1.5 px-2 font-bold text-[#64748B] border-b-2 border-transparent hover:text-[#CBD5E1] transition-colors cursor-pointer text-center text-[9px]" id="tab-btn-shm" onclick="switchDisclosureTab('shm')">▼ SHM BUFFERS &amp; SVS</button></div><div class="flex-1 p-2.5 overflow-y-auto" id="disclosure-content"><div class="block" id="panel-payload"><div class="flex items-center justify-between pb-1 mb-1.5 border-b border-slate-border text-[#64748B]"><span class="font-bold tracking-wider uppercase text-tactical-green">SEMANTIC PAYLOAD COMPARISON (12 FIELDS)</span><span class="text-[8px] bg-slate-800 px-1 py-0.2 text-[#CBD5E1]">REQ: req-9042-a</span></div><div class="text-[#94A3B8] leading-relaxed">{<br/> <span class="text-[#58A6FF]">"jsonrpc"</span>: <span class="text-tactical-green">"2.0"</span>,<br/> <span class="text-[#58A6FF]">"method"</span>: <span class="text-tactical-green">"screenenv.bash_execute"</span>,<br/> <span class="text-[#58A6FF]">"params"</span>: {<br/> <span class="text-[#58A6FF]">"cmd"</span>: <span class="text-armed-amber font-bold">"./detonate_sample.sh"</span>, <span class="text-radical-red text-[8px]">[DIFF: NEW_CHILD_SPAWN]</span><br/> <span class="text-[#58A6FF]">"flags"</span>: [<br/> <span class="text-tactical-green">"--isolated"</span>,<br/> <span class="text-tactical-green">"--quarantine-net"</span><br/>    ],<br/> <span class="text-[#58A6FF]">"origin_pid"</span>: <span class="text-[#F1F5F9] font-bold">19482</span>,<br/> <span class="text-[#58A6FF]">"sandbox_root"</span>: <span class="text-[#CBD5E1]">"/opt/workstation"</span><br/>  },<br/> <span class="text-[#58A6FF]">"id"</span>: <span class="text-tactical-green">"req-9042-a"</span><br/>}</div></div><div class="hidden space-y-2" id="panel-kernel"><div class="flex items-center justify-between pb-1 border-b border-slate-border"><span class="font-bold uppercase text-[#58A6FF]">7-KEY ENV SCRUBBER &amp; SECCOMP-BPF RULES</span><span class="text-tactical-green font-bold">STATUS: 7/7 SCRUBBED</span></div><div class="space-y-1 text-[#CBD5E1]"><div class="flex justify-between bg-[#080C17] p-1 border border-slate-border"><span class="text-[#64748B]">PATH</span><span class="text-tactical-green font-mono">/bin:/usr/bin (STRIPPED)</span></div><div class="flex justify-between bg-[#080C17] p-1 border border-slate-border"><span class="text-[#64748B]">LD_PRELOAD / DYLD_*</span><span class="text-tactical-green font-mono">REVOKED (NULL)</span></div><div class="flex justify-between bg-[#080C17] p-1 border border-slate-border"><span class="text-[#64748B]">BPF_PROG_TYPE</span><span class="text-[#58A6FF] font-mono">BPF_PROG_TYPE_SECCOMP (ACTIVE)</span></div><div class="flex justify-between bg-[#080C17] p-1 border border-slate-border"><span class="text-[#64748B]">NET_DEVICE</span><span class="text-radical-red font-mono">lo ONLY (ETHERNET DETACHED)</span></div></div></div><div class="hidden space-y-2" id="panel-shm"><div class="flex items-center justify-between pb-1 border-b border-slate-border"><span class="font-bold uppercase text-armed-amber">SYSTEM TELEMETRY &amp; SHM BUFFERS</span><span class="text-[#58A6FF] font-bold">BUS: ASYNCSTREAM</span></div><div class="grid grid-cols-2 gap-2 text-[#CBD5E1]"><div class="bg-[#080C17] p-1.5 border border-slate-border flex flex-col gap-0.5"><span class="text-[#64748B] text-[8px]">SHM_BASE_ADDR</span><span class="text-[#F1F5F9] font-mono font-bold">0x981FA00 - 0x991FA00</span><span class="text-tactical-green text-[8px]">ALLOCATED: 1,024 KiB</span></div><div class="bg-[#080C17] p-1.5 border border-slate-border flex flex-col gap-0.5"><span class="text-[#64748B] text-[8px]">AUDIO SVS ANNUNCIATOR</span><span class="text-armed-amber font-mono font-bold">440Hz SINE (150ms)</span><span class="text-tactical-green text-[8px]">LATENCY: 0.18ms</span></div></div></div></div></div></div></section>
+</div>
+<!-- Real-time interaction script -->
+<script>
+    (function() {
+      let timeLeft = 0.38;
+      const topTimer = document.getElementById('top-timer');
+      const cockpitTimer = document.getElementById('cockpit-timer');
+      const auditTable = document.getElementById('audit-table');
+      const btnPermissive = document.getElementById('btn-permissive');
+      const btnAbort = document.getElementById('btn-abort');
+      const btnAirgap = document.getElementById('btn-airgap');
+
+      function formatTtl(val) {
+        return `00:00.${(val < 10 ? '0' : '') + val.toFixed(2).replace('0.', '')}s`;
+      }
+
+      function logEvent(subsys, tagColor, desc, metric, metricColor) {
+        const d = new Date();
+        const ts = d.toTimeString().split(' ')[0] + '.' + String(d.getMilliseconds()).padStart(3, '0');
+        const row = document.createElement('div');
+        row.className = "grid grid-cols-[110px_90px_1fr_130px] px-3 py-1.5 hover:bg-[#0B1220]/60 items-center";
+        row.innerHTML = `
+          <span class="text-[#64748B]">${ts}</span>
+          <div><span class="px-1.5 py-0.5 text-[9px] font-bold ${tagColor}">${subsys}</span></div>
+          <span class="text-[#F1F5F9]">${desc}</span>
+          <span class="text-right pr-2 font-semibold ${metricColor || 'text-tactical-green'}">${metric}</span>
+        `;
+        auditTable.appendChild(row);
+        auditTable.scrollTop = auditTable.scrollHeight;
+      }
+
+      const timerInterval = setInterval(() => {
+        timeLeft = Math.max(0, timeLeft - 0.01);
+        const str = `00:00.${Math.round(timeLeft * 100).toString().padStart(2, '0')}s`;
+        if (topTimer) topTimer.textContent = str;
+        if (cockpitTimer) cockpitTimer.textContent = str;
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          logEvent('GATE', 'bg-radical-red text-white', 'HARD INTERLOCK AUTO-ABORT: TTL window expired. Kill signal sent.', 'TIMEOUT', 'text-radical-red');
+        }
+      }, 50);
+
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          btnPermissive.click();
+        } else if (e.code === 'Escape') {
+          e.preventDefault();
+          btnAbort.click();
+        } else if (e.code === 'F12') {
+          e.preventDefault();
+          btnAirgap.click();
+        }
+      });
+
+      btnPermissive.addEventListener('click', () => {
+        logEvent('OPR-BAY1', 'bg-tactical-green text-black font-bold', 'GRANT PERMISSIVE RELEASE: Manual override accepted for PID 19482. Execution continued.', 'CLEAR: 0.01ms');
+      });
+
+      btnAbort.addEventListener('click', () => {
+        logEvent('OPR-BAY1', 'bg-radical-red text-white font-black', 'EMERGENCY ABORT COMMAND DELIVERED: Interlock tripped, sandbox destroyed.', 'TRIP: 0.00ms', 'text-radical-red');
+      });
+
+      btnAirgap.addEventListener('click', () => {
+        logEvent('NET-AIRGAP', 'bg-armed-amber text-black font-bold', 'FORCE AIRGAP DUMP: All ephemeral interfaces detached, nonce 0x8F9A2 revoked.', 'RESEED: OK', 'text-armed-amber');
+      });
+    })();
+  </script>
+</body></html>

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "secondary-fixed-dim": "#ffb95f", "primary": "#4edea3", "tertiary-fixed": "#ffdad7", "error": "#ffb4ab", "on-secondary-container": "#5b3800", "surface-tint": "#4edea3", "on-primary-container": "#00422b", "on-tertiary-fixed-variant": "#930013", "on-error": "#690005", "tertiary-fixed-dim": "#ffb3ad", "surface-container-lowest": "#0a0e17", "on-secondary": "#472a00", "on-tertiary-container": "#79000e", "on-tertiary": "#68000a", "surface-variant": "#31353f", "on-secondary-fixed-variant": "#653e00", "background": "#0b0f17", "secondary-fixed": "#ffddb8", "inverse-surface": "#dfe2f0", "error-container": "#93000a", "primary-container": "#10b981", "on-background": "#dfe2f0", "tertiary-container": "#ff7a73", "outline-variant": "#232a36", "primary-fixed": "#6ffbbe", "inverse-on-surface": "#2d303b", "surface-container-high": "#1e2430", "surface-container-low": "#111622", "on-primary": "#003824", "inverse-primary": "#006c49", "on-secondary-fixed": "#2a1700", "primary-fixed-dim": "#4edea3", "on-error-container": "#ffdad6", "on-tertiary-fixed": "#410004", "surface": "#0f131d", "surface-bright": "#2c3342", "on-surface": "#dfe2f0", "secondary": "#ffb95f", "tertiary": "#ffb3ad", "on-surface-variant": "#94a3b8", "on-primary-fixed": "#002113", "on-primary-fixed-variant": "#005236", "surface-dim": "#0a0e17", "outline": "#64748b", "secondary-container": "#ee9800", "surface-container-highest": "#283040", "surface-container": "#161c28" }, "borderRadius": { "DEFAULT": "0.25rem", "sm": "0.1875rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin-md": "1rem", "space-lg": "0.75rem", "space-xl": "1rem", "gutter-md": "0.75rem", "space-md": "0.5rem", "space-xs": "0.25rem", "gutter-lg": "1rem", "gutter": "0.5rem", "margin-lg": "1rem", "space-sm": "0.375rem", "margin": "0.5rem" }, "fontFamily": { "title-md": ["JetBrains Mono"], "headline-md": ["JetBrains Mono"], "headline-sm": ["JetBrains Mono"], "label-md": ["JetBrains Mono"], "headline-lg-mobile": ["JetBrains Mono"], "label-sm": ["JetBrains Mono"], "body-md": ["JetBrains Mono"], "label-lg": ["JetBrains Mono"], "body-sm": ["JetBrains Mono"], "headline-lg": ["JetBrains Mono"], "body-lg": ["JetBrains Mono"] }, "fontSize": { "title-md": ["14px", { "lineHeight": "18px", "letterSpacing": "0.04em", "fontWeight": "600" }], "headline-md": ["20px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-sm": ["16px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "600" }], "label-md": ["10px", { "lineHeight": "13px", "letterSpacing": "0.1em", "fontWeight": "600" }], "headline-lg-mobile": ["24px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "label-sm": ["9px", { "lineHeight": "11px", "letterSpacing": "0.12em", "fontWeight": "500" }], "body-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "400" }], "label-lg": ["12px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "600" }], "body-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0em", "fontWeight": "400" }], "headline-lg": ["32px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }] } } } };</script></head><body class="bg-background font-body-md text-on-surface select-none antialiased"><header class="fixed top-0 left-0 right-0 h-10 z-50 bg-[#070a10] border-b border-outline-variant flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-error inline-block"></span><span class="w-2 h-2 rounded-full bg-secondary inline-block"></span><span class="w-2 h-2 rounded-full bg-primary inline-block"></span></div><span class="h-3 w-px bg-outline-variant"></span><div class="flex items-center gap-space-sm"><span class="font-label-md text-label-md text-primary tracking-widest uppercase font-bold">HYPERVISOR//V4.2</span><span class="font-label-sm text-label-sm text-outline">[NODE-0x89C]</span></div></div><div class="hidden md:flex items-center gap-6 font-label-md text-label-md"><div class="flex items-center gap-1.5"><span class="text-outline uppercase text-[10px]">FREQ:</span><span class="text-on-surface font-mono font-semibold">3.84 GHz</span></div><div class="flex items-center gap-1.5"><span class="text-outline uppercase text-[10px]">IOPS:</span><span class="text-primary font-mono font-semibold">142.8K</span></div><div class="flex items-center gap-1.5"><span class="text-outline uppercase text-[10px]">STATUS:</span><span class="text-secondary bg-secondary/10 border border-secondary/30 px-1.5 py-0.5 rounded-sm font-semibold">DEFCON-2</span></div><div class="flex items-center gap-1.5"><span class="text-outline uppercase text-[10px]">SAFETY:</span><span class="text-primary bg-primary/10 border border-primary/30 px-1.5 py-0.5 rounded-sm font-semibold">INTERLOCK ARMED</span></div></div><div class="flex items-center gap-space-lg"><div class="flex items-center gap-2 font-label-md text-label-md text-outline"><span class="text-on-surface-variant font-mono">UTC</span><span class="text-on-surface font-title-md font-bold tracking-wider font-mono">21:44:02.109</span></div><div class="w-6 h-6 rounded-sm bg-surface-container flex items-center justify-center border border-outline-variant text-primary hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[15px]">terminal</span></div><div class="w-7 h-7 rounded-full bg-primary/20 border border-primary/50 text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">shield_person</span></div></div></header><aside class="fixed left-0 top-10 bottom-7 w-60 bg-[#070a10] border-r border-outline-variant z-40 flex flex-col justify-between"><div class="flex flex-col"><div class="h-9 px-space-lg flex items-center justify-between border-b border-outline-variant bg-[#0c1018]"><span class="font-label-md text-[10px] uppercase tracking-widest text-outline font-bold">TELEMETRY BAYS</span><span class="font-label-sm text-label-sm text-primary px-1.5 py-0.5 bg-primary/10 border border-primary/30 rounded-sm">05 ONLINE</span></div><nav class="flex flex-col py-2" data-active-classes="bg-surface-container text-primary border-l-2 border-primary font-title-md text-title-md"><a aria-current="page" class="px-space-lg py-2 transition-colors flex items-center justify-between bg-surface-container text-primary border-l-2 border-primary font-title-md text-title-md" data-path="tactical-overview" href="#"><span class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">radar</span>TACTICAL HUD</span><span class="font-label-sm text-label-sm text-primary/70">BAY-01</span></a><a class="px-space-lg py-2 font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors flex items-center justify-between" data-path="network-hypervisor" href="#"><span class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-outline">lan</span>NETWORK DEFENSE</span><span class="font-label-sm text-label-sm text-outline">BAY-02</span></a><a class="px-space-lg py-2 font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors flex items-center justify-between" data-path="avionics-telemetry" href="#"><span class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-outline">flight</span>AVIONICS KINEMATICS</span><span class="font-label-sm text-label-sm text-outline">BAY-03</span></a><a class="px-space-lg py-2 font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors flex items-center justify-between" data-path="threat-vector-matrix" href="#"><span class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-outline">crisis_alert</span>THREAT VECTORS</span><span class="font-label-sm text-label-sm text-outline">BAY-04</span></a><a class="px-space-lg py-2 font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors flex items-center justify-between" data-path="vm-core-orchestration" href="#"><span class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-outline">memory</span>CORE ORCHESTRATION</span><span class="font-label-sm text-label-sm text-outline">BAY-05</span></a></nav></div><div class="border-t border-outline-variant p-space-md bg-[#0c1018]"><div class="flex justify-between items-center font-label-sm text-[10px] text-outline mb-1.5"><span class="uppercase tracking-wider">HARDWARE BUS</span><span class="text-primary font-semibold">STABLE</span></div><div class="flex justify-between items-center font-label-md text-label-md"><span class="text-on-surface font-mono">UPLINK 99.98%</span><span class="text-outline font-mono">1.2ms</span></div><div class="w-full bg-[#161c28] h-1.5 mt-2 rounded-full overflow-hidden"><div class="bg-primary h-full w-[94%]"></div></div></div></aside><div class="pl-60"><main class="w-full pt-10 pb-7 min-h-screen bg-background"><div class="flex flex-col w-full text-on-surface select-none">
+<!-- TOP AVIONICS METRIC DECK: Segmented Cards (De-cluttered & Structured) -->
+<header class="bg-[#0e131e] border-b border-outline-variant px-space-lg py-2.5 shrink-0">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+<!-- Station Identity & Status -->
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-none bg-primary animate-pulse"></div>
+<div>
+<h1 class="text-[17px] font-bold text-on-surface tracking-wider font-mono flex items-center gap-2">
+MOSDEF TACTICAL HYPERVISOR
+<span class="text-[10px] px-2 py-0.5 bg-primary/10 border border-primary/40 text-primary rounded-sm font-semibold tracking-normal">RING-0 V4.2</span>
+</h1>
+<p class="text-[11px] text-outline tracking-wider font-mono">ENCLAVE: ISOLATED WORKSTATION [127.0.0.1:7860]</p>
+</div>
+</div>
+<!-- Clean Segmented Telemetry Cards -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono">
+<div class="bg-[#080c14] border border-outline-variant px-2.5 py-1.5 rounded-sm">
+<div class="text-[9px] uppercase tracking-widest text-outline">CPU LOAD</div>
+<div class="text-[13px] font-bold text-primary tabular-nums">12.4% <span class="text-[9px] text-outline font-normal">/ 16C</span></div>
+<div class="w-full bg-[#1b2230] h-1 mt-1 rounded-full overflow-hidden"><div class="bg-primary h-full w-[12%]"></div></div>
+</div>
+<div class="bg-[#080c14] border border-outline-variant px-2.5 py-1.5 rounded-sm">
+<div class="text-[9px] uppercase tracking-widest text-outline">SYS MEMORY</div>
+<div class="text-[13px] font-bold text-on-surface tabular-nums">436 <span class="text-[9px] text-outline font-normal">MB / 4 GB</span></div>
+<div class="w-full bg-[#1b2230] h-1 mt-1 rounded-full overflow-hidden"><div class="bg-secondary h-full w-[11%]"></div></div>
+</div>
+<div class="bg-[#080c14] border border-outline-variant px-2.5 py-1.5 rounded-sm">
+<div class="text-[9px] uppercase tracking-widest text-outline">NET CONFINEMENT</div>
+<div class="text-[13px] font-bold text-secondary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> AIRGAPPED
+</div>
+<div class="text-[9px] text-outline">ZERO LEAKAGE</div>
+</div>
+<div class="bg-[#080c14] border border-outline-variant px-2.5 py-1.5 rounded-sm">
+<div class="text-[9px] uppercase tracking-widest text-outline">RASTER LATENCY</div>
+<div class="text-[13px] font-bold text-primary tabular-nums">0.84 <span class="text-[9px] text-outline font-normal">ms (METAL)</span></div>
+<div class="text-[9px] text-outline">60 FPS LOCKED</div>
+</div>
+</div>
+</div>
+</header>
+<!-- MAIN 2-COLUMN OPERATIONAL COCKPIT (68% Viewport / 32% Decision Gate) -->
+<section class="grid grid-cols-12 w-full border-b border-outline-variant bg-[#080c14]">
+<!-- LEFT (Cols 1-8): Clean Virtualization Sandbox Viewport -->
+<div class="col-span-12 lg:col-span-8 flex flex-col border-b lg:border-b-0 lg:border-r border-outline-variant bg-[#060910] p-3 gap-2">
+<!-- Viewport HUD Bar -->
+<div class="h-9 bg-[#0f1420] border border-outline-variant px-space-md rounded-sm flex items-center justify-between font-label-md text-label-md">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-sm bg-primary"></span>
+<span class="text-[12px] font-bold text-on-surface tracking-wider font-mono uppercase">VIRTUAL ENVIRONMENT [screenenv:patched]</span>
+</div>
+<div class="flex items-center gap-2 font-mono text-[11px]">
+<span class="text-outline">TARGET:</span>
+<span class="text-primary bg-primary/10 border border-primary/30 px-1.5 py-0.5 rounded-sm font-semibold">0450, 0320</span>
+<span class="text-outline hidden sm:inline">|</span>
+<span class="text-on-surface-variant hidden sm:inline">1280x720 MTKView</span>
+</div>
+</div>
+<!-- Screen Frame Container -->
+<div class="relative flex-1 min-h-[380px] lg:min-h-[460px] bg-[#090d16] border border-outline-variant rounded-sm flex flex-col justify-between p-4 overflow-hidden shadow-inner">
+<!-- Subtle Calibration Scale Top / Left -->
+<div class="absolute top-0 left-0 right-0 h-4 border-b border-outline-variant/30 flex justify-between px-3 text-[8px] text-outline/50 tracking-widest pointer-events-none select-none font-mono">
+<span>0000</span><span>0256</span><span>0512</span><span>0768</span><span>1024</span><span>1280</span>
+</div>
+<div class="absolute top-4 left-0 bottom-0 w-6 border-r border-outline-variant/30 flex flex-col justify-between py-2 text-[8px] text-outline/50 pl-1 pointer-events-none select-none font-mono">
+<span>000</span><span>180</span><span>360</span><span>540</span><span>720</span>
+</div>
+<!-- Crosshair alignment grid -->
+<div class="absolute inset-0 pointer-events-none grid grid-cols-4 grid-rows-3 opacity-15">
+<div class="border-r border-b border-outline-variant relative"><span class="absolute -bottom-1 -right-1 text-primary text-[9px] font-mono">+</span></div>
+<div class="border-r border-b border-outline-variant relative"><span class="absolute -bottom-1 -right-1 text-primary text-[9px] font-mono">+</span></div>
+<div class="border-r border-b border-outline-variant relative"><span class="absolute -bottom-1 -right-1 text-primary text-[9px] font-mono">+</span></div>
+<div class="border-b border-outline-variant relative"></div>
+<div class="border-r border-b border-outline-variant relative"><span class="absolute -bottom-1 -right-1 text-primary text-[9px] font-mono">+</span></div>
+<div class="border-r border-b border-outline-variant relative"><span class="absolute -bottom-1 -right-1 text-primary text-[9px] font-mono">+</span></div>
+<div class="border-r border-b border-outline-variant relative"><span class="absolute -bottom-1 -right-1 text-primary text-[9px] font-mono">+</span></div>
+<div class="border-b border-outline-variant relative"></div>
+<div class="border-r border-outline-variant relative"></div>
+<div class="border-r border-outline-variant relative"></div>
+<div class="border-r border-outline-variant relative"></div>
+<div></div>
+</div>
+<!-- Target Coordinate Reticle Overlay (centered at 450, 320) -->
+<div class="absolute top-[52%] left-[54%] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20 flex flex-col items-center">
+<div class="w-14 h-14 border border-secondary/80 relative flex items-center justify-center">
+<div class="w-2.5 h-2.5 bg-secondary"></div>
+<span class="absolute top-0 bottom-0 left-1/2 w-px bg-secondary/50"></span>
+<span class="absolute left-0 right-0 top-1/2 h-px bg-secondary/50"></span>
+<span class="absolute -top-1 -left-1 text-[8px] text-secondary font-mono">┌</span>
+<span class="absolute -top-1 -right-1 text-[8px] text-secondary font-mono">┐</span>
+<span class="absolute -bottom-1 -left-1 text-[8px] text-secondary font-mono">└</span>
+<span class="absolute -bottom-1 -right-1 text-[8px] text-secondary font-mono">┘</span>
+</div>
+<span class="text-[9px] text-secondary font-mono font-bold bg-[#0a0e17] px-1.5 py-0.5 border border-secondary/40 mt-1 rounded-sm shadow">HOOK//PID-19482</span>
+</div>
+<!-- Simulated Embedded Sandbox Terminal Window -->
+<div class="relative z-10 mx-auto my-auto w-full max-w-xl bg-[#0d121c] border border-outline-variant rounded-sm shadow-2xl">
+<!-- Terminal Window Header -->
+<div class="bg-[#141a26] h-7 px-3 flex items-center justify-between border-b border-outline-variant">
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-error"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+<span class="ml-2 font-mono text-[10px] text-on-surface-variant font-medium">guest@sandbox-jail:/opt/workstation</span>
+</div>
+<span class="text-[9px] font-mono uppercase text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-sm">SECCOMP-BPF ACTIVE</span>
+</div>
+<!-- Terminal Content -->
+<div class="p-3.5 font-mono text-[11px] leading-relaxed text-on-surface space-y-1.5 bg-[#080c14]/95">
+<div class="text-outline">$ env -i PATH=/bin:/usr/bin /bin/sh</div>
+<div class="text-on-surface-variant">Sandbox isolation layer initialized at PID 19482. Ephemeral namespaces locked.</div>
+<div class="text-primary font-bold">$ ./detonate_sample.sh --isolated --quarantine-net</div>
+<!-- Callout Intercept Bracket -->
+<div class="relative my-2 p-2.5 bg-[#1b1416] border-l-4 border-error border-y border-r border-outline-variant rounded-sm">
+<div class="flex items-center justify-between text-[11px] font-bold text-error">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">security</span>
+CRITICAL INTERCEPT HOOK TRIPPED
+</span>
+<span class="text-[10px] px-1.5 py-0.5 bg-error/20 border border-error/40 text-error rounded-sm animate-pulse">PAUSED</span>
+</div>
+<div class="text-on-surface-variant text-[11px] mt-1 font-mono">
+SYSCALL 59 (<span class="text-error font-semibold">sys_execve</span>) trapped at IP <span class="text-on-surface">0x7fff5fc0</span>. Gate pending authorization.
+</div>
+</div>
+<div class="text-secondary text-[11px] flex items-center gap-2 pt-0.5 font-semibold">
+<span>&gt;&gt;&gt;</span>
+<span>Awaiting manual operator release key or emergency abort sequence...</span>
+<span class="inline-block w-2 h-3.5 bg-primary animate-pulse"></span>
+</div>
+</div>
+</div>
+<!-- Viewport Footer Diagnostics -->
+<div class="z-10 flex items-center justify-between font-mono text-[10px] text-outline border-t border-outline-variant/40 pt-2 mt-2">
+<div class="flex items-center gap-3">
+<span>SHM: <span class="text-on-surface">0x981FA00</span></span>
+<span>MEM: <span class="text-on-surface">48.2 MB</span></span>
+<span class="text-primary">PAGE_FAULTS: 0</span>
+</div>
+<span class="text-primary font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">verified</span> ZERO ESCAPE ASSURANCE
+</span>
+</div>
+</div>
+</div>
+<!-- RIGHT (Cols 9-12): High-Impact Decision Gate Safety Station -->
+<div class="col-span-12 lg:col-span-4 bg-[#0a0e17] flex flex-col justify-between p-4 gap-4 border-l-0 lg:border-l border-outline-variant">
+<div class="flex flex-col gap-3.5">
+<!-- Gate Armed Big Header -->
+<div class="bg-gradient-to-r from-secondary/20 via-secondary/10 to-transparent border border-secondary/50 rounded-sm p-3 flex items-center justify-between">
+<div>
+<div class="text-[10px] uppercase tracking-widest text-secondary font-bold font-mono">HARDWARE INTERLOCK</div>
+<div class="text-[16px] font-bold text-on-surface tracking-wider font-mono flex items-center gap-1.5 mt-0.5">
+<span class="material-symbols-outlined text-secondary text-[18px]">lock</span>
+GATE STATUS: ARMED
+</div>
+</div>
+<div class="text-right">
+<div class="text-[9px] uppercase tracking-wider text-outline font-mono">ABORT IN</div>
+<div class="text-[18px] font-bold text-secondary font-mono tabular-nums" id="state-clock">00:03.14</div>
+</div>
+</div>
+<!-- Intercept Record Details Card (Clean Hierarchy) -->
+<div class="bg-[#0f1422] border border-outline-variant rounded-sm p-3.5 flex flex-col gap-2.5">
+<div class="flex items-center justify-between border-b border-outline-variant pb-2">
+<span class="text-[12px] font-bold text-error tracking-wide font-mono flex items-center gap-1.5 uppercase">
+<span class="material-symbols-outlined text-[16px]">report</span>
+RECORD #9042-A
+</span>
+<span class="text-[9px] uppercase font-mono font-bold text-error bg-error/15 border border-error/40 px-2 py-0.5 rounded-sm">
+TIER-1 CRITICAL
+</span>
+</div>
+<div class="space-y-2 font-mono text-[11px]">
+<div>
+<span class="text-[9px] uppercase tracking-wider text-outline block">TARGET HOOK</span>
+<span class="text-primary font-bold text-[12px]">screenenv.bash_execute</span>
+</div>
+<div>
+<span class="text-[9px] uppercase tracking-wider text-outline block">COMMAND PAYLOAD</span>
+<div class="bg-[#080c14] border border-outline-variant p-2 rounded-sm text-on-surface font-semibold text-[11px] break-all mt-0.5">
+./detonate_sample.sh --isolated
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-1 border-t border-outline-variant/50">
+<div>
+<span class="text-[9px] uppercase tracking-wider text-outline block">SOURCE PROCESS</span>
+<span class="text-on-surface font-medium text-[11px]">PID 19482 (agent_v4)</span>
+</div>
+<div>
+<span class="text-[9px] uppercase tracking-wider text-outline block">AUDIT NONCE</span>
+<span class="text-secondary font-medium text-[11px]">0x8F9A2</span>
+</div>
+</div>
+<div class="pt-1 border-t border-outline-variant/50">
+<span class="text-[9px] uppercase tracking-wider text-outline block">SHA256 CHECKSUM</span>
+<span class="text-[10px] text-on-surface-variant break-all font-mono select-all">
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+</span>
+</div>
+</div>
+</div>
+<!-- Interlock Safety Switches -->
+<div class="grid grid-cols-3 gap-2 text-center font-mono">
+<div class="bg-[#0f1422] border border-outline-variant p-2 rounded-sm">
+<div class="text-[9px] text-outline uppercase tracking-wider">GATE RELAY</div>
+<div class="text-[11px] font-bold text-primary mt-0.5">ENGAGED</div>
+</div>
+<div class="bg-[#0f1422] border border-outline-variant p-2 rounded-sm">
+<div class="text-[9px] text-outline uppercase tracking-wider">SEPARATE RING</div>
+<div class="text-[11px] font-bold text-primary mt-0.5">RING-0</div>
+</div>
+<div class="bg-[#0f1422] border border-outline-variant p-2 rounded-sm">
+<div class="text-[9px] text-outline uppercase tracking-wider">TIMEOUT</div>
+<div class="text-[11px] font-bold text-secondary mt-0.5 tabular-nums" id="abort-timer">03.14s</div>
+</div>
+</div>
+</div>
+<!-- Physical Ultra-Legible Action CTAs (Generous 52px height) -->
+<div class="flex flex-col gap-2.5 pt-2">
+<!-- High-Contrast Primary Permissive Button (52px) -->
+<button class="w-full h-[52px] bg-primary text-[#002b1c] hover:bg-[#5ffec4] active:scale-[0.99] font-mono font-bold text-[13px] tracking-wide rounded-sm shadow-lg flex items-center justify-between px-4 transition-all border border-[#7effd2]" id="btn-permissive">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] font-bold">check_circle</span>
+<span>GRANT PERMISSIVE RELEASE</span>
+</span>
+<span class="bg-[#003824] text-primary px-2 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider border border-primary/40 font-mono">
+[ SPACE ]
+</span>
+</button>
+<!-- High-Visibility Emergency Abort Killswitch (52px) -->
+<button class="w-full h-[52px] bg-[#991b1b] hover:bg-[#b91c1c] active:scale-[0.99] text-white font-mono font-black text-[13px] tracking-wide rounded-sm shadow-lg flex items-center justify-between px-4 transition-all border border-red-500" id="btn-abort">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] font-bold">dangerous</span>
+<span>EMERGENCY ABORT &amp; KILL</span>
+</span>
+<span class="bg-black/40 text-red-200 px-2 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider border border-red-400 font-mono">
+[ ESC ]
+</span>
+</button>
+<!-- Secondary Utility Override Action -->
+<button class="w-full h-8 bg-[#0f1422] hover:bg-[#161c2c] border border-outline-variant hover:border-outline text-on-surface-variant hover:text-on-surface font-mono text-[10px] uppercase tracking-wider rounded-sm transition-colors flex items-center justify-center gap-2" id="btn-airgap">
+<span class="material-symbols-outlined text-[13px]">airplanemode_active</span>
+<span>[ F12: FORCE AIRGAP DUMP &amp; RESEED NONCE ]</span>
+</button>
+</div>
+</div>
+</section>
+<!-- BOTTOM TABBED TELEMETRY STREAM & STRUCTURED AUDIT LEDGER -->
+<section class="h-48 bg-[#070a10] flex flex-col font-mono shrink-0">
+<!-- Tabbed Audit Header Bar -->
+<div class="h-9 bg-[#0c1018] px- space-lg flex items-center justify-between border-b border-outline-variant px-4">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-[12px] font-bold text-on-surface uppercase tracking-wider">
+<span class="material-symbols-outlined text-[15px] text-primary">analytics</span>
+AUDIT EVENT LEDGER
+</div>
+<!-- Clean Status Tabs -->
+<div class="hidden sm:flex items-center gap-1 text-[10px] font-medium">
+<button class="px-2.5 py-1 bg-[#1a2232] text-primary border border-primary/30 rounded-sm font-semibold">ALL EVENTS (8,192)</button>
+<button class="px-2.5 py-1 bg-[#0f1422] text-outline hover:text-on-surface border border-outline-variant rounded-sm transition-colors">SECURITY (14)</button>
+<button class="px-2.5 py-1 bg-[#0f1422] text-outline hover:text-on-surface border border-outline-variant rounded-sm transition-colors">CONTAINER BUS</button>
+</div>
+</div>
+<div class="flex items-center gap-3 text-[10px] text-outline">
+<span class="text-primary flex items-center gap-1 font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span> WS://127.0.0.1:9001/AUDIT
+</span>
+<span class="hidden md:inline text-outline-variant">|</span>
+<span class="hidden md:inline text-secondary">AUTO-SCROLL ON</span>
+</div>
+</div>
+<!-- Structured Tabular Event Feed with Alternating Row Tones -->
+<div class="flex-1 overflow-y-auto divide-y divide-outline-variant/30 text-[11px] leading-relaxed select-text" id="log-console">
+<div class="flex items-center gap-3 px-4 py-1.5 hover:bg-[#111724] bg-[#070a10]">
+<span class="text-outline font-mono text-[10px] w-20 shrink-0">22:10:59.858</span>
+<span class="w-16 shrink-0"><span class="px-1.5 py-0.5 bg-surface-container text-on-surface-variant font-bold text-[9px] rounded-sm">[CORE]</span></span>
+<span class="text-on-surface truncate">State transition: .locked -&gt; .armed (Seq: 00921)</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-1.5 hover:bg-[#111724] bg-[#0a0e17]">
+<span class="text-outline font-mono text-[10px] w-20 shrink-0">22:11:00.129</span>
+<span class="w-16 shrink-0"><span class="px-1.5 py-0.5 bg-secondary/15 border border-secondary/30 text-secondary font-bold text-[9px] rounded-sm">[SVS]</span></span>
+<span class="text-secondary truncate">CoreAudio alert tone emitted: 440Hz Sine Wave (Duration: 150ms)</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-1.5 hover:bg-[#111724] bg-[#070a10]">
+<span class="text-outline font-mono text-[10px] w-20 shrink-0">22:11:00.478</span>
+<span class="w-16 shrink-0"><span class="px-1.5 py-0.5 bg-surface-container text-on-surface-variant font-bold text-[9px] rounded-sm">[MCP]</span></span>
+<span class="text-on-surface-variant truncate">ContainerSocketBridge: Outbound 16KiB payload chunk dispatched to seccomp inspection buffer</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-1.5 hover:bg-[#1f1214] bg-[#160c0e]">
+<span class="text-error font-mono text-[10px] w-20 shrink-0">22:11:00.617</span>
+<span class="w-16 shrink-0"><span class="px-1.5 py-0.5 bg-error text-surface-container-lowest font-black text-[9px] rounded-sm">[GATE]</span></span>
+<span class="text-error font-semibold truncate">Hardware Interlock tripping active: Awaiting manual operator clearance... [HARD TIMEOUT: 5.0s]</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-1.5 hover:bg-[#111724] bg-[#070a10]">
+<span class="text-outline font-mono text-[10px] w-20 shrink-0">22:11:01.004</span>
+<span class="w-16 shrink-0"><span class="px-1.5 py-0.5 bg-surface-container text-on-surface-variant font-bold text-[9px] rounded-sm">[NET]</span></span>
+<span class="text-on-surface truncate">Airgap rule #4 applied: outbound packet drop 192.168.1.1:443 (Quarantine Enforcement)</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-1.5 hover:bg-[#111724] bg-[#0a0e17]">
+<span class="text-outline font-mono text-[10px] w-20 shrink-0">22:11:01.240</span>
+<span class="w-16 shrink-0"><span class="px-1.5 py-0.5 bg-primary/10 border border-primary/30 text-primary font-bold text-[9px] rounded-sm">[VMM]</span></span>
+<span class="text-primary font-semibold truncate">DirectMetal context flush: frame #8490 complete (0.72ms hardware latency)</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-1.5 hover:bg-[#111724] bg-[#070a10]">
+<span class="text-outline font-mono text-[10px] w-20 shrink-0">22:11:01.882</span>
+<span class="w-16 shrink-0"><span class="px-1.5 py-0.5 bg-primary/20 text-primary font-bold text-[9px] rounded-sm">[SEC]</span></span>
+<span class="text-on-surface truncate">Payload integrity checksum SHA256 validated against baseline allowlist [NON-MATCH // PENDING HUMAN CLEARANCE]</span>
+</div>
+</div>
+</section>
+<!-- Interactive Logic & Keyboard Shortcut Engine -->
+<script>
+    (function initHypervisorEngine() {
+      let countdown = 3.42;
+      const clockElement = document.getElementById('state-clock');
+      const timerElement = document.getElementById('abort-timer');
+      const logContainer = document.getElementById('log-console');
+      const btnPermissive = document.getElementById('btn-permissive');
+      const btnAbort = document.getElementById('btn-abort');
+      const btnAirgap = document.getElementById('btn-airgap');
+
+      function appendAuditRow(tag, colorClass, message, isAlert = false) {
+        const now = new Date();
+        const timeStr = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+        const row = document.createElement('div');
+        row.className = `flex items-center gap-3 px-4 py-1.5 ${isAlert ? 'bg-[#1e1014] text-error' : 'hover:bg-[#111724] bg-[#070a10]'}`;
+        row.innerHTML = `
+          <span class="text-outline font-mono text-[10px] w-20 shrink-0">${timeStr}</span>
+          <span class="w-16 shrink-0"><span class="px-1.5 py-0.5 font-bold text-[9px] rounded-sm ${colorClass}">[${tag}]</span></span>
+          <span class="font-mono text-[11px] truncate ${isAlert ? 'font-bold text-error' : 'text-on-surface'}">${message}</span>
+        `;
+        logContainer.appendChild(row);
+        logContainer.scrollTop = logContainer.scrollHeight;
+      }
+
+      // Countdown ticker simulation
+      const interval = setInterval(() => {
+        countdown = Math.max(0, countdown - 0.04);
+        const formatted = countdown.toFixed(2);
+        if (clockElement) clockElement.textContent = `00:0${formatted}`;
+        if (timerElement) timerElement.textContent = `0${formatted}s`;
+        if (countdown <= 0) {
+          clearInterval(interval);
+          appendAuditRow('GATE', 'bg-error text-white', 'AUTOMATIC ABORT TRIP: Safety window lapsed. Process killed.', true);
+        }
+      }, 40);
+
+      // Key listeners matching MIL-STD specification
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          btnPermissive.click();
+        } else if (e.code === 'Escape') {
+          e.preventDefault();
+          btnAbort.click();
+        } else if (e.code === 'F12') {
+          e.preventDefault();
+          btnAirgap.click();
+        }
+      });
+
+      btnPermissive.addEventListener('click', () => {
+        appendAuditRow('OPERATOR', 'bg-primary/20 border border-primary text-primary', 'MANUAL PERMISSIVE RELEASE ISSUED: Ring-0 execution resumed for PID 19482.');
+      });
+
+      btnAbort.addEventListener('click', () => {
+        appendAuditRow('ABORT', 'bg-error text-white font-black', 'EMERGENCY TRIP SIGNAL TRIPPED: Hard abort signal SIGKILL delivered to sandbox.', true);
+      });
+
+      btnAirgap.addEventListener('click', () => {
+        appendAuditRow('AIRGAP', 'bg-secondary/20 border border-secondary text-secondary', 'AIRGAP DUMP EXECUTED: All host socket descriptors unlinked, cryptographic nonce rotated.');
+      });
+    })();
+  </script>
+</div></main></div><footer class="fixed bottom-0 left-0 right-0 h-7 z-50 bg-[#070a10] border-t border-outline-variant flex items-center justify-between px-space-lg font-mono"><div class="flex items-center gap-space-lg font-label-sm text-[10px]"><span class="text-primary font-bold">BUS://ACTIVE</span><span class="text-outline">|</span><span class="text-on-surface-variant">SEC-RING-0: OK</span><span class="text-outline">|</span><span class="text-on-surface-variant">AES-GCM-512</span><span class="text-outline">|</span><span class="text-secondary">AUDIT-DAEMON: STREAMING</span></div><div class="flex items-center gap-space-md font-label-sm text-[10px]"><span class="text-outline">LOG_SEQ: #4492-X8</span><span class="text-outline">|</span><span class="text-primary font-semibold">ALL SUBSYSTEMS NOMINAL</span></div></footer></body></html>

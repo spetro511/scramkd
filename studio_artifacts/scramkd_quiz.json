@@ -1,0 +1,265 @@
+{
+  "title": "SCRAMKD Quiz",
+  "questions": [
+    {
+      "question": "How does `HardwareInterlockGate` prevent concurrent tool execution from slipping through when an operator grants permissive clearance?",
+      "answerOptions": [
+        {
+          "text": "It maintains an ambient boolean flag (`isPermissive = true`) until manually relocked by the operator.",
+          "isCorrect": false,
+          "rationale": "Maintaining an ambient boolean state allows burst dispatches to piggyback on a single open window without individual authorization."
+        },
+        {
+          "text": "It issues a single-use, cryptographically bound `PermissivePermit` that automatically relocks the gate upon consumption.",
+          "isCorrect": true,
+          "rationale": "Issuing a single-use permit bound to a specific request ID guarantees exactly one execution per approval step and immediately returns the gate to a locked state upon consumption."
+        },
+        {
+          "text": "It queues up to 256 requests and executes them concurrently once the operator presses Space.",
+          "isCorrect": false,
+          "rationale": "Batching concurrent executions violates the single-use authorization requirement and exposes the host system to unauthorized tool dispatches."
+        },
+        {
+          "text": "It delegates authorization checks to an external secondary LLM prompt filter.",
+          "isCorrect": false,
+          "rationale": "SCRAMKD operates strictly as a deterministic hardware interlock without relying on probabilistic model-based safety filters in the execution path."
+        }
+      ],
+      "hint": "Consider how the gate prevents secondary or piggybacked requests from slipping through during an open authorization window."
+    },
+    {
+      "question": "Which rule MUST be strictly followed when using `OSAllocatedUnfairLock` within SCRAMKD's Swift 6 architecture?",
+      "answerOptions": [
+        {
+          "text": "It can be held across `await` points as long as the actor is isolated to `@MainActor`.",
+          "isCorrect": false,
+          "rationale": "Holding an unfair lock across asynchronous suspension points leads to thread starvation, priority inversions, or runtime deadlocks."
+        },
+        {
+          "text": "It is restricted strictly to synchronous, non-suspending critical sections such as atomic continuation resolution.",
+          "isCorrect": true,
+          "rationale": "Low-level unfair locks are engineered exclusively for fast, non-suspending critical sections and must never span an `await` point or replace actor isolation."
+        },
+        {
+          "text": "It replaces actor isolation entirely for high-frequency network data streams.",
+          "isCorrect": false,
+          "rationale": "Unfair locks complement synchronous critical sections but cannot replace structured actor isolation boundaries across asynchronous contexts."
+        },
+        {
+          "text": "It permits `@unchecked Sendable` wrapper types to bypass compiler concurrency checks.",
+          "isCorrect": false,
+          "rationale": "SCRAMKD mandates strict Swift 6 complete concurrency, prohibiting unjustified `@unchecked Sendable` annotations."
+        }
+      ],
+      "hint": "Think about what happens when a thread holding a low-level lock suspends during an asynchronous operation."
+    },
+    {
+      "question": "What critical constraint applies to the C11 real-time audio render callback (`CScramKAudioRealtime`) on the CoreAudio thread?",
+      "answerOptions": [
+        {
+          "text": "It must perform JSON telemetry logging on every audio buffer render turn.",
+          "isCorrect": false,
+          "rationale": "Performing disk I/O or logging on the render thread introduces non-deterministic latency spikes and causes buffer underruns."
+        },
+        {
+          "text": "It must execute Swift ARC retain/release operations using nonisolated atomic wrappers.",
+          "isCorrect": false,
+          "rationale": "Swift ARC reference counting involves heap operations and implicit locks, which violate real-time audio thread safety."
+        },
+        {
+          "text": "It must be lock-free, allocation-free, and execute zero Swift ARC traffic or asynchronous task dispatches.",
+          "isCorrect": true,
+          "rationale": "CoreAudio real-time render callbacks require deterministic performance, forbidding heap allocations, mutexes, and ARC traffic to prevent audio glitches or thread stalling."
+        },
+        {
+          "text": "It relies on `AVAudioEngine` main-thread locks to synchronize tone parameters with the UI.",
+          "isCorrect": false,
+          "rationale": "Relying on main-thread locks inside a real-time callback causes severe audio underruns whenever the main UI thread is busy."
+        }
+      ],
+      "hint": "Focus on the execution requirements necessary to prevent buffer underruns on a dedicated real-time audio thread."
+    },
+    {
+      "question": "How does the SCRAMKD supervisor console enforce physical operator presence through the `ActiveHoldPolicy` dead-man switch?",
+      "answerOptions": [
+        {
+          "text": "By toggling a software button that remains active until the operator manually clicks 'Lock'.",
+          "isCorrect": false,
+          "rationale": "A persistent toggle switch allows the system to remain unattended in a permissive state if the operator steps away from the console."
+        },
+        {
+          "text": "By requiring a continuous physical key press (such as holding Space) bound by a maximum lease cap and auto-relocking on focus loss.",
+          "isCorrect": true,
+          "rationale": "Requiring continuous physical key actuation ensures active human presence, while automatic relocking on key release or window deactivation prevents unattended execution."
+        },
+        {
+          "text": "By prompting the operator for a password re-entry every 60 seconds during active agent workflows.",
+          "isCorrect": false,
+          "rationale": "Periodic password prompts induce cognitive fatigue and fail to guarantee physical presence during specific tool dispatches."
+        },
+        {
+          "text": "By tracking gaze direction via the host webcam before dispatching each command.",
+          "isCorrect": false,
+          "rationale": "SCRAMKD relies on zero-egress physical keycap interlocks rather than vision-based or probabilistic tracking systems."
+        }
+      ],
+      "hint": "Consider what mechanism guarantees the operator is actively present at the keyboard while a tool executes."
+    },
+    {
+      "question": "What occurs when an `InterlockObservation` stream detects a cursor gap during transition processing in `SVSBridge`?",
+      "answerOptions": [
+        {
+          "text": "It immediately replays all omitted historical audio cues to catch up with gate state.",
+          "isCorrect": false,
+          "rationale": "Replaying stale pulse cues causes auditory confusion and fails to reflect the current real-time state of the interlock."
+        },
+        {
+          "text": "It trips the emergency SCRAM abort and forces a daemon reboot.",
+          "isCorrect": false,
+          "rationale": "A telemetry sequence gap triggers silent state reconciliation rather than an immediate destructive trip."
+        },
+        {
+          "text": "It records an observation gap error, reconciles the cursor position via snapshot, and avoids replaying stale cues.",
+          "isCorrect": true,
+          "rationale": "The bridge updates its cursor position to match the current gate snapshot without replaying past acoustic alerts, maintaining state alignment silently."
+        },
+        {
+          "text": "It blocks daemon execution until the missing transition records are re-transmitted.",
+          "isCorrect": false,
+          "rationale": "Blocking interlock execution for telemetry gaps violates non-blocking safety interlock requirements."
+        }
+      ],
+      "hint": "Think about how real-time audio feedback should handle missing historical events without overwhelming the operator."
+    },
+    {
+      "question": "How does `MCPProcessTransport` eliminate dynamic library hijacking vectors when spawning bridge subprocesses?",
+      "answerOptions": [
+        {
+          "text": "It inherits the host environment but sets `LD_PRELOAD` to an empty string.",
+          "isCorrect": false,
+          "rationale": "Partial environment modification leaves other dynamic linking variables and sensitive credentials exposed to child processes."
+        },
+        {
+          "text": "It completely purges the host environment and constructs a clean-room environment restricted to a 7-key allowlist.",
+          "isCorrect": true,
+          "rationale": "Completely stripping inherited host variables and enforcing a strict 7-key allowlist (with PATH pinned to system paths) blocks environment-based injection attacks."
+        },
+        {
+          "text": "It encrypts environment variables using AES-256 before passing them to the container process.",
+          "isCorrect": false,
+          "rationale": "Subprocesses require plaintext environment variables, so encryption would prevent normal execution without fixing environment injection."
+        },
+        {
+          "text": "It forces child processes to execute under a secondary user account with elevated root privileges.",
+          "isCorrect": false,
+          "rationale": "Elevating process privileges expands the attack surface rather than containing untrusted code."
+        }
+      ],
+      "hint": "Consider the cleanest approach to guarantee that no secret keys or unsafe dynamic library paths cross into a child process."
+    },
+    {
+      "question": "What is the primary operational distinction of `ContainerSecurityProfile.strictAirgap` compared to `.loopbackFramebuffer`?",
+      "answerOptions": [
+        {
+          "text": "It disables Docker container logging while leaving all network ports unconstrained.",
+          "isCorrect": false,
+          "rationale": "Disabling logs while leaving network interfaces exposed provides no isolation or containment."
+        },
+        {
+          "text": "It enforces strict network isolation at the kernel namespace level with zero allocated egress sockets.",
+          "isCorrect": true,
+          "rationale": "The `.strictAirgap` profile applies `--network=none` at the kernel namespace level to guarantee that the contained runtime cannot establish external network sockets."
+        },
+        {
+          "text": "It routes container network traffic through a local proxy server for real-time inspection.",
+          "isCorrect": false,
+          "rationale": "SCRAMKD operates on a zero-egress principle and strictly avoids routing traffic through third-party or local proxies."
+        },
+        {
+          "text": "It enables dynamic port forwarding on interface `0.0.0.0` for remote video streaming.",
+          "isCorrect": false,
+          "rationale": "Binding to `0.0.0.0` exposes framebuffer data to external network interfaces, violating loopback-only requirements."
+        }
+      ],
+      "hint": "Look at how network access is constrained when absolute non-egress is required at the kernel level."
+    },
+    {
+      "question": "How does `ContainerSocketBridge` protect payload digest verification against timing side-channel attacks?",
+      "answerOptions": [
+        {
+          "text": "By comparing hex digests using standard Swift string equality (`==`).",
+          "isCorrect": false,
+          "rationale": "Standard string equality short-circuits on the first non-matching character, creating measurable timing deltas across comparison loops."
+        },
+        {
+          "text": "By offloading SHA-256 digest computation to a background queue.",
+          "isCorrect": false,
+          "rationale": "Asynchronous computation changes task scheduling but does not eliminate string comparison timing leaks."
+        },
+        {
+          "text": "By evaluating SHA-256 hex digests using a constant-time byte-wise XOR accumulator.",
+          "isCorrect": true,
+          "rationale": "Evaluating digest bytes with a constant-time XOR accumulator guarantees identical execution duration regardless of character match positions."
+        },
+        {
+          "text": "By sending wire digests to an external hardware security module (HSM) for validation.",
+          "isCorrect": false,
+          "rationale": "External validation introduces network overhead and breaches the system's local zero-egress isolation model."
+        }
+      ],
+      "hint": "Focus on how cryptographic string comparisons avoid leaking prefix-matching clues through execution duration."
+    },
+    {
+      "question": "What design pattern is utilized in `BridgeOneShot` to ensure thread-safe, single-use continuation resolution?",
+      "answerOptions": [
+        {
+          "text": "Multi-thread polling using `Task.sleep` until a result value becomes non-nil.",
+          "isCorrect": false,
+          "rationale": "Polling introduces non-deterministic latency and wastes CPU cycles without guaranteeing single resolution."
+        },
+        {
+          "text": "Locking state access with `OSAllocatedUnfairLock` to resolve the first result and reject secondary consumers.",
+          "isCorrect": true,
+          "rationale": "`BridgeOneShot` uses an atomic unfair lock to store either a result or continuation, ensuring only the first completion or consumer succeeds while rejecting subsequent attempts."
+        },
+        {
+          "text": "Wrapping shared state in global variables annotated with `@unchecked Sendable`.",
+          "isCorrect": false,
+          "rationale": "Global mutable state violates Swift 6 strict concurrency principles and leads to data races."
+        },
+        {
+          "text": "Automatically retrying failed asynchronous operations up to three times.",
+          "isCorrect": false,
+          "rationale": "Automatic retries do not guarantee single-shot resolution semantics for one-time continuations."
+        }
+      ],
+      "hint": "Look for the mechanism that atomically registers or completes a single continuation without allowing double-resume errors."
+    },
+    {
+      "question": "Why does SCRAMKD explicitly display 'F12 (NOT IMPLEMENTED)' on its control strip rather than providing a placeholder action?",
+      "answerOptions": [
+        {
+          "text": "The AppKit event monitoring subsystem cannot intercept functional keys on macOS.",
+          "isCorrect": false,
+          "rationale": "macOS application event monitors can reliably intercept functional keys like F12."
+        },
+        {
+          "text": "Safety-critical invariants mandate that controls must not fabricate execution success before physical features exist.",
+          "isCorrect": true,
+          "rationale": "Displaying simulated success for an unverified security capability violates state-truth invariants and risks misleading the operator during an incident."
+        },
+        {
+          "text": "F12 is reserved strictly for triggering emergency SCRAM trips in place of Esc.",
+          "isCorrect": false,
+          "rationale": "Esc is the dedicated physical key for emergency SCRAM trips, whereas F12 is reserved for future disconnect/reseed operations."
+        },
+        {
+          "text": "The UI layer executes in read-only mode and cannot handle keyboard shortcuts.",
+          "isCorrect": false,
+          "rationale": "The UI layer actively processes interactive key events such as Space and Esc."
+        }
+      ],
+      "hint": "Reflect on the safety-critical principle regarding truthful UI feedback when an action cannot be fully executed or verified."
+    }
+  ]
+}

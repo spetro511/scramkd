@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+
+<html class="bg-[#04060A] text-slate-100 antialiased selection:bg-[#EF4444] selection:text-white" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SCRAMKD // BRAND BOOK &amp; NORMATIVE SYSTEMS SPECIFICATION</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'Geist Mono', 'SF Mono', Menlo, Consolas, monospace;
+      --fsm-accent: #EF4444;
+      --fsm-glow: rgba(239, 68, 68, 0.4);
+    }
+    body { font-family: var(--font-sans); }
+    .font-mono { font-family: var(--font-mono); }
+    
+    .hairline-border { border: 1px solid rgba(255, 255, 255, 0.08); }
+    .hairline-b { border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+    .hairline-r { border-right: 1px solid rgba(255, 255, 255, 0.08); }
+    .hairline-t { border-top: 1px solid rgba(255, 255, 255, 0.08); }
+    .hairline-l { border-left: 1px solid rgba(255, 255, 255, 0.08); }
+
+    .grid-matrix {
+      background-size: 20px 20px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
+    .spec-dot-grid {
+      background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+
+    /* Calibrated Hardware Precision Motion */
+    @keyframes opt-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 2px currentColor); }
+      50% { opacity: 0.35; transform: scale(0.96); filter: drop-shadow(0 0 0px currentColor); }
+    }
+    @keyframes phosphor-breathe {
+      0%, 100% { box-shadow: 0 0 16px -2px var(--fsm-glow), inset 0 0 12px -4px var(--fsm-glow); }
+      50% { box-shadow: 0 0 6px -2px var(--fsm-glow), inset 0 0 4px -2px var(--fsm-glow); }
+    }
+    @keyframes blade-snap {
+      0% { transform: scale(1) rotate(0deg); opacity: 1; }
+      18% { transform: scale(1.18) rotate(-4deg); stroke: #FFF; stroke-width: 6.5; filter: drop-shadow(0 0 14px #FFF); }
+      35% { transform: scale(0.96) rotate(2deg); stroke: #EF4444; stroke-width: 5; filter: drop-shadow(0 0 18px #EF4444); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    @keyframes dielectric-arc {
+      0% { opacity: 0; stroke-dashoffset: 40; }
+      30% { opacity: 1; stroke-dashoffset: 0; stroke: #FFF; }
+      70% { opacity: 0.8; stroke: #EF4444; }
+      100% { opacity: 0; stroke-dashoffset: -40; }
+    }
+    @keyframes line-scan {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(1000%); }
+    }
+
+    .animate-opt-pulse { animation: opt-pulse 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+    .animate-blade-snap { animation: blade-snap 0.42s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .animate-dielectric { stroke-dasharray: 8 4; animation: dielectric-arc 0.48s ease-out forwards; }
+    
+    .card-fsm-active {
+      border-color: var(--fsm-accent) !important;
+      animation: phosphor-breathe 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+    }
+
+    .reticle-corner {
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .swatch-card:hover .reticle-corner {
+      transform: scale(1.08);
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#04060A] text-slate-300 p-3 sm:p-6 lg:p-12 flex justify-center items-start">
+<!-- Micro-Toast Floating Banner -->
+<div class="fixed top-5 right-5 z-50 pointer-events-none transition-all duration-300 transform -translate-y-4 opacity-0 flex items-center gap-2.5 bg-[#090D15] border border-white/20 text-white font-mono text-[11px] px-3.5 py-2 shadow-2xl backdrop-blur-md" id="telemetry-toast">
+<span class="w-2 h-2 rounded-full bg-[#10B981]"></span>
+<span id="telemetry-toast-msg">BUFFER COPIED TO CLIPBOARD</span>
+</div>
+<!-- Main Institutional Enclosure -->
+<article class="w-full max-w-6xl bg-[#070A10] hairline-border shadow-2xl relative overflow-hidden">
+<!-- 00 // Telemetry Status Header & Control Strip -->
+<header class="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-3 bg-[#090D15] hairline-b text-[11px] font-mono text-slate-400 gap-3">
+<div class="flex flex-wrap items-center gap-3">
+<span class="flex items-center gap-2 font-semibold text-white">
+<span class="w-2 h-2 rounded-full bg-[#10B981] animate-opt-pulse text-[#10B981]"></span>
+          SCRAMKD BRAND MONOGRAPH &amp; SYSTEMS MANUAL
+        </span>
+<span class="text-slate-600">/</span>
+<span class="text-slate-400">PUB REF: 2026.04-DARWIN</span>
+</div>
+<!-- Telemetry Live Clock & Rigor Indicators -->
+<div class="flex flex-wrap items-center gap-4 text-slate-400">
+<div class="flex items-center gap-1.5 bg-[#04060A] px-2.5 py-1 border border-white/10 text-white">
+<span class="text-slate-500 text-[10px]">INTR LATENCY:</span>
+<span class="text-[#10B981] font-bold tabular-nums" id="live-kernel-latency">342.1 µs</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-opt-pulse text-[#10B981]"></span>
+<span>MIL-STD-1472H</span>
+</div>
+<span class="text-slate-700">|</span>
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-opt-pulse text-[#10B981]"></span>
+<span class="text-[#10B981] font-semibold">EAL6+ COMPLIANT</span>
+</div>
+</div>
+</header>
+<!-- Document Title Masthead -->
+<section class="px-6 py-8 sm:px-12 sm:py-10 hairline-b bg-[#070A10]">
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+<div>
+<div class="text-[11px] font-mono tracking-[0.25em] uppercase text-[#EF4444] font-bold mb-2 flex items-center gap-2">
+<span class="inline-block w-1.5 h-1.5 bg-[#EF4444]"></span>
+            Normative Brand Architecture &amp; Engineering Standards // Edition 01
+          </div>
+<h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-[-0.04em] uppercase font-sans">
+            SCRAM<span class="text-[#94A3B8] font-bold">KD</span> Brand Book
+          </h1>
+<p class="mt-3 text-sm sm:text-base text-slate-300 max-w-2xl font-normal leading-relaxed">
+            Deterministic design specifications for the autonomous agent safety interlock. Every geometric ratio, chromatic wavelength, and typographic cadence reflects physical kernel barriers, uncatchable process termination, and strict actor isolation.
+          </p>
+</div>
+<div class="font-mono text-xs text-slate-400 hairline-l pl-6 py-1 flex flex-col gap-1.5 flex-shrink-0">
+<div>PRINCIPAL ARCHITECT: <span class="text-slate-200 font-semibold">Suren Sahaydachny</span></div>
+<div>CORE RUNTIME: <span class="text-slate-200">Darwin XNU / Apple Silicon</span></div>
+<div>CONCURRENCY: <span class="text-[#10B981]">Swift 6 Strict (Zero Data Races)</span></div>
+</div>
+</div>
+</section>
+<!-- LIVE TELEMETRY & STATE MACHINE HARNESS CONTROLLER BAR -->
+<section class="px-6 py-4 bg-[#05080E] hairline-b flex flex-col md:flex-row md:items-center justify-between gap-4 font-mono">
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 bg-[#EF4444] rounded-[1px] animate-pulse" id="harness-led"></span>
+<span class="text-[11px] tracking-wider uppercase text-white font-bold">LIVE TELEMETRY &amp; STATE MACHINE HARNESS</span>
+</div>
+<span class="text-slate-600 hidden sm:inline">|</span>
+<span class="text-[10px] text-slate-400 hidden sm:inline">TEST BENCH ACTUATION: INTERACTIVE MEDIATION GATE</span>
+</div>
+<!-- State Actuator Selector Switches -->
+<div class="flex flex-wrap items-center gap-1.5">
+<button class="fsm-nav-btn px-3 py-1.5 text-[10px] tracking-widest font-bold uppercase transition-all duration-150 border border-[#EF4444] bg-[#EF4444]/20 text-white shadow-[0_0_8px_rgba(239,68,68,0.4)] flex items-center gap-1.5 cursor-pointer" id="fsm-btn-scram" onclick="setFSMState('scram')">
+<span class="w-1.5 h-1.5 rounded-full bg-[#EF4444]"></span>
+          TRIP / SCRAM
+        </button>
+<button class="fsm-nav-btn px-3 py-1.5 text-[10px] tracking-widest font-bold uppercase transition-all duration-150 border border-white/10 bg-[#090D15] text-slate-300 hover:text-white hover:border-[#F59E0B]/50 flex items-center gap-1.5 cursor-pointer" id="fsm-btn-armed" onclick="setFSMState('armed')">
+<span class="w-1.5 h-1.5 rounded-full bg-[#F59E0B]/60"></span>
+          ARMED / GATE
+        </button>
+<button class="fsm-nav-btn px-3 py-1.5 text-[10px] tracking-widest font-bold uppercase transition-all duration-150 border border-white/10 bg-[#090D15] text-slate-300 hover:text-white hover:border-[#10B981]/50 flex items-center gap-1.5 cursor-pointer" id="fsm-btn-permissive" onclick="setFSMState('permissive')">
+<span class="w-1.5 h-1.5 rounded-full bg-[#10B981]/60"></span>
+          PERMISSIVE
+        </button>
+<button class="fsm-nav-btn px-3 py-1.5 text-[10px] tracking-widest font-bold uppercase transition-all duration-150 border border-white/10 bg-[#090D15] text-slate-300 hover:text-white hover:border-slate-400 flex items-center gap-1.5 cursor-pointer" id="fsm-btn-inert" onclick="setFSMState('inert')">
+<span class="w-1.5 h-1.5 rounded-full bg-[#64748B]"></span>
+          INERT / LOCKED
+        </button>
+</div>
+</section>
+<!-- ========================================================================= -->
+<!-- SECTION 1: LOGO LOCKUPS & GEOMETRIC TOPOLOGY                              -->
+<!-- ========================================================================= -->
+<section class="hairline-b" id="logo-lockups">
+<!-- Section Header -->
+<div class="px-6 sm:px-8 py-4 bg-[#090D15] hairline-b flex items-center justify-between">
+<h2 class="text-xs font-mono uppercase tracking-widest text-white font-semibold flex items-center gap-2">
+<span class="w-1.5 h-1.5 bg-[#EF4444]"></span>
+          Section 01 // Logo Lockups &amp; Geometric Precision
+        </h2>
+<span class="text-xs font-mono text-slate-400 hidden sm:inline">MIL-STD-1472H SECTION 05.02</span>
+</div>
+<!-- Overview Note -->
+<div class="p-6 sm:p-10 hairline-b bg-[#070A10]">
+<div class="max-w-3xl text-sm leading-relaxed text-slate-300">
+<strong class="text-white">Geometric Isolation Thesis:</strong> The SCRAMKD mark is engineered not as a decorative logo, but as an authentic electrical circuit schematic. A 64×64 normalized matrix bounds four machined chassis corner registration brackets, conductive bus traces, and an uncompromising 45° Radical Red (<code class="text-xs font-mono text-white bg-white/10 px-1 py-0.5">#EF4444</code>) circuit sever blade terminating on an armed scram core terminal.
+        </div>
+</div>
+<!-- Lockup Grid: 3 Variants (Primary, Monochromatic, Inverse Darkroom) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 hairline-b">
+<!-- 1.1 Primary High-Assurance Lockup -->
+<div class="p-6 sm:p-8 hairline-r bg-[#06080E] flex flex-col justify-between relative group">
+<div>
+<div class="flex items-center justify-between font-mono text-[10px] text-slate-400 mb-4">
+<span class="text-white font-bold">FIG 1.1 // PRIMARY OPERATIONAL</span>
+<span class="text-[#EF4444] font-semibold" id="fig1-state-label">STATE: ARMED TRIP</span>
+</div>
+<!-- Visual Canvas with Dynamic Hover Vernier Coordinate Crosshair -->
+<div class="relative h-56 bg-[#090D16] hairline-border spec-dot-grid p-6 flex flex-col items-center justify-center gap-3 overflow-hidden cursor-crosshair transition-colors duration-200" id="fig1-canvas">
+<!-- Dynamic Vernier Readout Overlay (Appears on Hover) -->
+<div class="absolute top-2 left-2 text-[9px] font-mono text-slate-400 bg-black/80 px-2 py-0.5 border border-white/10 tabular-nums pointer-events-none transition-opacity duration-150" id="fig1-vernier-readout">
+                POS: <span class="text-white font-semibold" id="v-x">32.0</span>, <span class="text-white font-semibold" id="v-y">32.0</span> | DIELECTRIC: <span class="text-[#10B981]" id="v-volt">0.0 kV</span>
+</div>
+<!-- Reticle Coordinates Lines (X/Y follow cursor) -->
+<div class="absolute left-0 right-0 h-[1px] bg-red-500/25 pointer-events-none transition-all duration-75 top-1/2" id="v-crosshair-x"></div>
+<div class="absolute top-0 bottom-0 w-[1px] bg-red-500/25 pointer-events-none transition-all duration-75 left-1/2" id="v-crosshair-y"></div>
+<div class="flex items-center gap-4 relative z-10">
+<!-- SVG Mark -->
+<div class="w-16 h-16 bg-[#05070B] border border-white/20 p-2 flex items-center justify-center flex-shrink-0 relative">
+<svg class="w-full h-full overflow-visible" fill="none" id="primary-logo-svg" viewbox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+<!-- Brackets -->
+<path class="logo-bracket" d="M 4 16 L 4 4 L 16 4" stroke="#FFFFFF" stroke-linecap="square" stroke-width="2.5"></path>
+<path class="logo-bracket" d="M 48 4 L 60 4 L 60 16" stroke="#FFFFFF" stroke-linecap="square" stroke-width="2.5"></path>
+<path class="logo-bracket" d="M 4 48 L 4 60 L 16 60" stroke="#FFFFFF" stroke-linecap="square" stroke-width="2.5"></path>
+<path class="logo-bracket" d="M 48 60 L 60 60 L 60 48" stroke="#FFFFFF" stroke-linecap="square" stroke-width="2.5"></path>
+<!-- Bus Traces -->
+<line class="bus-line" stroke="#64748B" stroke-linecap="square" stroke-width="3" x1="8" x2="20" y1="32" y2="32"></line>
+<line class="bus-line" stroke="#64748B" stroke-linecap="square" stroke-width="3" x1="44" x2="56" y1="32" y2="32"></line>
+<circle class="bus-node" cx="22" cy="32" fill="#64748B" r="2.5"></circle>
+<circle class="bus-node" cx="42" cy="32" fill="#64748B" r="2.5"></circle>
+<!-- Sever Blade Blade Knife -->
+<line id="sever-blade" stroke="#EF4444" stroke-linecap="square" stroke-width="4.5" x1="18" x2="46" y1="46" y2="18"></line>
+<!-- Dielectric Arc Simulation Stroke -->
+<line class="opacity-0" id="dielectric-arc" stroke="#FFF" stroke-linecap="round" stroke-width="2" x1="18" x2="46" y1="46" y2="18"></line>
+<!-- Core Hub -->
+<circle cx="32" cy="32" fill="#EF4444" id="core-terminal" r="5" stroke="#090D16" stroke-width="1.5"></circle>
+</svg>
+</div>
+<div class="font-sans text-2xl font-black text-white tracking-[-0.04em] uppercase">
+                  SCRAM<span class="text-[#94A3B8] font-bold">KD</span>
+</div>
+</div>
+<!-- Status Badge Indicator -->
+<span class="px-2 py-0.5 text-[9px] font-mono tracking-widest uppercase border border-[#EF4444]/40 text-[#EF4444] bg-[#EF4444]/10 transition-colors duration-200" id="fig1-badge">
+                FAIL-SAFE: OPEN
+              </span>
+</div>
+<!-- Interactive Hardware Test Control Button -->
+<div class="mt-3 flex items-center justify-between">
+<button class="w-full flex items-center justify-center gap-2 py-2 px-3 bg-[#090D16] hover:bg-[#EF4444]/15 border border-[#EF4444]/30 hover:border-[#EF4444] text-xs font-mono font-semibold text-slate-300 hover:text-white transition-all cursor-pointer group" onclick="triggerSeverTest()">
+<span class="w-2 h-2 rounded-[1px] bg-[#EF4444] group-hover:animate-ping"></span>
+<span>[ ACTUATE DIELECTRIC SEVER TEST ]</span>
+<span class="text-[10px] text-slate-500 font-normal">(&lt; 400µs)</span>
+</button>
+</div>
+</div>
+<div class="mt-4 pt-3 hairline-t font-mono text-xs text-slate-400 space-y-1.5">
+<div class="text-white font-semibold">Deployment Context:</div>
+<p class="text-[11px] leading-relaxed text-slate-400">
+              Primary brand identity across system consoles, executive dashboards, defense monographs, and production documentation. Preserves full chromatic indicator logic.
+            </p>
+</div>
+</div>
+<!-- 1.2 Pure Monochromatic Specification -->
+<div class="p-6 sm:p-8 hairline-r bg-[#06080E] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between font-mono text-[10px] text-slate-400 mb-4">
+<span class="text-white font-bold">FIG 1.2 // MONOCHROMATIC PURE</span>
+<span>STATE: INERT CHASSIS</span>
+</div>
+<!-- Visual Canvas with Inspection Readout -->
+<div class="relative h-56 bg-[#000000] border border-white/20 spec-dot-grid p-6 flex flex-col items-center justify-center gap-4 group/mono overflow-hidden">
+<div class="absolute top-2 right-2 text-[9px] font-mono text-slate-400 opacity-60">1-BIT HARD MASK</div>
+<div class="flex items-center gap-4">
+<!-- SVG Mark Mono -->
+<div class="w-16 h-16 bg-black border border-white/40 p-2 flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover/mono:scale-105">
+<svg class="w-full h-full" fill="none" viewbox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+<path d="M 4 16 L 4 4 L 16 4" stroke="#FFFFFF" stroke-linecap="square" stroke-width="2.5"></path>
+<path d="M 48 4 L 60 4 L 60 16" stroke="#FFFFFF" stroke-linecap="square" stroke-width="2.5"></path>
+<path d="M 4 48 L 4 60 L 16 60" stroke="#FFFFFF" stroke-linecap="square" stroke-width="2.5"></path>
+<path d="M 48 60 L 60 60 L 60 48" stroke="#FFFFFF" stroke-linecap="square" stroke-width="2.5"></path>
+<line stroke="#FFFFFF" stroke-linecap="square" stroke-opacity="0.4" stroke-width="3" x1="8" x2="20" y1="32" y2="32"></line>
+<line stroke="#FFFFFF" stroke-linecap="square" stroke-opacity="0.4" stroke-width="3" x1="44" x2="56" y1="32" y2="32"></line>
+<circle cx="22" cy="32" fill="#FFFFFF" fill-opacity="0.4" r="2.5"></circle>
+<circle cx="42" cy="32" fill="#FFFFFF" fill-opacity="0.4" r="2.5"></circle>
+<line stroke="#FFFFFF" stroke-linecap="square" stroke-width="4.5" x1="18" x2="46" y1="46" y2="18"></line>
+<circle cx="32" cy="32" fill="#FFFFFF" r="5" stroke="#000000" stroke-width="1.5"></circle>
+</svg>
+</div>
+<div class="font-sans text-2xl font-black text-white tracking-[-0.04em] uppercase">
+                  SCRAM<span class="text-white/60 font-bold">KD</span>
+</div>
+</div>
+<span class="px-2 py-0.5 text-[9px] font-mono tracking-widest uppercase border border-white/30 text-white/80 bg-white/5">
+                CLASS: 1-BIT SILHOUETTE
+              </span>
+</div>
+<!-- Micro Inspection Details -->
+<div class="mt-3 flex items-center justify-between text-[10px] font-mono text-slate-400 bg-[#090D15] p-2 border border-white/5">
+<span>ALUMINUM SILKSCREEN TOLERANCE:</span>
+<span class="text-white font-semibold">±0.05 mm</span>
+</div>
+</div>
+<div class="mt-4 pt-3 hairline-t font-mono text-xs text-slate-400 space-y-1.5">
+<div class="text-white font-semibold">Deployment Context:</div>
+<p class="text-[11px] leading-relaxed text-slate-400">
+              Laser-etched aluminum DIN rails, silk-screened server faceplates, thermal receipt dispatch tickets, and low-contrast optical print runs. 100% white on absolute black.
+            </p>
+</div>
+</div>
+<!-- 1.3 Inverse Darkroom Specification -->
+<div class="p-6 sm:p-8 bg-[#06080E] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between font-mono text-[10px] text-slate-400 mb-4">
+<span class="text-white font-bold">FIG 1.3 // INVERSE LIGHT / PHOTOPRINT</span>
+<span>STATE: EMULSION DRAFT</span>
+</div>
+<!-- Visual Canvas -->
+<div class="relative h-56 bg-[#F1F5F9] border border-slate-300 p-6 flex flex-col items-center justify-center gap-4 group/light overflow-hidden transition-all duration-200 hover:bg-white">
+<div class="absolute top-2 right-2 text-[9px] font-mono text-slate-500">OPTICAL REFLECTION: 98.4%</div>
+<div class="flex items-center gap-4">
+<!-- SVG Mark Inverse -->
+<div class="w-16 h-16 bg-white border border-slate-400 p-2 flex items-center justify-center flex-shrink-0 shadow-sm transition-transform duration-200 group-hover/light:scale-105">
+<svg class="w-full h-full" fill="none" viewbox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+<path d="M 4 16 L 4 4 L 16 4" stroke="#0F172A" stroke-linecap="square" stroke-width="2.5"></path>
+<path d="M 48 4 L 60 4 L 60 16" stroke="#0F172A" stroke-linecap="square" stroke-width="2.5"></path>
+<path d="M 4 48 L 4 60 L 16 60" stroke="#0F172A" stroke-linecap="square" stroke-width="2.5"></path>
+<path d="M 48 60 L 60 60 L 60 48" stroke="#0F172A" stroke-linecap="square" stroke-width="2.5"></path>
+<line stroke="#64748B" stroke-linecap="square" stroke-width="3" x1="8" x2="20" y1="32" y2="32"></line>
+<line stroke="#64748B" stroke-linecap="square" stroke-width="3" x1="44" x2="56" y1="32" y2="32"></line>
+<circle cx="22" cy="32" fill="#64748B" r="2.5"></circle>
+<circle cx="42" cy="32" fill="#64748B" r="2.5"></circle>
+<line stroke="#DC2626" stroke-linecap="square" stroke-width="4.5" x1="18" x2="46" y1="46" y2="18"></line>
+<circle cx="32" cy="32" fill="#DC2626" r="5" stroke="#FFFFFF" stroke-width="1.5"></circle>
+</svg>
+</div>
+<div class="font-sans text-2xl font-black text-slate-900 tracking-[-0.04em] uppercase">
+                  SCRAM<span class="text-slate-500 font-bold">KD</span>
+</div>
+</div>
+<span class="px-2 py-0.5 text-[9px] font-mono tracking-widest uppercase border border-slate-400 text-slate-700 bg-slate-200">
+                AUDIT FORM: WHITE PAPER
+              </span>
+</div>
+<!-- Micro Inspection Details -->
+<div class="mt-3 flex items-center justify-between text-[10px] font-mono text-slate-400 bg-[#090D15] p-2 border border-white/5">
+<span>COLOR RENDERING INDEX (CRI):</span>
+<span class="text-white font-semibold">Ra &gt; 96</span>
+</div>
+</div>
+<div class="mt-4 pt-3 hairline-t font-mono text-xs text-slate-400 space-y-1.5">
+<div class="text-white font-semibold">Deployment Context:</div>
+<p class="text-[11px] leading-relaxed text-slate-400">
+              Physical patent filings, legal deposition exhibits, compliance white papers, and high-illumination field operating manuals requiring dark-on-light optical contrast.
+            </p>
+</div>
+</div>
+</div>
+<!-- Multi-Scale Silhouette Benchmarking with Interactive Loupe Inspection -->
+<div class="p-6 sm:p-10 bg-[#070A10] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+<div>
+<div class="text-[10px] font-mono uppercase tracking-widest text-[#EF4444] font-semibold mb-1 flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 bg-[#EF4444]"></span>
+            Optical Silhouette Benchmark Matrix // Hover Magnifier Enabled
+          </div>
+<div class="text-xs text-slate-300 max-w-lg">
+            Hover each target badge to actuate real-time inspection loupe and sub-pixel stroke anti-aliasing telemetry.
+          </div>
+</div>
+<div class="flex flex-wrap items-center gap-6 sm:gap-8 font-mono text-xs text-slate-400">
+<!-- 64px Desktop -->
+<div class="relative group cursor-zoom-in" onmouseenter="showLoupe(64)" onmouseleave="hideLoupe()">
+<div class="flex items-center gap-3">
+<div class="w-16 h-16 bg-[#090D15] hairline-border p-2 flex items-center justify-center transition-all duration-200 group-hover:border-[#EF4444] group-hover:bg-[#0c121d]">
+<svg class="w-full h-full" fill="none" viewbox="0 0 64 64">
+<path d="M 4 16 L 4 4 L 16 4 M 48 4 L 60 4 L 60 16 M 4 48 L 4 60 L 16 60 M 48 60 L 60 60 L 60 48" stroke="#FFFFFF" stroke-linecap="square" stroke-width="3"></path>
+<line stroke="#EF4444" stroke-linecap="square" stroke-width="5" x1="18" x2="46" y1="46" y2="18"></line>
+<circle cx="32" cy="32" fill="#EF4444" r="6"></circle>
+</svg>
+</div>
+<div>
+<div class="text-white font-medium">64×64 px</div>
+<div class="text-[10px] text-slate-500">Chassis Badge</div>
+</div>
+</div>
+</div>
+<!-- 32px AppIcon -->
+<div class="relative group cursor-zoom-in" onmouseenter="showLoupe(32)" onmouseleave="hideLoupe()">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-[#090D15] hairline-border p-1.5 flex items-center justify-center transition-all duration-200 group-hover:border-[#F59E0B] group-hover:bg-[#0c121d]">
+<svg class="w-full h-full" fill="none" viewbox="0 0 64 64">
+<path d="M 4 16 L 4 4 L 16 4 M 48 4 L 60 4 L 60 16 M 4 48 L 4 60 L 16 60 M 48 60 L 60 60 L 60 48" stroke="#FFFFFF" stroke-linecap="square" stroke-width="4"></path>
+<line stroke="#EF4444" stroke-linecap="square" stroke-width="6" x1="18" x2="46" y1="46" y2="18"></line>
+<circle cx="32" cy="32" fill="#EF4444" r="7"></circle>
+</svg>
+</div>
+<div>
+<div class="text-white font-medium">32×32 px</div>
+<div class="text-[10px] text-slate-500">AppIcon Production</div>
+</div>
+</div>
+</div>
+<!-- 20px Menu Bar -->
+<div class="relative group cursor-zoom-in" onmouseenter="showLoupe(20)" onmouseleave="hideLoupe()">
+<div class="flex items-center gap-3">
+<div class="w-7 h-7 bg-[#090D15] hairline-border p-1 flex items-center justify-center transition-all duration-200 group-hover:border-[#10B981] group-hover:bg-[#0c121d]">
+<svg class="w-full h-full" fill="none" viewbox="0 0 64 64">
+<line stroke="#EF4444" stroke-linecap="square" stroke-width="9" x1="14" x2="50" y1="50" y2="14"></line>
+<circle cx="32" cy="32" fill="#EF4444" r="10"></circle>
+</svg>
+</div>
+<div>
+<div class="text-white font-medium">20×20 px</div>
+<div class="text-[10px] text-slate-500">macOS Menu Bar</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating Inspection Loupe Card (Controlled via JS hover) -->
+<div class="hidden mx-6 sm:mx-10 mb-6 p-4 bg-[#090D15] border border-white/20 font-mono text-xs flex flex-col sm:flex-row items-center justify-between gap-4" id="optical-loupe-panel">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 bg-black border border-[#EF4444] p-1 flex items-center justify-center relative">
+<div class="absolute inset-0 grid grid-cols-4 grid-rows-4 pointer-events-none opacity-20">
+<div class="border-b border-r border-white"></div>
+<div class="border-b border-r border-white"></div>
+<div class="border-b border-r border-white"></div>
+<div class="border-b border-white"></div>
+<div class="border-b border-r border-white"></div>
+<div class="border-b border-r border-white"></div>
+<div class="border-b border-r border-white"></div>
+<div class="border-b border-white"></div>
+</div>
+<div class="transform scale-150" id="loupe-sample-badge">
+<svg class="w-6 h-6" fill="none" viewbox="0 0 64 64">
+<line stroke="#EF4444" stroke-linecap="square" stroke-width="6" x1="18" x2="46" y1="46" y2="18"></line>
+<circle cx="32" cy="32" fill="#EF4444" r="7"></circle>
+</svg>
+</div>
+</div>
+<div>
+<div class="text-white font-bold flex items-center gap-2">
+<span id="loupe-title">LOUPE: 64×64 TARGET INSPECTION</span>
+<span class="text-[9px] px-1 bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/40">SUBPIXEL VERIFIED</span>
+</div>
+<div class="text-slate-400 text-[11px] mt-0.5" id="loupe-desc">
+              Kernel stroke ratio 4.5:1, negative gap clearance: 12px nominal. Zero raster fringe.
+            </div>
+</div>
+</div>
+<div class="text-[10px] text-slate-500 font-mono">
+          SCAN RATIO: 400% MAGNIFICATION // ANTI-ALIASING: SUBPIXEL QUARTZ
+        </div>
+</div>
+</section>
+<!-- ========================================================================= -->
+<!-- SECTION 2: COLOR PALETTE // SEMANTIC STATE CHROMATIC SPECIFICATIONS        -->
+<!-- ========================================================================= -->
+<section class="hairline-b" id="color-palette">
+<!-- Section Header -->
+<div class="px-6 sm:px-8 py-4 bg-[#090D15] hairline-b flex items-center justify-between">
+<h2 class="text-xs font-mono uppercase tracking-widest text-white font-semibold flex items-center gap-2">
+<span class="w-1.5 h-1.5 bg-[#F59E0B]"></span>
+          Section 02 // Semantic State Chromatic Specifications
+        </h2>
+<span class="text-xs font-mono text-slate-400 hidden sm:inline">HARDWARE EMISSION &amp; STATE-MACHINE BINDING</span>
+</div>
+<!-- Core Color Policy -->
+<div class="p-6 sm:p-10 hairline-b bg-[#070A10]">
+<div class="max-w-3xl text-sm leading-relaxed text-slate-300">
+<strong class="text-white">Zero Ambient Trim Policy:</strong> In high-assurance environments, color carries legal and operational liability. Color is never employed for decorative flourishes or consumer gradients. Every chromatic hue corresponds to an inviolable finite-state machine (FSM) condition in the POSIX mediation runtime.
+          <div class="mt-2 text-xs font-mono text-slate-400">
+            Click any color tile below to engage that operational hardware state across the brand specification monograph.
+          </div>
+</div>
+</div>
+<!-- 4 Hardware Readout Color Cards (Interactive Swatch Tiles with Copy Toast) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 hairline-b">
+<!-- Radical Red -->
+<div class="swatch-card p-6 hairline-r bg-[#06080E] flex flex-col justify-between cursor-pointer transition-all duration-200 border-2 border-transparent card-fsm-active relative group" id="card-scram" onclick="setFSMState('scram')">
+<!-- Active Corner Reticles -->
+<div class="reticle-corner absolute top-2 right-2 w-2 h-2 border-t-2 border-r-2 border-white/30"></div>
+<div class="reticle-corner absolute bottom-2 left-2 w-2 h-2 border-b-2 border-l-2 border-white/30"></div>
+<div>
+<!-- Hardware Spec Swatch Block -->
+<div class="w-full h-24 bg-[#EF4444] p-3 flex flex-col justify-between rounded-[1px] shadow-inner mb-4 relative overflow-hidden transition-transform duration-200 group-hover:scale-[1.02]">
+<div class="flex items-center justify-between">
+<span class="text-[10px] font-mono text-white font-bold bg-black/60 px-1.5 py-0.5 w-max">
+                  PANTONE 1795 C
+                </span>
+<span class="text-[9px] font-mono text-white font-bold bg-black/80 px-1.5 py-0.5 border border-white/20" id="badge-active-scram">
+                  ACTIVE TRIP
+                </span>
+</div>
+<div class="flex items-center justify-between text-right">
+<button class="text-[9px] font-mono text-white/90 hover:text-white bg-black/50 hover:bg-black px-1.5 py-0.5 border border-white/10 flex items-center gap-1 transition-colors" onclick="copyData(event, '#EF4444')">
+                  COPY HEX
+                </button>
+<span class="text-[10px] font-mono text-white font-semibold bg-black/40 px-1.5 py-0.5">
+                  λ 625 nm
+                </span>
+</div>
+</div>
+<!-- Readout Metadata Cell -->
+<div class="space-y-2 font-mono text-xs">
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">ROLE IDENTIFIER</span>
+<span class="text-white font-bold">RADICAL RED</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">HEX / RGB</span>
+<span class="text-[#EF4444] font-bold">#EF4444</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">FSM TRANSITION</span>
+<span class="text-white font-semibold">TRIP / SCRAM</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">CONTRAST RATIO</span>
+<span class="text-[#10B981]">7.4:1 (PASS)</span>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-3 hairline-t font-mono text-[11px] text-slate-400 leading-normal">
+<strong class="text-white block mb-1">Functional Context:</strong>
+            Immediate emergency abort. Mach lease broker invalidates active allocations; SIGKILL is issued to agent stdio pipe; atomic continuation waiter queue is instantly drained.
+          </div>
+</div>
+<!-- Armed Amber -->
+<div class="swatch-card p-6 hairline-r bg-[#06080E] flex flex-col justify-between cursor-pointer transition-all duration-200 border-2 border-transparent relative group" id="card-armed" onclick="setFSMState('armed')">
+<!-- Active Corner Reticles -->
+<div class="reticle-corner absolute top-2 right-2 w-2 h-2 border-t-2 border-r-2 border-white/30"></div>
+<div class="reticle-corner absolute bottom-2 left-2 w-2 h-2 border-b-2 border-l-2 border-white/30"></div>
+<div>
+<!-- Hardware Spec Swatch Block -->
+<div class="w-full h-24 bg-[#F59E0B] p-3 flex flex-col justify-between rounded-[1px] shadow-inner mb-4 relative overflow-hidden transition-transform duration-200 group-hover:scale-[1.02]">
+<div class="flex items-center justify-between">
+<span class="text-[10px] font-mono text-black font-bold bg-white/70 px-1.5 py-0.5 w-max">
+                  PANTONE 137 C
+                </span>
+<span class="hidden text-[9px] font-mono text-black font-bold bg-white/90 px-1.5 py-0.5 border border-black/20" id="badge-active-armed">
+                  ARMED / GATE
+                </span>
+</div>
+<div class="flex items-center justify-between text-right">
+<button class="text-[9px] font-mono text-black hover:text-black font-bold bg-white/50 hover:bg-white px-1.5 py-0.5 border border-black/10 flex items-center gap-1 transition-colors" onclick="copyData(event, '#F59E0B')">
+                  COPY HEX
+                </button>
+<span class="text-[10px] font-mono text-black font-semibold bg-white/50 px-1.5 py-0.5">
+                  λ 590 nm
+                </span>
+</div>
+</div>
+<!-- Readout Metadata Cell -->
+<div class="space-y-2 font-mono text-xs">
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">ROLE IDENTIFIER</span>
+<span class="text-white font-bold">ARMED AMBER</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">HEX / RGB</span>
+<span class="text-[#F59E0B] font-bold">#F59E0B</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">FSM TRANSITION</span>
+<span class="text-white font-semibold">ARMED / GATE</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">CONTRAST RATIO</span>
+<span class="text-[#10B981]">11.2:1 (PASS)</span>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-3 hairline-t font-mono text-[11px] text-slate-400 leading-normal">
+<strong class="text-white block mb-1">Functional Context:</strong>
+            High-risk agent invocation intercepted by Darwin kernel boundary. Pipeline suspended pending explicit physical operator permissive grant or TTL timeout expiry.
+          </div>
+</div>
+<!-- Tactical Emerald -->
+<div class="swatch-card p-6 hairline-r bg-[#06080E] flex flex-col justify-between cursor-pointer transition-all duration-200 border-2 border-transparent relative group" id="card-permissive" onclick="setFSMState('permissive')">
+<!-- Active Corner Reticles -->
+<div class="reticle-corner absolute top-2 right-2 w-2 h-2 border-t-2 border-r-2 border-white/30"></div>
+<div class="reticle-corner absolute bottom-2 left-2 w-2 h-2 border-b-2 border-l-2 border-white/30"></div>
+<div>
+<!-- Hardware Spec Swatch Block -->
+<div class="w-full h-24 bg-[#10B981] p-3 flex flex-col justify-between rounded-[1px] shadow-inner mb-4 relative overflow-hidden transition-transform duration-200 group-hover:scale-[1.02]">
+<div class="flex items-center justify-between">
+<span class="text-[10px] font-mono text-white font-bold bg-black/60 px-1.5 py-0.5 w-max">
+                  PANTONE 340 C
+                </span>
+<span class="hidden text-[9px] font-mono text-white font-bold bg-black/80 px-1.5 py-0.5 border border-white/20" id="badge-active-permissive">
+                  PERMISSIVE
+                </span>
+</div>
+<div class="flex items-center justify-between text-right">
+<button class="text-[9px] font-mono text-white hover:text-white bg-black/50 hover:bg-black px-1.5 py-0.5 border border-white/10 flex items-center gap-1 transition-colors" onclick="copyData(event, '#10B981')">
+                  COPY HEX
+                </button>
+<span class="text-[10px] font-mono text-white font-semibold bg-black/40 px-1.5 py-0.5">
+                  λ 525 nm
+                </span>
+</div>
+</div>
+<!-- Readout Metadata Cell -->
+<div class="space-y-2 font-mono text-xs">
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">ROLE IDENTIFIER</span>
+<span class="text-white font-bold">TACTICAL EMERALD</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">HEX / RGB</span>
+<span class="text-[#10B981] font-bold">#10B981</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">FSM TRANSITION</span>
+<span class="text-white font-semibold">PERMISSIVE</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">CONTRAST RATIO</span>
+<span class="text-[#10B981]">8.1:1 (PASS)</span>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-3 hairline-t font-mono text-[11px] text-slate-400 leading-normal">
+<strong class="text-white block mb-1">Functional Context:</strong>
+            Operator clearance authenticated. Ephemeral single-use wire lease dispatched to stdio channel. Automatically closes on payload buffer drain without persistent token retention.
+          </div>
+</div>
+<!-- Slate Gray -->
+<div class="swatch-card p-6 bg-[#06080E] flex flex-col justify-between cursor-pointer transition-all duration-200 border-2 border-transparent relative group" id="card-inert" onclick="setFSMState('inert')">
+<!-- Active Corner Reticles -->
+<div class="reticle-corner absolute top-2 right-2 w-2 h-2 border-t-2 border-r-2 border-white/30"></div>
+<div class="reticle-corner absolute bottom-2 left-2 w-2 h-2 border-b-2 border-l-2 border-white/30"></div>
+<div>
+<!-- Hardware Spec Swatch Block -->
+<div class="w-full h-24 bg-[#64748B] p-3 flex flex-col justify-between rounded-[1px] shadow-inner mb-4 relative overflow-hidden transition-transform duration-200 group-hover:scale-[1.02]">
+<div class="flex items-center justify-between">
+<span class="text-[10px] font-mono text-white font-bold bg-black/60 px-1.5 py-0.5 w-max">
+                  PANTONE 431 C
+                </span>
+<span class="hidden text-[9px] font-mono text-white font-bold bg-black/80 px-1.5 py-0.5 border border-white/20" id="badge-active-inert">
+                  INERT LOCKED
+                </span>
+</div>
+<div class="flex items-center justify-between text-right">
+<button class="text-[9px] font-mono text-white hover:text-white bg-black/50 hover:bg-black px-1.5 py-0.5 border border-white/10 flex items-center gap-1 transition-colors" onclick="copyData(event, '#64748B')">
+                  COPY HEX
+                </button>
+<span class="text-[10px] font-mono text-white font-semibold bg-black/40 px-1.5 py-0.5">
+                  INERT PASSIVE
+                </span>
+</div>
+</div>
+<!-- Readout Metadata Cell -->
+<div class="space-y-2 font-mono text-xs">
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">ROLE IDENTIFIER</span>
+<span class="text-white font-bold">SLATE GRAY</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">HEX / RGB</span>
+<span class="text-[#94A3B8] font-bold">#64748B</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">FSM TRANSITION</span>
+<span class="text-white font-semibold">INERT / LOCKED</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">CONTRAST RATIO</span>
+<span class="text-white">4.9:1 (INERT)</span>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-3 hairline-t font-mono text-[11px] text-slate-400 leading-normal">
+<strong class="text-white block mb-1">Functional Context:</strong>
+            Quiescent default state. High-risk tool calls immediately thrown and logged to unalterable ring buffer without actor invocation. Also governs structural hairline grids.
+          </div>
+</div>
+</div>
+<!-- Foundation Neutrals Sub-Table with Direct Copy Trigger -->
+<div class="p-6 sm:p-10 bg-[#070A10]">
+<div class="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-semibold mb-4 flex items-center justify-between">
+<span>Architectural Enclosure Palette (Chassis Foundations)</span>
+<span class="text-[9px] text-slate-500 font-normal">CLICK SWATCH TO CLIPBOARD</span>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono">
+<div class="p-3 bg-[#04060A] hairline-border cursor-pointer hover:border-white/30 transition-colors" onclick="copyData(event, '#04060A')">
+<div class="w-full h-8 bg-[#04060A] border border-white/20 mb-2"></div>
+<div class="text-white font-semibold">Pitch Canvas</div>
+<div class="text-slate-500">#04060A</div>
+</div>
+<div class="p-3 bg-[#070A10] hairline-border cursor-pointer hover:border-white/30 transition-colors" onclick="copyData(event, '#070A10')">
+<div class="w-full h-8 bg-[#070A10] border border-white/20 mb-2"></div>
+<div class="text-white font-semibold">Chassis Surface</div>
+<div class="text-slate-500">#070A10</div>
+</div>
+<div class="p-3 bg-[#090D15] hairline-border cursor-pointer hover:border-white/30 transition-colors" onclick="copyData(event, '#090D15')">
+<div class="w-full h-8 bg-[#090D15] border border-white/20 mb-2"></div>
+<div class="text-white font-semibold">Milled Pocket</div>
+<div class="text-slate-500">#090D15</div>
+</div>
+<div class="p-3 bg-[#0B111D] hairline-border cursor-pointer hover:border-white/30 transition-colors" onclick="copyData(event, 'rgba(255,255,255,0.08)')">
+<div class="w-full h-8 bg-[#0B111D] border border-white/20 mb-2"></div>
+<div class="text-white font-semibold">Structural Hairline</div>
+<div class="text-slate-500">rgba(255,255,255,0.08)</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ========================================================================= -->
+<!-- SECTION 3: TYPOGRAPHY HIERARCHY & USAGE RULES                            -->
+<!-- ========================================================================= -->
+<section class="hairline-b" id="typography">
+<!-- Section Header -->
+<div class="px-6 sm:px-8 py-4 bg-[#090D15] hairline-b flex items-center justify-between">
+<h2 class="text-xs font-mono uppercase tracking-widest text-white font-semibold flex items-center gap-2">
+<span class="w-1.5 h-1.5 bg-[#10B981]"></span>
+          Section 03 // Typographic Discipline &amp; Industrial Rigor
+        </h2>
+<span class="text-xs font-mono text-slate-400 hidden sm:inline">SWISS INTERNATIONAL EDITORIAL RATIOS</span>
+</div>
+<!-- Core Typographic Philosophy -->
+<div class="p-6 sm:p-10 hairline-b bg-[#070A10]">
+<div class="max-w-3xl text-sm leading-relaxed text-slate-300">
+<strong class="text-white">Strict Dual-Family Split:</strong> Typography is segmented into two non-overlapping realms. <strong class="text-white">Inter</strong> governs all architectural prose, executive headers, and institutional authority. <strong class="text-white">Geist Mono</strong> is reserved strictly for deterministic system values, memory addresses, telemetry states, and POSIX descriptors. Retro gamer or simulated sci-fi terminal fonts are strictly forbidden.
+        </div>
+</div>
+<!-- Two-Column Typography Architecture -->
+<div class="grid grid-cols-1 lg:grid-cols-2 hairline-b">
+<!-- Left: Inter Family (Prose & Display) -->
+<div class="p-6 sm:p-10 hairline-r bg-[#06080E] space-y-8">
+<div>
+<div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
+<span class="text-white font-bold">3.1 / PRIMARY DISPLAY &amp; PROSE</span>
+<span>INTER (SWISS SANS)</span>
+</div>
+<p class="text-xs text-slate-400 leading-relaxed">
+              Geometric grotesque proportions with tight letterforms optimized for rapid optical scanning at high speeds without cognitive fatigue.
+            </p>
+</div>
+<!-- Type Specimen 1: Hero Display -->
+<div class="p-4 bg-[#090D15] hairline-border space-y-2 hover:border-white/30 transition-colors">
+<div class="flex items-center justify-between text-[10px] font-mono text-slate-500">
+<span>WEIGHT: 900 (BLACK) • TRACKING: -0.05em</span>
+<span>48px / 1.0</span>
+</div>
+<div class="text-3xl sm:text-4xl font-black text-white tracking-[-0.05em] uppercase font-sans">
+              HARDWARE SAFETY INTERLOCK
+            </div>
+<p class="text-[11px] text-slate-400 font-mono">
+              Role: Primary product title, monogram companion wordmark.
+            </p>
+</div>
+<!-- Type Specimen 2: Sub-Heading -->
+<div class="p-4 bg-[#090D15] hairline-border space-y-2 hover:border-white/30 transition-colors">
+<div class="flex items-center justify-between text-[10px] font-mono text-slate-500">
+<span>WEIGHT: 700 (BOLD) • TRACKING: -0.02em</span>
+<span>24px / 1.2</span>
+</div>
+<div class="text-xl sm:text-2xl font-bold text-white tracking-[-0.02em] font-sans">
+              Deterministic Process Severance Standard
+            </div>
+<p class="text-[11px] text-slate-400 font-mono">
+              Role: Section monograph heads, executive technical overviews.
+            </p>
+</div>
+<!-- Type Specimen 3: Body Prose -->
+<div class="p-4 bg-[#090D15] hairline-border space-y-2 hover:border-white/30 transition-colors">
+<div class="flex items-center justify-between text-[10px] font-mono text-slate-500">
+<span>WEIGHT: 400 (REGULAR) • TRACKING: NORMAL</span>
+<span>14px / 1.6</span>
+</div>
+<p class="text-sm text-slate-300 leading-relaxed font-sans">
+              Autonomous agentic operations require immutable boundaries. SCRAMKD strips probabilistic uncertainty from execution monitoring by mediating tool dispatches through native macOS Darwin kernel locks and physical relay triggers.
+            </p>
+<p class="text-[11px] text-slate-400 font-mono">
+              Role: Long-form architectural specification prose, defense audit summaries.
+            </p>
+</div>
+</div>
+<!-- Right: Geist Mono Family (Telemetry & Interactive Code Sandbox) -->
+<div class="p-6 sm:p-10 bg-[#06080E] space-y-8">
+<div>
+<div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
+<span class="text-white font-bold">3.2 / TELEMETRY &amp; CODE</span>
+<span>GEIST MONO (TABULAR MONOSPACE)</span>
+</div>
+<p class="text-xs text-slate-400 leading-relaxed">
+              Strict tabular lining figures ensuring continuous I/O streams and kernel telemetry streams never cause layout jitter or displacement during high-throughput execution.
+            </p>
+</div>
+<!-- Type Specimen 1: Telemetry Readout with Interactive Memory Inspector -->
+<div class="p-4 bg-[#090D15] hairline-border space-y-2 font-mono group">
+<div class="flex items-center justify-between text-[10px] text-slate-500">
+<span>WEIGHT: 700 (BOLD) • TRACKING: 0.05em</span>
+<span>18px / 1.0</span>
+</div>
+<div class="text-base sm:text-lg font-bold text-white tracking-wider flex flex-wrap items-center gap-2">
+<span class="cursor-pointer hover:text-[#EF4444] transition-colors relative" onclick="copyData(event, '0x7FFF5FBFFD98')" title="Click to copy stack base address">
+                0x7FFF5FBFFD98
+              </span>
+<span class="text-slate-600">•</span>
+<span class="text-[#EF4444] tabular-nums" id="specimen-trip-latency">&lt; 384 μs TRIP</span>
+</div>
+<p class="text-[11px] text-slate-400 font-mono flex items-center justify-between">
+<span>Role: Memory addresses, hardware interrupt latency timestamps, hex values.</span>
+<span class="text-[9px] text-slate-500">[CLICK ADDR TO COPY]</span>
+</p>
+</div>
+<!-- Type Specimen 2: System Protocol Pill -->
+<div class="p-4 bg-[#090D15] hairline-border space-y-2 font-mono">
+<div class="flex items-center justify-between text-[10px] text-slate-500">
+<span>WEIGHT: 600 (SEMIBOLD) • TRACKING: 0.1em</span>
+<span>12px / 1.4</span>
+</div>
+<div class="text-xs font-semibold text-[#10B981] tracking-widest uppercase transition-colors duration-200" id="protocol-pill">
+              SYS.DEF // SWIFT_6_STRICT // ZERO_EGRESS
+            </div>
+<p class="text-[11px] text-slate-400 font-mono">
+              Role: Status indicators, hardware metadata tags, system state badges.
+            </p>
+</div>
+<!-- Type Specimen 3: POSIX & Kernel Descriptors with Interactive Execution Stepper -->
+<div class="p-4 bg-[#090D15] hairline-border space-y-3 font-mono">
+<div class="flex items-center justify-between text-[10px] text-slate-500">
+<span>WEIGHT: 400 (REGULAR) • TABULAR LINING</span>
+<div class="flex items-center gap-2">
+<button class="px-2 py-0.5 bg-[#04060A] hover:bg-[#10B981]/20 border border-white/20 hover:border-[#10B981] text-white text-[10px] font-mono flex items-center gap-1 transition-all cursor-pointer" onclick="stepKernelSimulation()">
+<span class="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
+<span>TRIGGER KERNEL LEASE TEST</span>
+</button>
+</div>
+</div>
+<!-- Code Sandbox Block -->
+<div class="text-xs text-slate-300 leading-relaxed bg-[#04060A] p-3 border border-white/5 space-y-1 relative overflow-hidden">
+<div class="px-1.5 py-0.5 transition-all duration-150 rounded-[1px] flex items-center gap-2" id="code-line-1">
+<span class="text-slate-600 select-none text-[10px]">01</span>
+<span>int trip_status = fcntl(fd, F_SETNOSIGPIPE, 1);</span>
+</div>
+<div class="px-1.5 py-0.5 transition-all duration-150 rounded-[1px] flex items-center gap-2" id="code-line-2">
+<span class="text-slate-600 select-none text-[10px]">02</span>
+<span>os_unfair_lock_lock(&amp;scram_gate_lock);</span>
+</div>
+<div class="px-1.5 py-0.5 transition-all duration-150 rounded-[1px] flex items-center gap-2 text-slate-400" id="code-line-3">
+<span class="text-slate-600 select-none text-[10px]">03</span>
+<span id="code-status-comment">// CONTINUATION DRAIN CONFIRMED</span>
+</div>
+</div>
+<p class="text-[11px] text-slate-400 font-mono">
+              Role: System call signatures, inline configuration keys, Darwin lease logs.
+            </p>
+</div>
+</div>
+</div>
+<!-- Typographic Rules Checklist Table -->
+<div class="p-6 sm:p-10 bg-[#070A10]">
+<div class="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-semibold mb-4">
+          Normative Typographic Constraints &amp; Enforcement Rules
+        </div>
+<div class="border hairline-divide text-xs font-mono overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-[#090D15] text-slate-400 border-b hairline-divide">
+<th class="p-3 border-r hairline-divide">ELEMENT CLASS</th>
+<th class="p-3 border-r hairline-divide">FAMILY</th>
+<th class="p-3 border-r hairline-divide">WEIGHT</th>
+<th class="p-3 border-r hairline-divide">TRACKING</th>
+<th class="p-3">INVIOLABLE CONSTRAINT</th>
+</tr>
+</thead>
+<tbody class="divide-y hairline-divide text-slate-300">
+<tr class="bg-[#06080E] hover:bg-[#090D16] transition-colors">
+<td class="p-3 border-r hairline-divide text-white font-semibold">Wordmark Head</td>
+<td class="p-3 border-r hairline-divide">Inter Sans</td>
+<td class="p-3 border-r hairline-divide">900 (Black)</td>
+<td class="p-3 border-r hairline-divide">-0.05em</td>
+<td class="p-3 text-slate-400">Must never be broken into two words. SCRAM in white, KD in #94A3B8.</td>
+</tr>
+<tr class="hover:bg-[#090D16] transition-colors">
+<td class="p-3 border-r hairline-divide text-white font-semibold">Section Titles</td>
+<td class="p-3 border-r hairline-divide">Inter Sans</td>
+<td class="p-3 border-r hairline-divide">700 (Bold)</td>
+<td class="p-3 border-r hairline-divide">-0.02em</td>
+<td class="p-3 text-slate-400">Sentence case or strict uppercase. No decorative drop shadows.</td>
+</tr>
+<tr class="bg-[#06080E] hover:bg-[#090D16] transition-colors">
+<td class="p-3 border-r hairline-divide text-white font-semibold">Prose &amp; Specs</td>
+<td class="p-3 border-r hairline-divide">Inter Sans</td>
+<td class="p-3 border-r hairline-divide">400 (Regular)</td>
+<td class="p-3 border-r hairline-divide">0.00em</td>
+<td class="p-3 text-slate-400">Maximum line length 75ch. Line height 1.6 for sustained readability.</td>
+</tr>
+<tr class="hover:bg-[#090D16] transition-colors">
+<td class="p-3 border-r hairline-divide text-white font-semibold">Telemetry Data</td>
+<td class="p-3 border-r hairline-divide">Geist Mono</td>
+<td class="p-3 border-r hairline-divide">600 / 700</td>
+<td class="p-3 border-r hairline-divide">+0.05em</td>
+<td class="p-3 text-slate-400">Strict tabular figures (<code class="text-white">font-variant-numeric: tabular-nums</code>).</td>
+</tr>
+<tr class="bg-[#06080E] hover:bg-[#090D16] transition-colors">
+<td class="p-3 border-r hairline-divide text-white font-semibold">Hardware Tags</td>
+<td class="p-3 border-r hairline-divide">Geist Mono</td>
+<td class="p-3 border-r hairline-divide">500 / 600</td>
+<td class="p-3 border-r hairline-divide">+0.15em</td>
+<td class="p-3 text-slate-400">All caps with double-slash separators (<code class="text-white">//</code>).</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- Institutional Monograph Colophon & Distribution Seal -->
+<footer class="p-6 sm:px-12 py-6 bg-[#05070C] flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-slate-400 gap-4">
+<div class="flex items-center gap-4">
+<span class="text-white font-bold tracking-wider">SCRAMKD SPECIFICATION MONOGRAPH</span>
+<span class="text-slate-600">•</span>
+<span>SECURITY ARCHITECTURE DIVISION</span>
+</div>
+<div class="flex items-center gap-4 text-slate-400">
+<span>APACHE-2.0 OPEN PROTOCOL</span>
+<span class="text-slate-600">•</span>
+<span>DARWIN INTEGRITY VERIFIED</span>
+</div>
+</footer>
+</article>
+<!-- ========================================================================= -->
+<!-- HIGH-PRECISION RUNTIME SCRIPTS & TELEMETRY ENGINE                          -->
+<!-- ========================================================================= -->
+<script>
+    // State Machine Definitions
+    const FSM_STATES = {
+      scram: {
+        name: 'TRIP / SCRAM',
+        color: '#EF4444',
+        glow: 'rgba(239, 68, 68, 0.4)',
+        stateLabel: 'STATE: ARMED TRIP',
+        badgeText: 'FAIL-SAFE: OPEN',
+        protocol: 'SYS.DEF // SWIFT_6_STRICT // ZERO_EGRESS // SEVER_TRIPPED',
+        busColor: '#64748B',
+        bladeColor: '#EF4444',
+        bladeWidth: '4.5',
+        bracketColor: '#FFFFFF',
+        voltage: '0.0 kV (OPEN)'
+      },
+      armed: {
+        name: 'ARMED / GATE',
+        color: '#F59E0B',
+        glow: 'rgba(245, 158, 11, 0.4)',
+        stateLabel: 'STATE: INTERCEPTED / ARMED',
+        badgeText: 'GATE: OPERATOR CLEARANCE PENDING',
+        protocol: 'SYS.ARMED // PERMISSIVE_TIMEOUT_TTL // WAIT_ACTOR',
+        busColor: '#F59E0B',
+        bladeColor: '#F59E0B',
+        bladeWidth: '3.5',
+        bracketColor: '#F59E0B',
+        voltage: '12.4 kV (STANDBY)'
+      },
+      permissive: {
+        name: 'PERMISSIVE',
+        color: '#10B981',
+        glow: 'rgba(16, 185, 129, 0.4)',
+        stateLabel: 'STATE: RUNTIME PERMISSIVE',
+        badgeText: 'BUS: CONTINUITY ENGAGED',
+        protocol: 'SYS.ACTIVE // EPHEMERAL_LEASE_DISPATCHED // SAFE',
+        busColor: '#10B981',
+        bladeColor: '#10B981',
+        bladeWidth: '4.5',
+        bracketColor: '#FFFFFF',
+        voltage: '48.0 V (NOMINAL)'
+      },
+      inert: {
+        name: 'INERT / LOCKED',
+        color: '#64748B',
+        glow: 'rgba(100, 116, 139, 0.3)',
+        stateLabel: 'STATE: INERT CHASSIS',
+        badgeText: 'GATE: IMMUTABLE LOCKOUT',
+        protocol: 'SYS.INERT // RUNTIME_QUIESCENT // RING_LOGGED',
+        busColor: '#334155',
+        bladeColor: '#64748B',
+        bladeWidth: '2.5',
+        bracketColor: '#64748B',
+        voltage: '0.0 V (GROUND)'
+      }
+    };
+
+    let currentState = 'scram';
+
+    // Set FSM State & coordinate animations
+    function setFSMState(stateKey) {
+      if (!FSM_STATES[stateKey]) return;
+      currentState = stateKey;
+      const st = FSM_STATES[stateKey];
+
+      // 1. Update CSS custom property glow
+      document.documentElement.style.setProperty('--fsm-accent', st.color);
+      document.documentElement.style.setProperty('--fsm-glow', st.glow);
+
+      // 2. Update Header led
+      const harnessLed = document.getElementById('harness-led');
+      if (harnessLed) harnessLed.style.backgroundColor = st.color;
+
+      // 3. Update Nav Buttons
+      ['scram', 'armed', 'permissive', 'inert'].forEach(k => {
+        const btn = document.getElementById(`fsm-btn-${k}`);
+        const card = document.getElementById(`card-${k}`);
+        const badge = document.getElementById(`badge-active-${k}`);
+
+        if (btn) {
+          if (k === stateKey) {
+            btn.className = `fsm-nav-btn px-3 py-1.5 text-[10px] tracking-widest font-bold uppercase transition-all duration-150 border border-[${st.color}] bg-[${st.color}]/20 text-white shadow-[0_0_8px_${st.glow}] flex items-center gap-1.5 cursor-pointer`;
+          } else {
+            btn.className = 'fsm-nav-btn px-3 py-1.5 text-[10px] tracking-widest font-bold uppercase transition-all duration-150 border border-white/10 bg-[#090D15] text-slate-300 hover:text-white flex items-center gap-1.5 cursor-pointer';
+          }
+        }
+
+        if (card) {
+          if (k === stateKey) {
+            card.classList.add('card-fsm-active');
+            card.style.borderColor = st.color;
+          } else {
+            card.classList.remove('card-fsm-active');
+            card.style.borderColor = 'transparent';
+          }
+        }
+
+        if (badge) {
+          if (k === stateKey) {
+            badge.classList.remove('hidden');
+          } else {
+            badge.classList.add('hidden');
+          }
+        }
+      });
+
+      // 4. Update SVG in FIG 1.1
+      const figLabel = document.getElementById('fig1-state-label');
+      const figBadge = document.getElementById('fig1-badge');
+      const severBlade = document.getElementById('sever-blade');
+      const coreTerminal = document.getElementById('core-terminal');
+      const protocolPill = document.getElementById('protocol-pill');
+      const specimenLatency = document.getElementById('specimen-trip-latency');
+
+      if (figLabel) {
+        figLabel.textContent = st.stateLabel;
+        figLabel.style.color = st.color;
+      }
+      if (figBadge) {
+        figBadge.textContent = st.badgeText;
+        figBadge.style.color = st.color;
+        figBadge.style.borderColor = `${st.color}66`;
+        figBadge.style.backgroundColor = `${st.color}18`;
+      }
+      if (severBlade) {
+        severBlade.setAttribute('stroke', st.bladeColor);
+        severBlade.setAttribute('stroke-width', st.bladeWidth);
+      }
+      if (coreTerminal) {
+        coreTerminal.setAttribute('fill', st.color);
+      }
+      if (protocolPill) {
+        protocolPill.textContent = st.protocol;
+        protocolPill.style.color = st.color;
+      }
+      if (specimenLatency) {
+        specimenLatency.style.color = st.color;
+      }
+
+      // 5. Update bus lines and brackets
+      document.querySelectorAll('.bus-line').forEach(el => el.setAttribute('stroke', st.busColor));
+      document.querySelectorAll('.bus-node').forEach(el => el.setAttribute('fill', st.busColor));
+      document.querySelectorAll('.logo-bracket').forEach(el => el.setAttribute('stroke', st.bracketColor));
+
+      showToast(`FSM TRANSITION ENGAGED: [ ${st.name} ]`);
+    }
+
+    // Dielectric Sever Blade Trip Test
+    function triggerSeverTest() {
+      const blade = document.getElementById('sever-blade');
+      const arc = document.getElementById('dielectric-arc');
+      const canvas = document.getElementById('fig1-canvas');
+
+      // Trigger snap keyframe
+      if (blade) {
+        blade.classList.remove('animate-blade-snap');
+        void blade.offsetWidth; // reflow
+        blade.classList.add('animate-blade-snap');
+      }
+
+      if (arc) {
+        arc.classList.remove('animate-dielectric');
+        void arc.offsetWidth; // reflow
+        arc.classList.add('animate-dielectric');
+      }
+
+      if (canvas) {
+        canvas.style.backgroundColor = '#180B0F';
+        setTimeout(() => { canvas.style.backgroundColor = '#090D16'; }, 320);
+      }
+
+      // Flash latency in header
+      const latEl = document.getElementById('live-kernel-latency');
+      if (latEl) {
+        latEl.textContent = `${(180 + Math.random() * 90).toFixed(1)} µs TRIP`;
+        latEl.style.color = '#EF4444';
+        setTimeout(() => {
+          latEl.style.color = '#10B981';
+        }, 1200);
+      }
+
+      showToast('HIGH-VOLTAGE KNIFE TRIP CONFIRMED: SEVER LATENCY 218 µs');
+    }
+
+    // Micro Vernier Coordinate Inspection in FIG 1.1
+    const fig1Canvas = document.getElementById('fig1-canvas');
+    if (fig1Canvas) {
+      fig1Canvas.addEventListener('mousemove', (e) => {
+        const rect = fig1Canvas.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 64;
+        const y = ((e.clientY - rect.top) / rect.height) * 64;
+        
+        const vx = document.getElementById('v-x');
+        const vy = document.getElementById('v-y');
+        const crossX = document.getElementById('v-crosshair-x');
+        const crossY = document.getElementById('v-crosshair-y');
+        
+        if (vx && vy) {
+          vx.textContent = x.toFixed(1);
+          vy.textContent = y.toFixed(1);
+        }
+        if (crossX) crossX.style.top = `${e.clientY - rect.top}px`;
+        if (crossY) crossY.style.left = `${e.clientX - rect.left}px`;
+      });
+    }
+
+    // Interactive Loupe in Section 01
+    const loupeData = {
+      64: { title: 'LOUPE: 64×64 TARGET INSPECTION', desc: 'Chassis faceplate badge. Stroke width: 3.0px. Negative space clearance: 14px nominal.' },
+      32: { title: 'LOUPE: 32×32 TARGET INSPECTION', desc: 'AppIcon bundle target. Stroke width: 4.0px with 0.5px sub-pixel snapping to Darwin display raster.' },
+      20: { title: 'LOUPE: 20×20 TARGET INSPECTION', desc: 'macOS Menu Bar target. Micro-glyph optimization: outer bracket collapsed to prevent visual congestion.' }
+    };
+
+    function showLoupe(size) {
+      const panel = document.getElementById('optical-loupe-panel');
+      const title = document.getElementById('loupe-title');
+      const desc = document.getElementById('loupe-desc');
+      if (panel && title && desc && loupeData[size]) {
+        title.textContent = loupeData[size].title;
+        desc.textContent = loupeData[size].desc;
+        panel.classList.remove('hidden');
+      }
+    }
+    function hideLoupe() {
+      // Keep visible for reference or smoothly hide
+    }
+
+    // Step Kernel Simulation in Typography Section
+    let kernelStep = 0;
+    function stepKernelSimulation() {
+      kernelStep = (kernelStep + 1) % 4;
+      const l1 = document.getElementById('code-line-1');
+      const l2 = document.getElementById('code-line-2');
+      const l3 = document.getElementById('code-line-3');
+      const comment = document.getElementById('code-status-comment');
+
+      // Reset
+      [l1, l2, l3].forEach(el => {
+        if (el) {
+          el.style.backgroundColor = 'transparent';
+          el.style.borderLeft = '2px solid transparent';
+        }
+      });
+
+      if (kernelStep === 1) {
+        if (l1) {
+          l1.style.backgroundColor = 'rgba(245, 158, 11, 0.15)';
+          l1.style.borderLeft = '2px solid #F59E0B';
+        }
+        if (comment) comment.textContent = '// STEP 1: F_SETNOSIGPIPE DISPATCHED';
+        showToast('KERNEL STEP 1: fcntl(fd, F_SETNOSIGPIPE) LOCKED');
+      } else if (kernelStep === 2) {
+        if (l2) {
+          l2.style.backgroundColor = 'rgba(16, 185, 129, 0.15)';
+          l2.style.borderLeft = '2px solid #10B981';
+        }
+        if (comment) comment.textContent = '// STEP 2: os_unfair_lock_lock ACQUIRED';
+        showToast('KERNEL STEP 2: UNFAIR LOCK ACQUIRED (THREAD SAFE)');
+      } else if (kernelStep === 3) {
+        if (l3) {
+          l3.style.backgroundColor = 'rgba(239, 68, 68, 0.15)';
+          l3.style.borderLeft = '2px solid #EF4444';
+        }
+        if (comment) comment.textContent = '// CONTINUATION DRAIN CONFIRMED (< 120µs)';
+        showToast('KERNEL STEP 3: WAIT QUEUE PURGED; CONTINUATION DRAIN CONFIRMED');
+      } else {
+        if (comment) comment.textContent = '// CONTINUATION DRAIN CONFIRMED';
+      }
+    }
+
+    // Real-time sub-millisecond clock & latency jitter ticker
+    setInterval(() => {
+      const latEl = document.getElementById('live-kernel-latency');
+      if (latEl && !latEl.textContent.includes('TRIP')) {
+        const jitter = (310 + Math.random() * 45).toFixed(1);
+        latEl.textContent = `${jitter} µs`;
+      }
+    }, 2800);
+
+    // Toast & Clipboard copy helper
+    function copyData(e, text) {
+      if (e) e.stopPropagation();
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).catch(() => {});
+      }
+      showToast(`REGISTER BUFFER COPIED: [ ${text} ]`);
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('telemetry-toast');
+      const toastMsg = document.getElementById('telemetry-toast-msg');
+      if (toast && toastMsg) {
+        toastMsg.textContent = msg;
+        toast.classList.remove('opacity-0', '-translate-y-4');
+        toast.classList.add('opacity-100', 'translate-y-0');
+        clearTimeout(toast.timer);
+        toast.timer = setTimeout(() => {
+          toast.classList.remove('opacity-100', 'translate-y-0');
+          toast.classList.add('opacity-0', '-translate-y-4');
+        }, 2200);
+      }
+    }
+
+    // Default initialization to SCRAM
+    document.addEventListener('DOMContentLoaded', () => {
+      setFSMState('scram');
+    });
+  </script>
+</body></html>

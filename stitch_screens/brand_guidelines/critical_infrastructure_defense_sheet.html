@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-[#030407] text-slate-100 antialiased">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCRAMKD // VARIANT 3: CRITICAL INFRASTRUCTURE DEFENSE SHEET</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-display: 'Inter', -apple-system, sans-serif;
+      --font-mono: 'Red Hat Mono', 'SF Mono', monospace;
+    }
+    body { font-family: var(--font-display); }
+    .font-mono { font-family: var(--font-mono); }
+    .grid-cross {
+      background-image: 
+        radial-gradient(rgba(239, 68, 68, 0.15) 1.5px, transparent 1.5px),
+        radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 32px 32px, 16px 16px;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#030407] text-slate-300 p-4 sm:p-8 md:p-12 selection:bg-[#EF4444] selection:text-white">
+
+  <!-- High-Assurance Defense Specification Layout -->
+  <div class="max-w-5xl mx-auto bg-[#07090F] border border-white/10 shadow-2xl">
+
+    <!-- Top Defense Classification Banner -->
+    <div class="flex items-center justify-between px-6 py-3 bg-[#0A0D16] border-b border-white/10 text-xs font-mono">
+      <div class="flex items-center gap-3">
+        <span class="px-2 py-0.5 bg-[#EF4444] text-white text-[10px] font-black tracking-widest uppercase">
+          DEF-STD-0056
+        </span>
+        <span class="text-white font-semibold">SCRAMKD HOST SAFETY INTERLOCK</span>
+      </div>
+      <div class="flex items-center gap-4 text-slate-400">
+        <span>SECURITY TARGET: <strong class="text-white">EAL6+ ISOLATION</strong></span>
+        <span class="text-slate-600">|</span>
+        <span class="text-emerald-400 font-bold">AIRGAP STRICT</span>
+      </div>
+    </div>
+
+    <!-- Primary Technical Spec Sheet Header -->
+    <div class="p-8 sm:p-12 border-b border-white/10 grid-cross">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-10">
+
+        <!-- Logomark with Scaled Multi-Size Icon Readout (32px / 24px / 16px Menu Bar Validation) -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-8">
+          
+          <!-- Master Monogram 88x88 Heavy Stamped Chassis -->
+          <div class="w-24 h-24 bg-[#0B0F1A] border-2 border-white/20 p-2.5 flex items-center justify-center shadow-2xl flex-shrink-0">
+            <svg class="w-full h-full" viewBox="0 0 64 64" fill="none">
+              <!-- Reinforced Chassis Corners (3px heavy stroke) -->
+              <path d="M2 16V2H16" stroke="#FFFFFF" stroke-width="3" stroke-linecap="square" />
+              <path d="M48 2H62V16" stroke="#FFFFFF" stroke-width="3" stroke-linecap="square" />
+              <path d="M2 48V62H16" stroke="#FFFFFF" stroke-width="3" stroke-linecap="square" />
+              <path d="M48 62H62V48" stroke="#FFFFFF" stroke-width="3" stroke-linecap="square" />
+
+              <!-- High-Conductance Copper Bus Geometry -->
+              <line x1="10" y1="32" x2="21" y2="32" stroke="#64748B" stroke-width="4" stroke-linecap="square" />
+              <line x1="43" y1="32" x2="54" y2="32" stroke="#64748B" stroke-width="4" stroke-linecap="square" />
+
+              <!-- Physical Knife Interlock Sever Slash (#EF4444) -->
+              <line x1="18" y1="46" x2="46" y2="18" stroke="#EF4444" stroke-width="5" stroke-linecap="square" />
+
+              <!-- Emergency Trip Core Node -->
+              <circle cx="32" cy="32" r="7" fill="#EF4444" stroke="#07090F" stroke-width="2.5" />
+            </svg>
+          </div>
+
+          <!-- Scaled Menu Bar / Favicon Validation Block -->
+          <div class="flex flex-col gap-2 border-l border-white/10 pl-6 text-xs font-mono">
+            <span class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Scaling Fidelity</span>
+            
+            <div class="flex items-center gap-4">
+              <!-- 32px App Icon -->
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-[#0B0F1A] border border-white/30 p-1 flex items-center justify-center">
+                  <svg class="w-full h-full" viewBox="0 0 64 64" fill="none">
+                    <path d="M2 16V2H16M48 2H62V16M2 48V62H16M48 62H62V48" stroke="#FFF" stroke-width="4" />
+                    <line x1="18" y1="46" x2="46" y2="18" stroke="#EF4444" stroke-width="6" />
+                    <circle cx="32" cy="32" r="8" fill="#EF4444" />
+                  </svg>
+                </div>
+                <span class="text-slate-400 text-[10px]">32px</span>
+              </div>
+
+              <!-- 20px Menu Bar Icon -->
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-5 bg-[#0B0F1A] border border-white/30 p-0.5 flex items-center justify-center">
+                  <svg class="w-full h-full" viewBox="0 0 64 64" fill="none">
+                    <line x1="16" y1="48" x2="48" y2="16" stroke="#EF4444" stroke-width="8" />
+                    <circle cx="32" cy="32" r="10" fill="#EF4444" />
+                  </svg>
+                </div>
+                <span class="text-slate-400 text-[10px]">20px Menubar</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Wordmark -->
+          <div class="pl-2">
+            <div class="flex items-baseline gap-3">
+              <h1 class="text-4xl sm:text-5xl font-black tracking-[-0.04em] text-white font-sans uppercase">
+                SCRAM<span class="text-[#CBD5E1] font-extrabold">KD</span>
+              </h1>
+              <span class="text-[10px] font-mono tracking-widest text-[#EF4444] font-bold px-2 py-0.5 bg-[#EF4444]/10 border border-[#EF4444]/30 uppercase">
+                FAIL-SAFE: OPEN
+              </span>
+            </div>
+            <p class="mt-2 text-sm text-slate-300 max-w-md leading-relaxed">
+              Deterministic kernel-level kill switch for LLM and autonomous code execution environments.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Rigorous Security Boundaries Checklist -->
+        <div class="bg-[#0B0F1A] border border-white/10 p-4 font-mono text-xs min-w-[280px] space-y-2">
+          <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold border-b border-white/10 pb-1.5 flex justify-between">
+            <span>ISOLATION BOUNDARY</span>
+            <span class="text-emerald-400">HARDENED</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">NETWORK TRAP</span>
+            <span class="text-white font-medium">SO_BINDTODEVICE Null</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">POSIX IPC SEVER</span>
+            <span class="text-white font-medium">SIGKILL (Immediate)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">FILE LEASE</span>
+            <span class="text-white font-medium">O_CLOEXEC Mandatory</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">HOST INTEGRITY</span>
+            <span class="text-[#EF4444] font-bold">Zero Agent Mutation</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Defense Architectural Standards & Chromatics -->
+    <div class="p-8 sm:p-10 bg-[#07090F]">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- Column 1: Typography Standard -->
+        <div class="p-5 bg-[#0C101C] border border-white/10">
+          <div class="text-xs font-mono uppercase tracking-wider text-slate-400 mb-3 font-bold flex items-center gap-2">
+            <span class="w-2 h-2 bg-[#EF4444]"></span>
+            01 / Military Telemetry Typography
+          </div>
+          <div class="space-y-3">
+            <div>
+              <div class="text-[10px] font-mono text-slate-400 uppercase">Primary Wordmark (Inter Black 900)</div>
+              <div class="text-sm font-bold text-white tracking-tight mt-0.5">Unified Monolithic Kerning</div>
+              <p class="text-xs text-slate-400 mt-1">Single continuous tracking (-0.04em) prevents optical fragmentation between the SCRAM directive and the KD daemon identifier.</p>
+            </div>
+            <div class="pt-2.5 border-t border-white/10">
+              <div class="text-[10px] font-mono text-slate-400 uppercase">Code Telemetry (Red Hat Mono)</div>
+              <div class="text-xs font-mono text-slate-200 mt-0.5">DISPATCH_ABORT_INTERRUPT // 0x00</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 2: Exact State Readouts -->
+        <div class="p-5 bg-[#0C101C] border border-white/10">
+          <div class="text-xs font-mono uppercase tracking-wider text-slate-400 mb-3 font-bold flex items-center gap-2">
+            <span class="w-2 h-2 bg-[#F59E0B]"></span>
+            02 / Critical Defense States
+          </div>
+          <div class="space-y-2 text-xs font-mono">
+            <div class="p-2.5 bg-[#07090F] border border-white/10 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 bg-[#EF4444] rounded-none"></span>
+                <span class="text-white font-bold">#EF4444</span>
+              </div>
+              <span class="text-slate-400 text-[11px]">SCR_ABORT (Fatal Halt)</span>
+            </div>
+            <div class="p-2.5 bg-[#07090F] border border-white/10 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 bg-[#F59E0B] rounded-none"></span>
+                <span class="text-white font-bold">#F59E0B</span>
+              </div>
+              <span class="text-slate-400 text-[11px]">SCR_GATE (Lease Pending)</span>
+            </div>
+            <div class="p-2.5 bg-[#07090F] border border-white/10 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 bg-[#10B981] rounded-none"></span>
+                <span class="text-white font-bold">#10B981</span>
+              </div>
+              <span class="text-slate-400 text-[11px]">SCR_PERM (Active Shunt)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 3: Defense Architecture Positioning -->
+        <div class="p-5 bg-[#0C101C] border border-white/10">
+          <div class="text-xs font-mono uppercase tracking-wider text-slate-400 mb-3 font-bold flex items-center gap-2">
+            <span class="w-2 h-2 bg-[#10B981]"></span>
+            03 / Executive Security Architecture
+          </div>
+          <div class="space-y-2.5 text-xs text-slate-300 leading-relaxed">
+            <p>
+              <strong class="text-white">Hardware Privilege Level:</strong> Operates at POSIX boundary level with strict memory sanitization on process termination.
+            </p>
+            <p class="pt-2 border-t border-white/10">
+              <strong class="text-white">Auditable Determinism:</strong> Zero heuristic filtering or probabilistic safety. When the interlock trips, execution stops within 400 microseconds.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Security Document Footer -->
+    <div class="px-8 py-3.5 bg-[#05070C] border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-slate-400 gap-2">
+      <div>SPECIFICATION CERTIFIED: <span class="text-white font-semibold">SEC-DARWIN-2026.04</span></div>
+      <div class="text-slate-500">DISTRIBUTION RESTRICTED TO AUTHORIZED SYSTEMS AUDITORS</div>
+    </div>
+
+  </div>
+
+</body>
+</html>

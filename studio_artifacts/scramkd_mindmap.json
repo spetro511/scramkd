@@ -1,0 +1,307 @@
+{
+  "name": "scramkd Security & Architecture",
+  "children": [
+    {
+      "name": "Core Architecture",
+      "children": [
+        {
+          "name": "Target Platform",
+          "children": [
+            {
+              "name": "macOS 14+"
+            },
+            {
+              "name": "Apple Silicon / XNU Darwin"
+            }
+          ]
+        },
+        {
+          "name": "Language & Runtime",
+          "children": [
+            {
+              "name": "Swift 6 Language Mode"
+            },
+            {
+              "name": "Strict Concurrency (-strict-concurrency=complete)"
+            },
+            {
+              "name": "C11 Realtime Audio Target (CScramKAudioRealtime)"
+            },
+            {
+              "name": "Native SwiftUI / AppKit"
+            },
+            {
+              "name": "Prohibited WKWebView"
+            }
+          ]
+        },
+        {
+          "name": "Synchronization Invariants",
+          "children": [
+            {
+              "name": "Actors Own State"
+            },
+            {
+              "name": "@MainActor UI Ownership"
+            },
+            {
+              "name": "OSAllocatedUnfairLock Critical Sections"
+            },
+            {
+              "name": "Sendable Cross-Isolation Types"
+            },
+            {
+              "name": "Zero Data Races"
+            }
+          ]
+        },
+        {
+          "name": "Modular Packages",
+          "children": [
+            {
+              "name": "ScramKCore"
+            },
+            {
+              "name": "ScramKVirtualization"
+            },
+            {
+              "name": "ScramKAudio"
+            },
+            {
+              "name": "ScramKUI"
+            },
+            {
+              "name": "scramkd Daemon"
+            },
+            {
+              "name": "scramkctl CLI"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Hardware Interlock & Security",
+      "children": [
+        {
+          "name": "Interlock Gate States",
+          "children": [
+            {
+              "name": "Locked (Startup Default)"
+            },
+            {
+              "name": "Armed"
+            },
+            {
+              "name": "Permissive Granted"
+            },
+            {
+              "name": "Emergency Abort"
+            }
+          ]
+        },
+        {
+          "name": "Authorization Contracts",
+          "children": [
+            {
+              "name": "Single-Use PermissivePermit"
+            },
+            {
+              "name": "One-Shot Gate Authorization"
+            },
+            {
+              "name": "Request-Bound Clearance Leases"
+            },
+            {
+              "name": "5-Second Approval Window"
+            },
+            {
+              "name": "ActiveHoldPolicy Freeze"
+            }
+          ]
+        },
+        {
+          "name": "Container & Process Security",
+          "children": [
+            {
+              "name": "ContainerSecurityProfile (strictAirgap vs loopbackFramebuffer)"
+            },
+            {
+              "name": "7-Key Environment Scrubbing (MCPProcessTransport)"
+            },
+            {
+              "name": "Constant-Time SHA-256 Hex Comparison"
+            },
+            {
+              "name": "127.0.0.1 Loopback Isolation"
+            },
+            {
+              "name": "F_SETNOSIGPIPE stdio Piping"
+            }
+          ]
+        },
+        {
+          "name": "Physical Operator Controls",
+          "children": [
+            {
+              "name": "Space Key: Grant Permissive Lease"
+            },
+            {
+              "name": "Esc Key: Emergency SCRAM (SIGKILL)"
+            },
+            {
+              "name": "F12 Key: Verified Disconnect or NOT IMPLEMENTED"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Subsystems & Components",
+      "children": [
+        {
+          "name": "ScramKVirtualization (MCP Transport)",
+          "children": [
+            {
+              "name": "ContainerSocketBridge Intercept"
+            },
+            {
+              "name": "BridgeAdmissionFence Verification"
+            },
+            {
+              "name": "MCPNonblockingWriter Framing"
+            },
+            {
+              "name": "AST Policy Inspection"
+            },
+            {
+              "name": "Zero Forwarding (Keyboard/Pointer/Clipboard)"
+            }
+          ]
+        },
+        {
+          "name": "ScramKAudio (SVS Synthesizer)",
+          "children": [
+            {
+              "name": "ScramKToneSynthesizer Driver"
+            },
+            {
+              "name": "CScramKAudioRealtime C11 Engine"
+            },
+            {
+              "name": "Lock-Free Render Callbacks"
+            },
+            {
+              "name": "Band-Limited Waveform Synthesis"
+            },
+            {
+              "name": "Audio Cue Profiles (armed, permissive, abort)"
+            }
+          ]
+        },
+        {
+          "name": "ScramKUI (Supervisor HUD)",
+          "children": [
+            {
+              "name": "1440x900 Display P3 Canvas"
+            },
+            {
+              "name": "3-Tier Progressive Disclosure HUD"
+            },
+            {
+              "name": "ConsoleSafetyCockpit & DesignTokens"
+            },
+            {
+              "name": "ConsoleAuditLedger Event Stream"
+            },
+            {
+              "name": "BridgeInspectionView Read-Only Escaping"
+            }
+          ]
+        },
+        {
+          "name": "Metal Renderer",
+          "children": [
+            {
+              "name": "ScramKMetalViewport Display"
+            },
+            {
+              "name": "ScramKFramebufferSurface Double Buffering"
+            },
+            {
+              "name": "60 FPS Coexistence Policy"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Governance & Execution Loop",
+      "children": [
+        {
+          "name": "Agent Roles",
+          "children": [
+            {
+              "name": "Master Orchestrator"
+            },
+            {
+              "name": "Systems Engineer"
+            },
+            {
+              "name": "Supervisor UI / HTML-to-SwiftUI"
+            },
+            {
+              "name": "Metal Renderer Engineer"
+            },
+            {
+              "name": "Security Architect (Read-Only Review)"
+            },
+            {
+              "name": "Adversarial Red Team (Mutation Testing)"
+            },
+            {
+              "name": "Verification Engineer"
+            }
+          ]
+        },
+        {
+          "name": "5-Phase Work Loop (MB-00..MB-08)",
+          "children": [
+            {
+              "name": "Phase 1: Security Contract & RAG Query"
+            },
+            {
+              "name": "Phase 2: Adversarial Red Suite Writing"
+            },
+            {
+              "name": "Phase 3: Maker Green Implementation"
+            },
+            {
+              "name": "Phase 4: Mutation Survival Gate"
+            },
+            {
+              "name": "Phase 5: Control-Plane Sync & Ledger Update"
+            }
+          ]
+        },
+        {
+          "name": "Verification Gate",
+          "children": [
+            {
+              "name": "Strict Concurrency Build Checks"
+            },
+            {
+              "name": "Deterministic XCTest Suite Execution"
+            },
+            {
+              "name": "scramkctl Operator CLI Status Checks"
+            },
+            {
+              "name": "Color-Managed Visual Parity Audit"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

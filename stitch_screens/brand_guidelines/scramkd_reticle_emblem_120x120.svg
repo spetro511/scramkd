@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" fill="none">
+  <!-- Pitch Black Base Background -->
+  <rect width="120" height="120" fill="#030508"/>
+
+  <!-- Subtle Tactical Cartesian Grid Lines -->
+  <path d="M 0 20 L 120 20 M 0 40 L 120 40 M 0 60 L 120 60 M 0 80 L 120 80 M 0 100 L 120 100" stroke="#0B1220" stroke-width="1"/>
+  <path d="M 20 0 L 20 120 M 40 0 L 40 120 M 60 0 L 60 120 M 80 0 L 80 120 M 100 0 L 100 120" stroke="#0B1220" stroke-width="1"/>
+
+  <!-- Corner Brackets - Armed Amber (#F59E0B) -->
+  <!-- Top-Left -->
+  <path d="M 14 26 L 14 14 L 26 14" stroke="#F59E0B" stroke-width="2" stroke-linecap="square"/>
+  <!-- Top-Right -->
+  <path d="M 94 14 L 106 14 L 106 26" stroke="#F59E0B" stroke-width="2" stroke-linecap="square"/>
+  <!-- Bottom-Left -->
+  <path d="M 14 94 L 14 106 L 26 106" stroke="#F59E0B" stroke-width="2" stroke-linecap="square"/>
+  <!-- Bottom-Right -->
+  <path d="M 94 106 L 106 106 L 106 94" stroke="#F59E0B" stroke-width="2" stroke-linecap="square"/>
+
+  <!-- Engraved Technical Markings -->
+  <text x="60" y="20" fill="#F59E0B" font-family="'JetBrains Mono', 'SF Mono', monospace" font-size="5" font-weight="700" letter-spacing="0.5" text-anchor="middle">TRIP-CORE</text>
+  <text x="60" y="103" fill="#64748B" font-family="'JetBrains Mono', 'SF Mono', monospace" font-size="5" font-weight="600" letter-spacing="0.5" text-anchor="middle">ISO-99</text>
+
+  <!-- Concentric Rings (Machined Safety Guides) -->
+  <circle cx="60" cy="60" r="38" stroke="#1E293B" stroke-width="1" stroke-dasharray="2 3"/>
+  <circle cx="60" cy="60" r="26" stroke="#1E293B" stroke-width="1"/>
+  <circle cx="60" cy="60" r="14" stroke="#F59E0B" stroke-width="1" stroke-opacity="0.8"/>
+  <circle cx="60" cy="60" r="7" stroke="#EF4444" stroke-width="1" stroke-dasharray="2 2"/>
+
+  <!-- Precision Cardinal Axis Ticks -->
+  <line x1="60" y1="22" x2="60" y2="34" stroke="#334155" stroke-width="1"/>
+  <line x1="60" y1="86" x2="60" y2="98" stroke="#334155" stroke-width="1"/>
+  <line x1="22" y1="60" x2="34" y2="60" stroke="#334155" stroke-width="1"/>
+  <line x1="86" y1="60" x2="98" y2="60" stroke="#334155" stroke-width="1"/>
+
+  <!-- 45-Degree High-Contrast Interlock Diagonal Crosshairs -->
+  <line x1="25" y1="95" x2="95" y2="25" stroke="#F59E0B" stroke-width="1.2" stroke-linecap="square"/>
+  <line x1="25" y1="25" x2="48" y2="48" stroke="#334155" stroke-width="1"/>
+  <line x1="72" y1="72" x2="95" y2="95" stroke="#334155" stroke-width="1"/>
+
+  <!-- Tactical Emergent Red Trip Core Contact Point -->
+  <circle cx="60" cy="60" r="3.5" fill="#EF4444"/>
+  <circle cx="60" cy="60" r="1.2" fill="#FFFFFF"/>
+</svg>

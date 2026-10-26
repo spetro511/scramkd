@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MOSDEF // TACTICAL HYPERVISOR v4.2</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "pitch-black": "#030508",
+            "canvas-dark": "#030509",
+            "rail-dark": "#050811",
+            "chrome-dark": "#080C16",
+            "cockpit-dark": "#090E1A",
+            "panel-dark": "#0B1220",
+            "card-slip": "#0C1322",
+            "audit-dark": "#04060C",
+            "slate-border": "#1E293B",
+            "slate-border-light": "#334155",
+            "tactical-green": "#10B981",
+            "armed-amber": "#F59E0B",
+            "radical-red": "#EF4444",
+          },
+          fontFamily: {
+            mono: ["'JetBrains Mono'", "monospace"],
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      border-radius: 0px !important;
+    }
+    .keycap-radius {
+      border-radius: 2px !important;
+    }
+    .traffic-light {
+      border-radius: 9999px !important;
+    }
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #04060C;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1E293B;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+    .hazard-stripes {
+      background-image: repeating-linear-gradient(45deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.15) 10px, transparent 10px, transparent 20px);
+    }
+  </style>
+</head>
+<body class="bg-[#020306] text-[#DFE2F0] font-mono text-[11px] leading-tight flex items-center justify-center min-h-screen p-0 m-0 antialiased overflow-hidden">
+<!-- PRODUCTION MACOS 1440x900 FIXED VIEWPORT CONTAINER -->
+<div class="w-[1440px] h-[900px] max-w-[1440px] max-h-[900px] flex flex-col bg-pitch-black border border-slate-border shadow-2xl relative overflow-hidden select-none">
+<!-- 1. WINDOW CHROME & TOP BAR (Height: 44px, Background: #080C16, Border-Bottom: 1px solid #1E293B) -->
+<header class="h-[44px] min-h-[44px] bg-chrome-dark border-b border-slate-border flex items-center justify-between px-4 z-30">
+<!-- Left: macOS traffic lights + node identifier -->
+<div class="flex items-center gap-4">
+<!-- Traffic lights: 12px with 8px gap, exactly 16px offset from edge -->
+<div class="flex items-center gap-[8px] pl-0">
+<span class="w-[12px] h-[12px] bg-[#FF5F56] border border-[#E0443E] traffic-light inline-block shadow-sm cursor-pointer hover:opacity-80"></span>
+<span class="w-[12px] h-[12px] bg-[#FFBD2E] border border-[#DEA123] traffic-light inline-block shadow-sm cursor-pointer hover:opacity-80"></span>
+<span class="w-[12px] h-[12px] bg-[#27C93F] border border-[#1AAB29] traffic-light inline-block shadow-sm cursor-pointer hover:opacity-80"></span>
+</div>
+<div class="h-4 w-[1px] bg-slate-border ml-1"></div>
+<div class="flex items-center gap-1.5 text-xs">
+<span class="font-bold text-tactical-green tracking-wider">HYPERVISOR//V4.2</span>
+<span class="text-[#64748B] font-semibold">[NODE-0x89C]</span>
+</div>
+</div>
+<!-- Center: Telemetry Status Pills -->
+<div class="hidden lg:flex items-center gap-2 text-[10px]">
+<div class="px-2 py-1 bg-[#050811] border border-slate-border flex items-center gap-1">
+<span class="text-[#64748B] font-medium">FREQ:</span>
+<span class="text-[#F1F5F9] font-bold">3.84 GHz</span>
+</div>
+<div class="px-2 py-1 bg-[#050811] border border-slate-border flex items-center gap-1">
+<span class="text-[#64748B] font-medium">IOPS:</span>
+<span class="text-tactical-green font-bold">142.8K</span>
+</div>
+<div class="px-2 py-1 bg-armed-amber/10 border border-armed-amber/40 flex items-center gap-1">
+<span class="text-armed-amber font-semibold">SEC-MODE:</span>
+<span class="text-armed-amber font-extrabold tracking-wide">DEFCON-2</span>
+</div>
+<div class="px-2 py-1 bg-[#050811] border border-slate-border flex items-center gap-1">
+<span class="text-[#64748B] font-medium">NET:</span>
+<span class="text-armed-amber font-semibold">127.0.0.1 LOCK</span>
+</div>
+<div class="px-2 py-1 bg-[#050811] border border-slate-border flex items-center gap-1">
+<span class="text-[#64748B] font-medium">MEM:</span>
+<span class="text-[#F1F5F9] font-bold">436MB <span class="text-[#475569]">/ 4GB</span></span>
+</div>
+</div>
+<!-- Right: Large State Alert Pill With Countdown Clock -->
+<div class="flex items-center">
+<div class="bg-armed-amber text-black font-extrabold text-[11px] px-3 py-1.5 tracking-wider flex items-center gap-2 border border-[#d97706] shadow-[0_0_12px_rgba(245,158,11,0.25)]">
+<span class="w-2 h-2 bg-black traffic-light animate-ping"></span>
+<span>[ GATE INTERLOCK: ARMED // TTL: <span class="font-black tabular-nums" id="top-timer">00:00.38s</span> ]</span>
+</div>
+</div>
+</header>
+<!-- 2. MAIN WORKSPACE GRID (Height: 580px, flex / grid layout) -->
+<section class="h-[580px] min-h-[580px] max-h-[580px] grid grid-cols-[160px_1fr_486px] bg-pitch-black border-b border-slate-border overflow-hidden">
+<!-- LEFT NAVIGATION RAIL (Width: 160px, Background: #050811, Border-Right: 1px solid #1E293B) -->
+<aside class="w-[160px] bg-rail-dark border-r border-slate-border flex flex-col justify-between overflow-hidden">
+<div class="flex flex-col">
+<!-- Header label -->
+<div class="h-8 px-3 flex items-center justify-between border-b border-slate-border bg-[#03060c]">
+<span class="text-[9px] font-bold text-[#64748B] tracking-widest uppercase">TELEMETRY BAYS</span>
+<span class="w-1.5 h-1.5 bg-tactical-green"></span>
+</div>
+<!-- Monospaced Bay Listing -->
+<nav class="flex flex-col py-1">
+<!-- BAY-01: TACTICAL OVERVIEW (Active state, highlighted with emerald border/background tint, sharp rectangular corners) -->
+<a class="px-3 py-2.5 bg-tactical-green/15 text-tactical-green border-l-2 border-tactical-green font-bold text-[10px] tracking-wider flex flex-col gap-0.5 border-y border-tactical-green/30" href="#">
+<span class="text-[#94A3B8] text-[9px] font-normal">BAY-01</span>
+<span>TACTICAL OVERVIEW</span>
+</a>
+<!-- BAY-02: NETWORK DEFENSE -->
+<a class="px-3 py-2 text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-panel-dark/50 border-l-2 border-transparent text-[10px] tracking-wider flex flex-col gap-0.5 transition-colors" href="#">
+<span class="text-[#475569] text-[9px]">BAY-02</span>
+<span>NETWORK DEFENSE</span>
+</a>
+<!-- BAY-03: AVIONICS KINEMATICS -->
+<a class="px-3 py-2 text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-panel-dark/50 border-l-2 border-transparent text-[10px] tracking-wider flex flex-col gap-0.5 transition-colors" href="#">
+<span class="text-[#475569] text-[9px]">BAY-03</span>
+<span>AVIONICS KINEMATICS</span>
+</a>
+<!-- BAY-04: THREAT VECTOR MATRIX -->
+<a class="px-3 py-2 text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-panel-dark/50 border-l-2 border-transparent text-[10px] tracking-wider flex flex-col gap-0.5 transition-colors" href="#">
+<span class="text-[#475569] text-[9px]">BAY-04</span>
+<span>THREAT VECTOR MATRIX</span>
+</a>
+<!-- BAY-05: CORE ORCHESTRATION -->
+<a class="px-3 py-2 text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-panel-dark/50 border-l-2 border-transparent text-[10px] tracking-wider flex flex-col gap-0.5 transition-colors" href="#">
+<span class="text-[#475569] text-[9px]">BAY-05</span>
+<span>CORE ORCHESTRATION</span>
+</a>
+</nav>
+</div>
+<!-- Bottom rail telemetry: UPLINK: 99.98%, LAT: 1.2ms -->
+<div class="border-t border-slate-border p-2.5 bg-[#03060c] space-y-1.5">
+<div class="text-[9px] text-[#64748B] tracking-wider font-semibold uppercase">LINK INTEGRITY</div>
+<div class="flex justify-between items-center text-[10px] font-bold">
+<span class="text-tactical-green">UPLINK: 99.98%</span>
+</div>
+<div class="flex justify-between items-center text-[10px] text-[#94A3B8]">
+<span>LATENCY:</span>
+<span class="text-tactical-green">1.2ms</span>
+</div>
+<div class="w-full bg-[#1e293b] h-[3px]">
+<div class="bg-tactical-green h-full w-[99.9%]"></div>
+</div>
+</div>
+</aside>
+<!-- CENTER VIEWPORT (Width: ~62% of remaining space, Background: #030509) -->
+<main class="bg-canvas-dark flex flex-col justify-between overflow-hidden relative border-r border-slate-border">
+<!-- Title Header: "CONTAINER VIEWPORT [screenenv:patched] (127.0.0.1:7860)" with badge "[MTKView Direct | VSYNC LOCKED | DRAWCALLS: 18]" -->
+<div class="h-8 bg-[#060A14] border-b border-slate-border px-3 flex items-center justify-between z-20">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 bg-tactical-green"></span>
+<span class="text-[11px] font-bold tracking-wider text-[#F1F5F9]">CONTAINER VIEWPORT <span class="text-[#64748B] font-medium">[screenenv:patched]</span></span>
+<span class="text-armed-amber text-[10px] font-semibold">(127.0.0.1:7860)</span>
+</div>
+<div class="px-2 py-0.5 bg-tactical-green/10 border border-tactical-green/40 text-tactical-green text-[10px] font-bold tracking-wider">
+            [MTKView Direct | VSYNC LOCKED | DRAWCALLS: 18]
+          </div>
+</div>
+<!-- Border Coordinate Ticks: Monospaced micro-numeric coordinate rulers along top and left axis -->
+<div class="h-5 bg-[#050811] border-b border-slate-border/70 flex items-center text-[8px] text-[#475569] font-mono justify-between px-6 select-none">
+<span>0000</span><span>0128</span><span>0256</span><span>0384</span><span>0512</span><span>0640</span><span>0768</span><span>0896</span><span>1024</span><span>1152</span><span>1280</span>
+</div>
+<div class="flex-1 flex relative overflow-hidden">
+<!-- Left Axis Coordinate Ticks -->
+<div class="w-7 bg-[#050811] border-r border-slate-border/70 flex flex-col justify-between py-6 items-center text-[8px] text-[#475569] font-mono select-none">
+<span>000</span><span>120</span><span>240</span><span>360</span><span>480</span><span>600</span>
+</div>
+<!-- Canvas Content & Terminal Workspace -->
+<div class="flex-1 relative p-4 flex flex-col justify-center items-center bg-canvas-dark">
+<!-- Subtle Grid overlay -->
+<div class="absolute inset-0 pointer-events-none opacity-10 grid grid-cols-6 grid-rows-4">
+<div class="border-r border-b border-slate-border"></div>
+<div class="border-r border-b border-slate-border"></div>
+<div class="border-r border-b border-slate-border"></div>
+<div class="border-r border-b border-slate-border"></div>
+<div class="border-r border-b border-slate-border"></div>
+<div class="border-b border-slate-border"></div>
+<div class="border-r border-b border-slate-border"></div>
+<div class="border-r border-b border-slate-border"></div>
+<div class="border-r border-b border-slate-border"></div>
+<div class="border-r border-b border-slate-border"></div>
+<div class="border-r border-b border-slate-border"></div>
+<div class="border-b border-slate-border"></div>
+<div class="border-r border-b border-slate-border"></div>
+<div class="border-r border-b border-slate-border"></div>
+<div class="border-r border-b border-slate-border"></div>
+<div class="border-r border-b border-slate-border"></div>
+<div class="border-r border-b border-slate-border"></div>
+<div class="border-b border-slate-border"></div>
+<div class="border-r border-slate-border"></div>
+<div class="border-r border-slate-border"></div>
+<div class="border-r border-slate-border"></div>
+<div class="border-r border-slate-border"></div>
+<div class="border-r border-slate-border"></div>
+<div></div>
+</div>
+<!-- Terminal Window Session Container -->
+<div class="w-full max-w-[650px] bg-[#070B14] border border-slate-border shadow-2xl relative z-10 flex flex-col">
+<!-- Window Session Chrome -->
+<div class="h-6 bg-[#0B1220] border-b border-slate-border px-2 flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 bg-[#FF5F56] traffic-light inline-block"></span>
+<span class="w-2 h-2 bg-[#FFBD2E] traffic-light inline-block"></span>
+<span class="w-2 h-2 bg-[#27C93F] traffic-light inline-block"></span>
+<span class="text-[10px] text-[#94A3B8] ml-2 font-mono">guest@sandbox-jail:/opt/workstation</span>
+</div>
+<span class="text-[9px] text-[#64748B] font-bold tracking-wider">SECCOMP-BPF: ENFORCED</span>
+</div>
+<!-- Terminal Body Content -->
+<div class="p-3.5 space-y-2 text-[11px] font-mono leading-relaxed bg-[#03060C]">
+<div class="text-[#475569]">$ env -i PATH=/bin:/usr/bin /bin/sh</div>
+<div class="text-[#64748B]">Sandbox isolation active. Ephemeral namespaces mounted.</div>
+<div class="text-tactical-green font-semibold">
+                  $ ./detonate_sample.sh --isolated --quarantine-net
+                </div>
+<!-- Trapped Instruction Box with sharp 1px red border and dark red tinted background -->
+<div class="border border-radical-red bg-radical-red/10 p-2.5 my-2">
+<div class="flex items-center justify-between pb-1 mb-1 border-b border-radical-red/30">
+<span class="text-radical-red font-bold text-[10px] uppercase tracking-wider">[MOSDEF-GATE] INTERCEPT ACTIVE</span>
+<span class="px-1.5 py-0.2 bg-radical-red text-white font-extrabold text-[9px] tracking-widest">CLOCK HALTED</span>
+</div>
+<div class="text-[#F1F5F9] text-[10px] leading-normal">
+                    Instruction pointer <span class="text-armed-amber font-bold">0x7fff5fc0</span> paused | 
+                    SYSCALL_ID: <span class="text-tactical-green font-bold">59 (sys_execve)</span> trapped by kernel module <span class="text-[#F1F5F9] underline decoration-radical-red">k_mosdef_interlock.o</span>
+</div>
+</div>
+<!-- Prompt state & Blinking cursor -->
+<div class="pt-1 text-[#CBD5E1] text-[10px] flex items-center gap-1.5">
+<span class="text-armed-amber font-bold">&gt;&gt;&gt;</span>
+<span>Awaiting manual operator permissive clearance or abort trip from BAY-01...</span>
+<span class="w-2 h-3.5 bg-tactical-green inline-block animate-pulse"></span>
+</div>
+</div>
+</div>
+<!-- Precision crosshair targeting reticle overlay with center box and labeled "[TRGT // 0x89C]" -->
+<div class="absolute top-[48%] right-[16%] pointer-events-none z-20 flex flex-col items-center">
+<div class="w-16 h-16 border border-armed-amber relative flex items-center justify-center">
+<div class="w-3 h-3 border border-armed-amber bg-armed-amber/20"></div>
+<!-- Cross lines -->
+<span class="absolute top-0 bottom-0 left-1/2 w-[1px] bg-armed-amber/70"></span>
+<span class="absolute left-0 right-0 top-1/2 h-[1px] bg-armed-amber/70"></span>
+<!-- Corner ticks -->
+<span class="absolute -top-1 -left-1 text-armed-amber text-[8px]">+</span>
+<span class="absolute -top-1 -right-1 text-armed-amber text-[8px]">+</span>
+<span class="absolute -bottom-1 -left-1 text-armed-amber text-[8px]">+</span>
+<span class="absolute -bottom-1 -right-1 text-armed-amber text-[8px]">+</span>
+</div>
+<div class="mt-1 bg-black border border-armed-amber px-1 text-[8px] font-bold text-armed-amber tracking-widest">
+                [TRGT // 0x89C]
+              </div>
+</div>
+</div>
+</div>
+<!-- Viewport footer strip -->
+<div class="h-7 bg-[#060A14] border-t border-slate-border px-3 flex items-center justify-between text-[10px] z-20">
+<div class="flex items-center gap-4 text-[#64748B]">
+<span>SHM_BUFFER: <span class="text-[#F1F5F9] font-bold">0x981FA00</span></span>
+<span class="text-slate-border">|</span>
+<span>PAGE_FAULTS: <span class="text-tactical-green font-bold">0/SEC</span></span>
+</div>
+<div class="text-tactical-green font-bold tracking-wider text-[10px]">
+            CONTAINMENT BUS: ZERO_ESCAPE_CONFIRMED
+          </div>
+</div>
+</main>
+<!-- RIGHT SAFETY COCKPIT (Width: ~38% of remaining space, Background: #090E1A, Border-Left: 1px solid #1E293B, p-4 flex flex-col gap-3) -->
+<aside class="w-[486px] bg-cockpit-dark border-l border-slate-border p-4 flex flex-col justify-between overflow-y-auto">
+<div class="flex flex-col gap-3">
+<!-- Top Card: High-contrast amber box: "GATE INTERLOCK: ARMED" with subtext "TTL AUTO-ABORT: 00:00.38s" -->
+<div class="bg-armed-amber/15 border-2 border-armed-amber p-3 flex items-center justify-between">
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 bg-armed-amber traffic-light animate-ping"></span>
+<span class="text-armed-amber font-extrabold text-[13px] tracking-widest uppercase">GATE INTERLOCK: ARMED</span>
+</div>
+<span class="text-white text-[10px] font-semibold tracking-wider">HARD INTERCEPT ACTIVE // LEVEL-0 ISOLATION</span>
+</div>
+<div class="bg-armed-amber text-black font-black px-2.5 py-1 text-[12px] tracking-wider text-right tabular-nums">
+              TTL AUTO-ABORT:<br/><span id="cockpit-timer">00:00.38s</span>
+</div>
+</div>
+<!-- Clearance Record Slip: Sharp-cornered box (1px solid #334155, Background: #0C1322, p-3) -->
+<div class="border border-slate-border-light bg-card-slip p-3 flex flex-col gap-2.5">
+<div class="flex items-center justify-between pb-2 border-b border-slate-border">
+<div class="flex items-center gap-1.5 font-bold text-[#F1F5F9] text-[11px] tracking-wider">
+<span class="material-symbols-outlined text-armed-amber text-[15px]">verified_user</span>
+<span>CLEARANCE RECORD #9042-A</span>
+</div>
+<span class="bg-radical-red text-white font-extrabold text-[9px] px-2 py-0.5 tracking-wider">[CRITICAL // TIER-1]</span>
+</div>
+<div class="space-y-1.5 text-[10px]">
+<div class="flex justify-between items-center py-0.5 border-b border-slate-border/50">
+<span class="text-[#64748B]">TOOL HOOK</span>
+<span class="text-tactical-green font-bold">screenenv.bash_execute</span>
+</div>
+<div class="flex flex-col gap-1 py-1 border-b border-slate-border/50">
+<span class="text-[#64748B] text-[9px] uppercase">Command Payload</span>
+<div class="bg-[#04060C] p-2 border border-slate-border text-tactical-green font-bold text-[11px] break-all">
+                  ./detonate_sample.sh --isolated
+                </div>
+</div>
+<div class="flex justify-between items-center py-0.5 border-b border-slate-border/50">
+<span class="text-[#64748B]">ORIGIN</span>
+<span class="text-[#F1F5F9] font-bold">PID 19482 <span class="text-[#64748B] font-normal">(autonomous_agent_v4)</span></span>
+</div>
+<div class="flex flex-col gap-1 py-0.5 border-b border-slate-border/50">
+<div class="flex justify-between items-center text-[9px]">
+<span class="text-[#64748B]">SHA-256 CHECKSUM</span>
+<span class="text-radical-red font-bold">[UNVERIFIED]</span>
+</div>
+<div class="font-mono text-[9px] text-[#94A3B8] bg-[#04060C] p-1.5 border border-slate-border break-all select-all">
+                  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+                </div>
+</div>
+<!-- Status Grids: SWITCH_1: ENGAGED | CRYPTO NONCE: 0x8F9A2 | RULESET: AIRGAP-STRICT -->
+<div class="grid grid-cols-3 gap-1.5 pt-1">
+<div class="bg-[#050811] border border-slate-border p-1.5 text-center flex flex-col">
+<span class="text-[#64748B] text-[8px] font-bold">SWITCH_1</span>
+<span class="text-tactical-green font-bold text-[10px]">ENGAGED</span>
+</div>
+<div class="bg-[#050811] border border-slate-border p-1.5 text-center flex flex-col">
+<span class="text-[#64748B] text-[8px] font-bold">CRYPTO NONCE</span>
+<span class="text-armed-amber font-bold text-[10px]">0x8F9A2</span>
+</div>
+<div class="bg-[#050811] border border-slate-border p-1.5 text-center flex flex-col">
+<span class="text-[#64748B] text-[8px] font-bold">RULESET</span>
+<span class="text-[#F1F5F9] font-bold text-[10px]">AIRGAP-STRICT</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Control Actions: Split Keycap Trigger Buttons -->
+<div class="flex flex-col gap-2.5 pt-3">
+<!-- Primary Button: Full-width heavy tactical green background, black bold text [ GRANT PERMISSIVE ], right tactile keycap badge [ SPACE ] -->
+<button class="w-full h-11 bg-tactical-green hover:bg-[#0ea371] active:translate-y-[1px] text-black font-extrabold text-[12px] tracking-wider px-3 flex items-center justify-between border border-[#34D399] transition-colors cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.3)]" id="btn-permissive">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span>[ GRANT PERMISSIVE ]</span>
+</span>
+<span class="bg-black text-tactical-green font-black text-[10px] px-2 py-0.5 border border-tactical-green/50 keycap-radius">
+              [ SPACE ]
+            </span>
+</button>
+<!-- Abort Button: Full-width heavy radical red background, white/black bold text [ EMERGENCY ABORT ], right tactile keycap badge [ ESC ] -->
+<button class="w-full h-11 bg-radical-red hover:bg-[#dc2626] active:translate-y-[1px] text-white font-extrabold text-[12px] tracking-wider px-3 flex items-center justify-between border border-[#F87171] hazard-stripes transition-colors cursor-pointer shadow-[0_0_15px_rgba(239,68,68,0.3)]" id="btn-abort">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+<span>[ EMERGENCY ABORT ]</span>
+</span>
+<span class="bg-black text-white font-black text-[10px] px-2 py-0.5 border border-white/50 keycap-radius">
+              [ ESC ]
+            </span>
+</button>
+<!-- Footer note: AIRGAP DUMP & RESEED NONCE [ F12 ] in muted slate monospace -->
+<div class="pt-1 text-center">
+<button class="w-full py-1.5 bg-[#050811] hover:bg-slate-border text-[#64748B] hover:text-[#CBD5E1] border border-slate-border text-[9px] font-bold tracking-widest uppercase transition-colors cursor-pointer" id="btn-airgap">
+              AIRGAP DUMP &amp; RESEED NONCE [ F12 ]
+            </button>
+</div>
+</div>
+</aside>
+</section>
+<!-- 3. BOTTOM AUDIT LEDGER (Height: 276px, Background: #04060C, Border-Top: 1px solid #1E293B, flex flex-col) -->
+<section class="h-[276px] min-h-[276px] max-h-[276px] bg-audit-dark flex flex-col overflow-hidden">
+<!-- Header Bar: "REAL-TIME AUDIT LOG // ASYNCSTREAM BUS" with interactive filter tabs -->
+<div class="h-8 bg-[#070B16] border-b border-slate-border px-3 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#F1F5F9]">
+<span class="w-2 h-2 bg-tactical-green"></span>
+<span>REAL-TIME AUDIT LOG // ASYNCSTREAM BUS</span>
+</div>
+<!-- Interactive-style Filter Tabs -->
+<div class="flex items-center gap-1 ml-3 text-[10px]">
+<!-- Active / Selected State -->
+<button class="px-2.5 py-1 bg-panel-dark text-tactical-green border-t-2 border-tactical-green border-x border-slate-border font-bold">
+              [ ALL EVENTS (8,192) ]
+            </button>
+<button class="px-2 py-1 bg-[#050811] text-[#64748B] hover:text-[#94A3B8] border border-slate-border font-medium">
+              [ SECURITY (14) ]
+            </button>
+<button class="px-2 py-1 bg-[#050811] text-[#64748B] hover:text-[#94A3B8] border border-slate-border font-medium">
+              [ CONTAINER BUS ]
+            </button>
+</div>
+</div>
+<!-- Right status: [ WS://127.0.0.1:9001/AUDIT ] [ AUTO-SCROLL: ON ] -->
+<div class="flex items-center gap-2 text-[10px]">
+<span class="text-[#64748B] font-mono">[ WS://127.0.0.1:9001/AUDIT ]</span>
+<span class="px-2 py-0.5 bg-armed-amber/15 border border-armed-amber/40 text-armed-amber font-bold">
+            [ AUTO-SCROLL: ON ]
+          </span>
+</div>
+</div>
+<!-- Tabular Header -->
+<div class="grid grid-cols-[110px_90px_1fr_130px] px-3 py-1 bg-[#080C17] border-b border-slate-border text-[9px] font-bold text-[#64748B] tracking-wider uppercase">
+<div>TIMESTAMP</div>
+<div>SUBSYSTEM</div>
+<div>EVENT DESCRIPTION</div>
+<div class="text-right pr-2">LATENCY / METRIC</div>
+</div>
+<!-- Monospace Stream Table Body -->
+<div class="flex-1 overflow-y-auto divide-y divide-slate-border/30 text-[10px] font-mono select-text" id="audit-table">
+<div class="grid grid-cols-[110px_90px_1fr_130px] px-3 py-1.5 hover:bg-[#0B1220]/60 items-center">
+<span class="text-[#64748B]">22:10:59.858</span>
+<div><span class="px-1.5 py-0.5 bg-slate-800 text-[#CBD5E1] text-[9px] font-bold">CORE</span></div>
+<span class="text-[#F1F5F9]">State transition: .locked -&gt; .armed (Seq: 00921)</span>
+<span class="text-right pr-2 text-tactical-green font-semibold">SYS: 0.12ms</span>
+</div>
+<div class="grid grid-cols-[110px_90px_1fr_130px] px-3 py-1.5 hover:bg-[#0B1220]/60 items-center">
+<span class="text-[#64748B]">22:11:00.129</span>
+<div><span class="px-1.5 py-0.5 bg-armed-amber/20 text-armed-amber border border-armed-amber/40 text-[9px] font-bold">SVS</span></div>
+<span class="text-armed-amber">CoreAudio alert tone emitted: 440Hz Sine Wave (Duration: 150ms)</span>
+<span class="text-right pr-2 text-armed-amber font-semibold">AUDIO: 440Hz</span>
+</div>
+<div class="grid grid-cols-[110px_90px_1fr_130px] px-3 py-1.5 hover:bg-[#0B1220]/60 items-center">
+<span class="text-[#64748B]">22:11:00.478</span>
+<div><span class="px-1.5 py-0.5 bg-slate-800 text-[#CBD5E1] text-[9px] font-bold">MCP</span></div>
+<span class="text-[#94A3B8]">ContainerSocketBridge: Outbound 16KiB chunk dispatched</span>
+<span class="text-right pr-2 text-[#94A3B8]">SHM: 16KiB</span>
+</div>
+<div class="grid grid-cols-[110px_90px_1fr_130px] px-3 py-1.5 bg-radical-red/10 border-l-2 border-radical-red items-center">
+<span class="text-[#64748B]">22:11:00.617</span>
+<div><span class="px-1.5 py-0.5 bg-radical-red text-white text-[9px] font-black">GATE</span></div>
+<span class="text-radical-red font-bold">Hardware Interlock tripping active: Awaiting manual operator clearance...</span>
+<span class="text-right pr-2 text-radical-red font-bold">HARD_TO: 5.0s</span>
+</div>
+<div class="grid grid-cols-[110px_90px_1fr_130px] px-3 py-1.5 hover:bg-[#0B1220]/60 items-center">
+<span class="text-[#64748B]">22:11:01.004</span>
+<div><span class="px-1.5 py-0.5 bg-slate-800 text-[#CBD5E1] text-[9px] font-bold">NET</span></div>
+<span class="text-[#CBD5E1]">Airgap rule #4 applied: outbound packet drop 192.168.1.1:443 (Quarantine Enforcement)</span>
+<span class="text-right pr-2 text-armed-amber font-semibold">DROP: 0.04ms</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Real-time interaction script -->
+<script>
+    (function() {
+      let timeLeft = 0.38;
+      const topTimer = document.getElementById('top-timer');
+      const cockpitTimer = document.getElementById('cockpit-timer');
+      const auditTable = document.getElementById('audit-table');
+      const btnPermissive = document.getElementById('btn-permissive');
+      const btnAbort = document.getElementById('btn-abort');
+      const btnAirgap = document.getElementById('btn-airgap');
+
+      function formatTtl(val) {
+        return `00:00.${(val < 10 ? '0' : '') + val.toFixed(2).replace('0.', '')}s`;
+      }
+
+      function logEvent(subsys, tagColor, desc, metric, metricColor) {
+        const d = new Date();
+        const ts = d.toTimeString().split(' ')[0] + '.' + String(d.getMilliseconds()).padStart(3, '0');
+        const row = document.createElement('div');
+        row.className = "grid grid-cols-[110px_90px_1fr_130px] px-3 py-1.5 hover:bg-[#0B1220]/60 items-center";
+        row.innerHTML = `
+          <span class="text-[#64748B]">${ts}</span>
+          <div><span class="px-1.5 py-0.5 text-[9px] font-bold ${tagColor}">${subsys}</span></div>
+          <span class="text-[#F1F5F9]">${desc}</span>
+          <span class="text-right pr-2 font-semibold ${metricColor || 'text-tactical-green'}">${metric}</span>
+        `;
+        auditTable.appendChild(row);
+        auditTable.scrollTop = auditTable.scrollHeight;
+      }
+
+      const timerInterval = setInterval(() => {
+        timeLeft = Math.max(0, timeLeft - 0.01);
+        const str = `00:00.${Math.round(timeLeft * 100).toString().padStart(2, '0')}s`;
+        if (topTimer) topTimer.textContent = str;
+        if (cockpitTimer) cockpitTimer.textContent = str;
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          logEvent('GATE', 'bg-radical-red text-white', 'HARD INTERLOCK AUTO-ABORT: TTL window expired. Kill signal sent.', 'TIMEOUT', 'text-radical-red');
+        }
+      }, 50);
+
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          btnPermissive.click();
+        } else if (e.code === 'Escape') {
+          e.preventDefault();
+          btnAbort.click();
+        } else if (e.code === 'F12') {
+          e.preventDefault();
+          btnAirgap.click();
+        }
+      });
+
+      btnPermissive.addEventListener('click', () => {
+        logEvent('OPR-BAY1', 'bg-tactical-green text-black font-bold', 'GRANT PERMISSIVE RELEASE: Manual override accepted for PID 19482. Execution continued.', 'CLEAR: 0.01ms');
+      });
+
+      btnAbort.addEventListener('click', () => {
+        logEvent('OPR-BAY1', 'bg-radical-red text-white font-black', 'EMERGENCY ABORT COMMAND DELIVERED: Interlock tripped, sandbox destroyed.', 'TRIP: 0.00ms', 'text-radical-red');
+      });
+
+      btnAirgap.addEventListener('click', () => {
+        logEvent('NET-AIRGAP', 'bg-armed-amber text-black font-bold', 'FORCE AIRGAP DUMP: All ephemeral interfaces detached, nonce 0x8F9A2 revoked.', 'RESEED: OK', 'text-armed-amber');
+      });
+    })();
+  </script>
+</body></html>

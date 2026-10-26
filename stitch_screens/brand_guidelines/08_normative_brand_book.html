@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+
+<html class="bg-[#04060A] text-slate-100 antialiased selection:bg-[#EF4444] selection:text-white" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SCRAMKD // BRAND BOOK &amp; NORMATIVE SYSTEMS SPECIFICATION</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'Geist Mono', 'SF Mono', Menlo, Consolas, monospace;
+    }
+    body { font-family: var(--font-sans); }
+    .font-mono { font-family: var(--font-mono); }
+    
+    .hairline-border { border: 1px solid rgba(255, 255, 255, 0.08); }
+    .hairline-b { border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+    .hairline-r { border-right: 1px solid rgba(255, 255, 255, 0.08); }
+    .hairline-t { border-top: 1px solid rgba(255, 255, 255, 0.08); }
+    .hairline-l { border-left: 1px solid rgba(255, 255, 255, 0.08); }
+
+    .grid-matrix {
+      background-size: 20px 20px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
+    .spec-dot-grid {
+      background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#04060A] text-slate-300 p-4 sm:p-8 lg:p-14 flex justify-center items-start">
+<!-- Main Institutional Enclosure -->
+<article class="w-full max-w-6xl bg-[#070A10] hairline-border shadow-2xl chassis-plate">
+<!-- 00 // Telemetry Status Header & Control Strip -->
+<header class="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-3.5 bg-[#090D15] hairline-b text-[11px] font-mono text-slate-400 gap-2 chassis-header"><div class="hidden sm:flex items-center gap-2 mr-2"><span class="machined-rivet"></span></div>
+<div class="flex items-center gap-3">
+<span class="flex items-center gap-2 font-semibold text-white">
+<span class="w-2 h-2 rounded-full bg-[#10B981] animate-pulse"></span>
+          SCRAMKD BRAND MONOGRAPH &amp; SYSTEMS MANUAL
+        </span>
+<span class="text-slate-600">/</span>
+<span class="text-slate-400">PUB REF: 2026.04-DARWIN</span>
+</div>
+<div class="flex items-center gap-5 text-slate-400">
+<span>SECURITY CLASS: <strong class="text-white">MIL-STD-1472H</strong></span>
+<span class="text-slate-600">/</span>
+<span>AUDIT POSTURE: <strong class="text-[#10B981]">EAL6+ COMPLIANT</strong></span>
+</div>
+<div class="hidden sm:flex items-center gap-2 ml-2"><span class="machined-rivet"></span></div></header>
+<!-- Document Title Masthead -->
+<section class="px-8 py-10 sm:px-12 hairline-b bg-[#070A10]">
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+<div>
+<div class="text-[11px] font-mono tracking-[0.25em] uppercase text-[#EF4444] font-bold mb-2">
+            Normative Brand Architecture &amp; Engineering Standards // Edition 01
+          </div>
+<h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-[-0.04em] uppercase font-sans">
+            SCRAM<span class="text-[#94A3B8] font-bold">KD</span> Brand Book
+          </h1>
+<p class="mt-3 text-sm sm:text-base text-slate-300 max-w-2xl font-normal leading-relaxed">
+            Deterministic design specifications for the autonomous agent safety interlock. Every geometric ratio, chromatic wavelength, and typographic cadence reflects physical kernel barriers, uncatchable process termination, and strict actor isolation.
+          </p>
+</div>
+<div class="font-mono text-xs text-slate-400 hairline-l pl-6 py-1 flex flex-col gap-1.5 flex-shrink-0">
+<div>PRINCIPAL ARCHITECT: <span class="text-slate-200 font-semibold">Suren Sahaydachny</span></div>
+<div>CORE RUNTIME: <span class="text-slate-200">Darwin XNU / Apple Silicon</span></div>
+<div>CONCURRENCY: <span class="text-[#10B981]">Swift 6 Strict (Zero Data Races)</span></div>
+</div>
+</div>
+</section>
+<!-- ========================================================================= -->
+<!-- SECTION 1: LOGO LOCKUPS & GEOMETRIC TOPOLOGY                              -->
+<!-- ========================================================================= -->
+<section class="hairline-b" id="logo-lockups">
+<!-- Section Header -->
+<div class="px-8 py-4 bg-[#090D15] hairline-b flex items-center justify-between chassis-header">
+<h2 class="text-xs font-mono uppercase tracking-widest text-white font-semibold flex items-center gap-2">
+<span class="w-1.5 h-1.5 bg-[#EF4444]"></span>
+          Section 01 // Logo Lockups &amp; Geometric Precision
+        </h2>
+<span class="text-xs font-mono text-slate-400">MIL-STD-1472H SECTION 05.02</span>
+</div>
+<!-- Overview Note -->
+<div class="p-8 sm:p-10 hairline-b bg-[#070A10]">
+<div class="max-w-3xl text-sm leading-relaxed text-slate-300">
+<strong class="text-white">Geometric Isolation Thesis:</strong> The SCRAMKD mark is engineered not as a decorative logo, but as an authentic electrical circuit schematic. A 64×64 normalized matrix bounds four machined chassis corner registration brackets, conductive bus traces, and an uncompromising 45° Radical Red (<code class="text-xs font-mono text-white bg-white/10 px-1 py-0.5">#EF4444</code>) circuit sever blade terminating on an armed scram core terminal.
+        </div>
+</div>
+<!-- Lockup Grid: 3 Variants (Primary, Monochromatic, Inverse Darkroom) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 hairline-b">
+<!-- 1.1 Primary High-Assurance Lockup -->
+<div class="p-8 hairline-r bg-[#06080E] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between font-mono text-[10px] text-slate-400 mb-6">
+<span class="text-white font-bold">FIG 1.1 // PRIMARY OPERATIONAL</span>
+<span>STATE: ARMED TRIP</span>
+</div>
+<!-- Visual Canvas -->
+<div class="h-52 bg-[#090D16] hairline-border spec-dot-grid p-6 flex flex-col items-center justify-center gap-4 milled-recess">
+<div class="flex items-center gap-4">
+<!-- SVG Mark -->
+<div class="w-14 h-14 bg-[#05070B] border border-white/20 p-2 flex items-center justify-center flex-shrink-0">
+<svg class="w-full h-full" fill="none" viewbox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+<path d="M 4 16 L 4 4 L 16 4" stroke="#FFFFFF" stroke-linecap="square" stroke-width="2.5"></path>
+<path d="M 48 4 L 60 4 L 60 16" stroke="#FFFFFF" stroke-linecap="square" stroke-width="2.5"></path>
+<path d="M 4 48 L 4 60 L 16 60" stroke="#FFFFFF" stroke-linecap="square" stroke-width="2.5"></path>
+<path d="M 48 60 L 60 60 L 60 48" stroke="#FFFFFF" stroke-linecap="square" stroke-width="2.5"></path>
+<line stroke="#64748B" stroke-linecap="square" stroke-width="3" x1="8" x2="20" y1="32" y2="32"></line>
+<line stroke="#64748B" stroke-linecap="square" stroke-width="3" x1="44" x2="56" y1="32" y2="32"></line>
+<circle cx="22" cy="32" fill="#64748B" r="2.5"></circle>
+<circle cx="42" cy="32" fill="#64748B" r="2.5"></circle>
+<line stroke="#EF4444" stroke-linecap="square" stroke-width="4.5" x1="18" x2="46" y1="46" y2="18"></line>
+<circle cx="32" cy="32" fill="#EF4444" r="5" stroke="#090D16" stroke-width="1.5"></circle>
+</svg>
+</div>
+<div class="font-sans text-2xl font-black text-white tracking-[-0.04em] uppercase">
+                  SCRAM<span class="text-[#94A3B8] font-bold">KD</span>
+</div>
+</div>
+<span class="px-2 py-0.5 text-[9px] font-mono tracking-widest uppercase border border-[#EF4444]/40 text-[#EF4444] bg-[#EF4444]/10">
+                FAIL-SAFE: OPEN
+              </span>
+</div>
+</div>
+<div class="mt-6 pt-4 hairline-t font-mono text-xs text-slate-400 space-y-1.5">
+<div class="text-white font-semibold">Deployment Context:</div>
+<p class="text-[11px] leading-relaxed text-slate-400">
+              Primary brand identity across system consoles, executive dashboards, defense monographs, and production documentation. Preserves full chromatic indicator logic.
+            </p>
+</div>
+</div>
+<!-- 1.2 Pure Monochromatic Specification -->
+<div class="p-8 hairline-r bg-[#06080E] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between font-mono text-[10px] text-slate-400 mb-6">
+<span class="text-white font-bold">FIG 1.2 // MONOCHROMATIC PURE</span>
+<span>STATE: INERT CHASSIS</span>
+</div>
+<!-- Visual Canvas -->
+<div class="h-52 bg-[#000000] border border-white/20 spec-dot-grid p-6 flex flex-col items-center justify-center gap-4 milled-recess">
+<div class="flex items-center gap-4">
+<!-- SVG Mark Mono -->
+<div class="w-14 h-14 bg-black border border-white/40 p-2 flex items-center justify-center flex-shrink-0">
+<svg class="w-full h-full" fill="none" viewbox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+<path d="M 4 16 L 4 4 L 16 4" stroke="#FFFFFF" stroke-linecap="square" stroke-width="2.5"></path>
+<path d="M 48 4 L 60 4 L 60 16" stroke="#FFFFFF" stroke-linecap="square" stroke-width="2.5"></path>
+<path d="M 4 48 L 4 60 L 16 60" stroke="#FFFFFF" stroke-linecap="square" stroke-width="2.5"></path>
+<path d="M 48 60 L 60 60 L 60 48" stroke="#FFFFFF" stroke-linecap="square" stroke-width="2.5"></path>
+<line stroke="#FFFFFF" stroke-linecap="square" stroke-opacity="0.4" stroke-width="3" x1="8" x2="20" y1="32" y2="32"></line>
+<line stroke="#FFFFFF" stroke-linecap="square" stroke-opacity="0.4" stroke-width="3" x1="44" x2="56" y1="32" y2="32"></line>
+<circle cx="22" cy="32" fill="#FFFFFF" fill-opacity="0.4" r="2.5"></circle>
+<circle cx="42" cy="32" fill="#FFFFFF" fill-opacity="0.4" r="2.5"></circle>
+<line stroke="#FFFFFF" stroke-linecap="square" stroke-width="4.5" x1="18" x2="46" y1="46" y2="18"></line>
+<circle cx="32" cy="32" fill="#FFFFFF" r="5" stroke="#000000" stroke-width="1.5"></circle>
+</svg>
+</div>
+<div class="font-sans text-2xl font-black text-white tracking-[-0.04em] uppercase">
+                  SCRAM<span class="text-white/60 font-bold">KD</span>
+</div>
+</div>
+<span class="px-2 py-0.5 text-[9px] font-mono tracking-widest uppercase border border-white/30 text-white/80 bg-white/5">
+                CLASS: 1-BIT SILHOUETTE
+              </span>
+</div>
+</div>
+<div class="mt-6 pt-4 hairline-t font-mono text-xs text-slate-400 space-y-1.5">
+<div class="text-white font-semibold">Deployment Context:</div>
+<p class="text-[11px] leading-relaxed text-slate-400">
+              Laser-etched aluminum DIN rails, silk-screened server faceplates, thermal receipt dispatch tickets, and low-contrast optical print runs. 100% white on absolute black.
+            </p>
+</div>
+</div>
+<!-- 1.3 Inverse Darkroom Specification -->
+<div class="p-8 bg-[#06080E] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between font-mono text-[10px] text-slate-400 mb-6">
+<span class="text-white font-bold">FIG 1.3 // INVERSE LIGHT / PHOTOPRINT</span>
+<span>STATE: EMULSION DRAFT</span>
+</div>
+<!-- Visual Canvas -->
+<div class="h-52 bg-[#F1F5F9] border border-slate-300 p-6 flex flex-col items-center justify-center gap-4 milled-recess">
+<div class="flex items-center gap-4">
+<!-- SVG Mark Inverse -->
+<div class="w-14 h-14 bg-white border border-slate-400 p-2 flex items-center justify-center flex-shrink-0">
+<svg class="w-full h-full" fill="none" viewbox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+<path d="M 4 16 L 4 4 L 16 4" stroke="#0F172A" stroke-linecap="square" stroke-width="2.5"></path>
+<path d="M 48 4 L 60 4 L 60 16" stroke="#0F172A" stroke-linecap="square" stroke-width="2.5"></path>
+<path d="M 4 48 L 4 60 L 16 60" stroke="#0F172A" stroke-linecap="square" stroke-width="2.5"></path>
+<path d="M 48 60 L 60 60 L 60 48" stroke="#0F172A" stroke-linecap="square" stroke-width="2.5"></path>
+<line stroke="#64748B" stroke-linecap="square" stroke-width="3" x1="8" x2="20" y1="32" y2="32"></line>
+<line stroke="#64748B" stroke-linecap="square" stroke-width="3" x1="44" x2="56" y1="32" y2="32"></line>
+<circle cx="22" cy="32" fill="#64748B" r="2.5"></circle>
+<circle cx="42" cy="32" fill="#64748B" r="2.5"></circle>
+<line stroke="#DC2626" stroke-linecap="square" stroke-width="4.5" x1="18" x2="46" y1="46" y2="18"></line>
+<circle cx="32" cy="32" fill="#DC2626" r="5" stroke="#FFFFFF" stroke-width="1.5"></circle>
+</svg>
+</div>
+<div class="font-sans text-2xl font-black text-slate-900 tracking-[-0.04em] uppercase">
+                  SCRAM<span class="text-slate-500 font-bold">KD</span>
+</div>
+</div>
+<span class="px-2 py-0.5 text-[9px] font-mono tracking-widest uppercase border border-slate-400 text-slate-700 bg-slate-200">
+                AUDIT FORM: WHITE PAPER
+              </span>
+</div>
+</div>
+<div class="mt-6 pt-4 hairline-t font-mono text-xs text-slate-400 space-y-1.5">
+<div class="text-white font-semibold">Deployment Context:</div>
+<p class="text-[11px] leading-relaxed text-slate-400">
+              Physical patent filings, legal deposition exhibits, compliance white papers, and high-illumination field operating manuals requiring dark-on-light optical contrast.
+            </p>
+</div>
+</div>
+</div>
+<!-- Multi-Scale Silhouette Benchmarking -->
+<div class="p-8 sm:p-10 bg-[#070A10] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+<div>
+<div class="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-semibold mb-1">
+            Optical Silhouette Benchmark Matrix
+          </div>
+<div class="text-xs text-slate-300">
+            Stroke weighting and negative space remain non-collapsing down to micro-resolutions.
+          </div>
+</div>
+<div class="flex items-center gap-8 font-mono text-xs text-slate-400">
+<!-- 64px Desktop -->
+<div class="flex items-center gap-3">
+<div class="w-16 h-16 bg-[#090D15] hairline-border p-2 flex items-center justify-center">
+<svg class="w-full h-full" fill="none" viewbox="0 0 64 64">
+<path d="M 4 16 L 4 4 L 16 4 M 48 4 L 60 4 L 60 16 M 4 48 L 4 60 L 16 60 M 48 60 L 60 60 L 60 48" stroke="#FFFFFF" stroke-linecap="square" stroke-width="3"></path>
+<line stroke="#EF4444" stroke-linecap="square" stroke-width="5" x1="18" x2="46" y1="46" y2="18"></line>
+<circle cx="32" cy="32" fill="#EF4444" r="6"></circle>
+</svg>
+</div>
+<div>
+<div class="text-white font-medium">64×64 px</div>
+<div class="text-[10px] text-slate-500">Chassis Badge</div>
+</div>
+</div>
+<!-- 32px AppIcon -->
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-[#090D15] hairline-border p-1 flex items-center justify-center">
+<svg class="w-full h-full" fill="none" viewbox="0 0 64 64">
+<path d="M 4 16 L 4 4 L 16 4 M 48 4 L 60 4 L 60 16 M 4 48 L 4 60 L 16 60 M 48 60 L 60 60 L 60 48" stroke="#FFFFFF" stroke-linecap="square" stroke-width="4"></path>
+<line stroke="#EF4444" stroke-linecap="square" stroke-width="6" x1="18" x2="46" y1="46" y2="18"></line>
+<circle cx="32" cy="32" fill="#EF4444" r="7"></circle>
+</svg>
+</div>
+<div>
+<div class="text-white font-medium">32×32 px</div>
+<div class="text-[10px] text-slate-500">AppIcon Production</div>
+</div>
+</div>
+<!-- 20px Menu Bar -->
+<div class="flex items-center gap-3">
+<div class="w-5 h-5 bg-[#090D15] hairline-border p-0.5 flex items-center justify-center">
+<svg class="w-full h-full" fill="none" viewbox="0 0 64 64">
+<line stroke="#EF4444" stroke-linecap="square" stroke-width="9" x1="14" x2="50" y1="50" y2="14"></line>
+<circle cx="32" cy="32" fill="#EF4444" r="10"></circle>
+</svg>
+</div>
+<div>
+<div class="text-white font-medium">20×20 px</div>
+<div class="text-[10px] text-slate-500">macOS Menu Bar</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ========================================================================= -->
+<!-- SECTION 2: COLOR PALETTE // SEMANTIC STATE CHROMATIC SPECIFICATIONS        -->
+<!-- ========================================================================= -->
+<section class="hairline-b" id="color-palette">
+<!-- Section Header -->
+<div class="px-8 py-4 bg-[#090D15] hairline-b flex items-center justify-between chassis-header">
+<h2 class="text-xs font-mono uppercase tracking-widest text-white font-semibold flex items-center gap-2">
+<span class="w-1.5 h-1.5 bg-[#F59E0B]"></span>
+          Section 02 // Semantic State Chromatic Specifications
+        </h2>
+<span class="text-xs font-mono text-slate-400">HARDWARE EMISSION &amp; STATE-MACHINE BINDING</span>
+</div>
+<!-- Core Color Policy -->
+<div class="p-8 sm:p-10 hairline-b bg-[#070A10]">
+<div class="max-w-3xl text-sm leading-relaxed text-slate-300">
+<strong class="text-white">Zero Ambient Trim Policy:</strong> In high-assurance environments, color carries legal and operational liability. Color is never employed for decorative flourishes or consumer gradients. Every chromatic hue corresponds to an inviolable finite-state machine (FSM) condition in the POSIX mediation runtime.
+        </div>
+</div>
+<!-- 4 Hardware Readout Color Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 hairline-b">
+<!-- Radical Red -->
+<div class="p-6 hairline-r bg-[#06080E] flex flex-col justify-between">
+<div>
+<!-- Hardware Spec Swatch Block -->
+<div class="w-full h-24 bg-[#EF4444] p-3 flex flex-col justify-between rounded-[1px] shadow-inner mb-4 led-glow-red">
+<span class="text-[10px] font-mono text-white font-bold bg-black/60 px-1.5 py-0.5 w-max">
+                PANTONE 1795 C
+              </span>
+<div class="text-right">
+<span class="text-[10px] font-mono text-white font-semibold bg-black/40 px-1.5 py-0.5">
+                  λ 625 nm
+                </span>
+</div>
+</div>
+<!-- Readout Metadata Cell -->
+<div class="space-y-2 font-mono text-xs">
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">ROLE IDENTIFIER</span>
+<span class="text-white font-bold">RADICAL RED</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">HEX / RGB</span>
+<span class="text-[#EF4444] font-bold">#EF4444</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">FSM TRANSITION</span>
+<span class="text-white">TRIP / SCRAM</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">CONTRAST RATIO</span>
+<span class="text-[#10B981]">7.4:1 (PASS)</span>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-3 hairline-t font-mono text-[11px] text-slate-400 leading-normal">
+<strong class="text-white block mb-1">Functional Context:</strong>
+            Immediate emergency abort. Mach lease broker invalidates active allocations; SIGKILL is issued to agent stdio pipe; atomic continuation waiter queue is instantly drained.
+          </div>
+</div>
+<!-- Armed Amber -->
+<div class="p-6 hairline-r bg-[#06080E] flex flex-col justify-between">
+<div>
+<!-- Hardware Spec Swatch Block -->
+<div class="w-full h-24 bg-[#F59E0B] p-3 flex flex-col justify-between rounded-[1px] shadow-inner mb-4 led-glow-amber">
+<span class="text-[10px] font-mono text-black font-bold bg-white/70 px-1.5 py-0.5 w-max">
+                PANTONE 137 C
+              </span>
+<div class="text-right">
+<span class="text-[10px] font-mono text-black font-semibold bg-white/50 px-1.5 py-0.5">
+                  λ 590 nm
+                </span>
+</div>
+</div>
+<!-- Readout Metadata Cell -->
+<div class="space-y-2 font-mono text-xs">
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">ROLE IDENTIFIER</span>
+<span class="text-white font-bold">ARMED AMBER</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">HEX / RGB</span>
+<span class="text-[#F59E0B] font-bold">#F59E0B</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">FSM TRANSITION</span>
+<span class="text-white">ARMED / GATE</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">CONTRAST RATIO</span>
+<span class="text-[#10B981]">11.2:1 (PASS)</span>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-3 hairline-t font-mono text-[11px] text-slate-400 leading-normal">
+<strong class="text-white block mb-1">Functional Context:</strong>
+            High-risk agent invocation intercepted by Darwin kernel boundary. Pipeline suspended pending explicit physical operator permissive grant or TTL timeout expiry.
+          </div>
+</div>
+<!-- Tactical Emerald -->
+<div class="p-6 hairline-r bg-[#06080E] flex flex-col justify-between">
+<div>
+<!-- Hardware Spec Swatch Block -->
+<div class="w-full h-24 bg-[#10B981] p-3 flex flex-col justify-between rounded-[1px] shadow-inner mb-4 led-glow-emerald">
+<span class="text-[10px] font-mono text-white font-bold bg-black/60 px-1.5 py-0.5 w-max">
+                PANTONE 340 C
+              </span>
+<div class="text-right">
+<span class="text-[10px] font-mono text-white font-semibold bg-black/40 px-1.5 py-0.5">
+                  λ 525 nm
+                </span>
+</div>
+</div>
+<!-- Readout Metadata Cell -->
+<div class="space-y-2 font-mono text-xs">
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">ROLE IDENTIFIER</span>
+<span class="text-white font-bold">TACTICAL EMERALD</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">HEX / RGB</span>
+<span class="text-[#10B981] font-bold">#10B981</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">FSM TRANSITION</span>
+<span class="text-white">PERMISSIVE</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">CONTRAST RATIO</span>
+<span class="text-[#10B981]">8.1:1 (PASS)</span>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-3 hairline-t font-mono text-[11px] text-slate-400 leading-normal">
+<strong class="text-white block mb-1">Functional Context:</strong>
+            Operator clearance authenticated. Ephemeral single-use wire lease dispatched to stdio channel. Automatically closes on payload buffer drain without persistent token retention.
+          </div>
+</div>
+<!-- Slate Gray -->
+<div class="p-6 bg-[#06080E] flex flex-col justify-between">
+<div>
+<!-- Hardware Spec Swatch Block -->
+<div class="w-full h-24 bg-[#64748B] p-3 flex flex-col justify-between rounded-[1px] shadow-inner mb-4">
+<span class="text-[10px] font-mono text-white font-bold bg-black/60 px-1.5 py-0.5 w-max">
+                PANTONE 431 C
+              </span>
+<div class="text-right">
+<span class="text-[10px] font-mono text-white font-semibold bg-black/40 px-1.5 py-0.5">
+                  INERT PASSIVE
+                </span>
+</div>
+</div>
+<!-- Readout Metadata Cell -->
+<div class="space-y-2 font-mono text-xs">
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">ROLE IDENTIFIER</span>
+<span class="text-white font-bold">SLATE GRAY</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">HEX / RGB</span>
+<span class="text-[#94A3B8] font-bold">#64748B</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">FSM TRANSITION</span>
+<span class="text-white">INERT / LOCKED</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+<span class="text-slate-400">CONTRAST RATIO</span>
+<span class="text-white">4.9:1 (INERT)</span>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-3 hairline-t font-mono text-[11px] text-slate-400 leading-normal">
+<strong class="text-white block mb-1">Functional Context:</strong>
+            Quiescent default state. High-risk tool calls immediately thrown and logged to unalterable ring buffer without actor invocation. Also governs structural hairline grids.
+          </div>
+</div>
+</div>
+<!-- Foundation Neutrals Sub-Table -->
+<div class="p-8 sm:p-10 bg-[#070A10]">
+<div class="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-semibold mb-4">
+          Architectural Enclosure Palette (Chassis Foundations)
+        </div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono">
+<div class="p-3 bg-[#04060A] hairline-border">
+<div class="w-full h-8 bg-[#04060A] border border-white/20 mb-2"></div>
+<div class="text-white font-semibold">Pitch Canvas</div>
+<div class="text-slate-500">#04060A</div>
+</div>
+<div class="p-3 bg-[#070A10] hairline-border">
+<div class="w-full h-8 bg-[#070A10] border border-white/20 mb-2"></div>
+<div class="text-white font-semibold">Chassis Surface</div>
+<div class="text-slate-500">#070A10</div>
+</div>
+<div class="p-3 bg-[#090D15] hairline-border">
+<div class="w-full h-8 bg-[#090D15] border border-white/20 mb-2"></div>
+<div class="text-white font-semibold">Milled Pocket</div>
+<div class="text-slate-500">#090D15</div>
+</div>
+<div class="p-3 bg-[#0B111D] hairline-border">
+<div class="w-full h-8 bg-[#0B111D] border border-white/20 mb-2"></div>
+<div class="text-white font-semibold">Structural Hairline</div>
+<div class="text-slate-500">rgba(255,255,255,0.08)</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ========================================================================= -->
+<!-- SECTION 3: TYPOGRAPHY HIERARCHY & USAGE RULES                            -->
+<!-- ========================================================================= -->
+<section class="hairline-b" id="typography">
+<!-- Section Header -->
+<div class="px-8 py-4 bg-[#090D15] hairline-b flex items-center justify-between chassis-header">
+<h2 class="text-xs font-mono uppercase tracking-widest text-white font-semibold flex items-center gap-2">
+<span class="w-1.5 h-1.5 bg-[#10B981]"></span>
+          Section 03 // Typographic Discipline &amp; Industrial Rigor
+        </h2>
+<span class="text-xs font-mono text-slate-400">SWISS INTERNATIONAL EDITORIAL RATIOS</span>
+</div>
+<!-- Core Typographic Philosophy -->
+<div class="p-8 sm:p-10 hairline-b bg-[#070A10]">
+<div class="max-w-3xl text-sm leading-relaxed text-slate-300">
+<strong class="text-white">Strict Dual-Family Split:</strong> Typography is segmented into two non-overlapping realms. <strong class="text-white">Inter</strong> governs all architectural prose, executive headers, and institutional authority. <strong class="text-white">Geist Mono</strong> is reserved strictly for deterministic system values, memory addresses, telemetry states, and POSIX descriptors. Retro gamer or simulated sci-fi terminal fonts are strictly forbidden.
+        </div>
+</div>
+<!-- Two-Column Typography Architecture -->
+<div class="grid grid-cols-1 lg:grid-cols-2 hairline-b">
+<!-- Left: Inter Family (Prose & Display) -->
+<div class="p-8 sm:p-10 hairline-r bg-[#06080E] space-y-8">
+<div>
+<div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
+<span class="text-white font-bold">3.1 / PRIMARY DISPLAY &amp; PROSE</span>
+<span>INTER (SWISS SANS)</span>
+</div>
+<p class="text-xs text-slate-400 leading-relaxed">
+              Geometric grotesque proportions with tight letterforms optimized for rapid optical scanning at high speeds without cognitive fatigue.
+            </p>
+</div>
+<!-- Type Specimen 1: Hero Display -->
+<div class="p-4 bg-[#090D15] hairline-border space-y-2">
+<div class="flex items-center justify-between text-[10px] font-mono text-slate-500">
+<span>WEIGHT: 900 (BLACK) • TRACKING: -0.05em</span>
+<span>48px / 1.0</span>
+</div>
+<div class="text-3xl sm:text-4xl font-black text-white tracking-[-0.05em] uppercase font-sans">
+              HARDWARE SAFETY INTERLOCK
+            </div>
+<p class="text-[11px] text-slate-400 font-mono">
+              Role: Primary product title, monogram companion wordmark.
+            </p>
+</div>
+<!-- Type Specimen 2: Sub-Heading -->
+<div class="p-4 bg-[#090D15] hairline-border space-y-2">
+<div class="flex items-center justify-between text-[10px] font-mono text-slate-500">
+<span>WEIGHT: 700 (BOLD) • TRACKING: -0.02em</span>
+<span>24px / 1.2</span>
+</div>
+<div class="text-xl sm:text-2xl font-bold text-white tracking-[-0.02em] font-sans">
+              Deterministic Process Severance Standard
+            </div>
+<p class="text-[11px] text-slate-400 font-mono">
+              Role: Section monograph heads, executive technical overviews.
+            </p>
+</div>
+<!-- Type Specimen 3: Body Prose -->
+<div class="p-4 bg-[#090D15] hairline-border space-y-2">
+<div class="flex items-center justify-between text-[10px] font-mono text-slate-500">
+<span>WEIGHT: 400 (REGULAR) • TRACKING: NORMAL</span>
+<span>14px / 1.6</span>
+</div>
+<p class="text-sm text-slate-300 leading-relaxed font-sans">
+              Autonomous agentic operations require immutable boundaries. SCRAMKD strips probabilistic uncertainty from execution monitoring by mediating tool dispatches through native macOS Darwin kernel locks and physical relay triggers.
+            </p>
+<p class="text-[11px] text-slate-400 font-mono">
+              Role: Long-form architectural specification prose, defense audit summaries.
+            </p>
+</div>
+</div>
+<!-- Right: Geist Mono Family (Telemetry & Code) -->
+<div class="p-8 sm:p-10 bg-[#06080E] space-y-8">
+<div>
+<div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
+<span class="text-white font-bold">3.2 / TELEMETRY &amp; CODE</span>
+<span>GEIST MONO (TABULAR MONOSPACE)</span>
+</div>
+<p class="text-xs text-slate-400 leading-relaxed">
+              Strict tabular lining figures ensuring continuous I/O streams and kernel telemetry streams never cause layout jitter or displacement during high-throughput execution.
+            </p>
+</div>
+<!-- Type Specimen 1: Telemetry Readout -->
+<div class="p-4 bg-[#090D15] hairline-border space-y-2 font-mono">
+<div class="flex items-center justify-between text-[10px] text-slate-500">
+<span>WEIGHT: 700 (BOLD) • TRACKING: 0.05em</span>
+<span>18px / 1.0</span>
+</div>
+<div class="text-base sm:text-lg font-bold text-white tracking-wider">
+              0x7FFF5FBFFD98 • &lt; 400 μs TRIP
+            </div>
+<p class="text-[11px] text-slate-400 font-mono">
+              Role: Memory addresses, hardware interrupt latency timestamps, hex values.
+            </p>
+</div>
+<!-- Type Specimen 2: System Protocol Pill -->
+<div class="p-4 bg-[#090D15] hairline-border space-y-2 font-mono">
+<div class="flex items-center justify-between text-[10px] text-slate-500">
+<span>WEIGHT: 600 (SEMIBOLD) • TRACKING: 0.1em</span>
+<span>12px / 1.4</span>
+</div>
+<div class="text-xs font-semibold text-[#10B981] tracking-widest uppercase">
+              SYS.DEF // SWIFT_6_STRICT // ZERO_EGRESS
+            </div>
+<p class="text-[11px] text-slate-400 font-mono">
+              Role: Status indicators, hardware metadata tags, system state badges.
+            </p>
+</div>
+<!-- Type Specimen 3: POSIX & Kernel Descriptors -->
+<div class="p-4 bg-[#090D15] hairline-border space-y-2 font-mono">
+<div class="flex items-center justify-between text-[10px] text-slate-500">
+<span>WEIGHT: 400 (REGULAR) • TABULAR LINING</span>
+<span>11px / 1.5</span>
+</div>
+<div class="text-xs text-slate-300 leading-relaxed bg-[#04060A] p-2.5 border border-white/5">
+              int trip_status = fcntl(fd, F_SETNOSIGPIPE, 1);<br/>
+              os_unfair_lock_lock(&amp;scram_gate_lock);<br/>
+              // CONTINUATION DRAIN CONFIRMED
+            </div>
+<p class="text-[11px] text-slate-400 font-mono">
+              Role: System call signatures, inline configuration keys, Darwin lease logs.
+            </p>
+</div>
+</div>
+</div>
+<!-- Typographic Rules Checklist Table -->
+<div class="p-8 sm:p-10 bg-[#070A10]">
+<div class="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-semibold mb-4">
+          Normative Typographic Constraints &amp; Enforcement Rules
+        </div>
+<div class="border hairline-divide text-xs font-mono overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-[#090D15] text-slate-400 border-b hairline-divide">
+<th class="p-3 border-r hairline-divide">ELEMENT CLASS</th>
+<th class="p-3 border-r hairline-divide">FAMILY</th>
+<th class="p-3 border-r hairline-divide">WEIGHT</th>
+<th class="p-3 border-r hairline-divide">TRACKING</th>
+<th class="p-3">INVIOLABLE CONSTRAINT</th>
+</tr>
+</thead>
+<tbody class="divide-y hairline-divide text-slate-300">
+<tr class="bg-[#06080E]">
+<td class="p-3 border-r hairline-divide text-white font-semibold">Wordmark Head</td>
+<td class="p-3 border-r hairline-divide">Inter Sans</td>
+<td class="p-3 border-r hairline-divide">900 (Black)</td>
+<td class="p-3 border-r hairline-divide">-0.05em</td>
+<td class="p-3 text-slate-400">Must never be broken into two words. SCRAM in white, KD in #94A3B8.</td>
+</tr>
+<tr>
+<td class="p-3 border-r hairline-divide text-white font-semibold">Section Titles</td>
+<td class="p-3 border-r hairline-divide">Inter Sans</td>
+<td class="p-3 border-r hairline-divide">700 (Bold)</td>
+<td class="p-3 border-r hairline-divide">-0.02em</td>
+<td class="p-3 text-slate-400">Sentence case or strict uppercase. No decorative drop shadows.</td>
+</tr>
+<tr class="bg-[#06080E]">
+<td class="p-3 border-r hairline-divide text-white font-semibold">Prose &amp; Specs</td>
+<td class="p-3 border-r hairline-divide">Inter Sans</td>
+<td class="p-3 border-r hairline-divide">400 (Regular)</td>
+<td class="p-3 border-r hairline-divide">0.00em</td>
+<td class="p-3 text-slate-400">Maximum line length 75ch. Line height 1.6 for sustained readability.</td>
+</tr>
+<tr>
+<td class="p-3 border-r hairline-divide text-white font-semibold">Telemetry Data</td>
+<td class="p-3 border-r hairline-divide">Geist Mono</td>
+<td class="p-3 border-r hairline-divide">600 / 700</td>
+<td class="p-3 border-r hairline-divide">+0.05em</td>
+<td class="p-3 text-slate-400">Strict tabular figures (<code class="text-white">font-variant-numeric: tabular-nums</code>).</td>
+</tr>
+<tr class="bg-[#06080E]">
+<td class="p-3 border-r hairline-divide text-white font-semibold">Hardware Tags</td>
+<td class="p-3 border-r hairline-divide">Geist Mono</td>
+<td class="p-3 border-r hairline-divide">500 / 600</td>
+<td class="p-3 border-r hairline-divide">+0.15em</td>
+<td class="p-3 text-slate-400">All caps with double-slash separators (<code class="text-white">//</code>).</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- Institutional Monograph Colophon & Distribution Seal -->
+<footer class="p-8 sm:px-12 py-6 bg-[#05070C] flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-slate-400 gap-4 chassis-header">
+<div class="flex items-center gap-4">
+<span class="text-white font-bold tracking-wider">SCRAMKD SPECIFICATION MONOGRAPH</span>
+<span class="text-slate-600">•</span>
+<span>SECURITY ARCHITECTURE DIVISION</span>
+</div>
+<div class="flex items-center gap-4 text-slate-400">
+<span>APACHE-2.0 OPEN PROTOCOL</span>
+<span class="text-slate-600">•</span>
+<span>DARWIN INTEGRITY VERIFIED</span>
+</div>
+</footer>
+</article>
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>SCRAMKD // OPERATOR CONSOLE — VARIANT C (AVIONICS HUD & INSTRUMENT BAY)</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "hud-black": "#05070A",
+            "hud-surface": "#090D13",
+            "hud-panel": "#0E141E",
+            "hud-border": "#1A2230",
+            "hud-border-bright": "#2E3D56",
+            "p3-green": "#28C840",
+            "p3-amber": "#FEBC2E",
+            "p3-red": "#FF5F56",
+            "p3-cyan": "#00E5FF",
+            "p3-muted": "#64748B"
+          },
+          fontFamily: {
+            mono: ["'JetBrains Mono'", "monospace"],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+    body {
+      background-color: #05070A;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .hud-box {
+      background: #090D13;
+      border: 1px solid #1A2230;
+    }
+    .hud-box-bright {
+      border-color: #2E3D56;
+    }
+    .grid-pattern {
+      background-size: 24px 24px;
+      background-image: 
+        linear-gradient(to right, rgba(26, 34, 48, 0.3) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(26, 34, 48, 0.3) 1px, transparent 1px);
+    }
+    @keyframes sweep {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(1000%); }
+    }
+    .scan-line {
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.4), transparent);
+      animation: sweep 8s linear infinite;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="w-[1440px] h-[900px] overflow-hidden text-slate-300 antialiased flex flex-col justify-between p-4 relative grid-pattern">
+
+  <div class="scan-line"></div>
+
+  <!-- TIER 1: TOP AVIONICS FLIGHT BAR & BREADCRUMBS -->
+  <header class="w-full flex flex-col gap-2 z-10">
+    <div class="w-full hud-box p-2.5 flex items-center justify-between border-b-2 border-p3-amber">
+      <!-- Breadcrumb Signposting -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 bg-black px-2.5 py-1 border border-hud-border">
+          <span class="w-2 h-2 bg-p3-amber animate-ping"></span>
+          <span class="text-xs font-bold text-white tracking-widest">SCRAMKD // FLIGHT DIRECTOR</span>
+        </div>
+        <span class="text-hud-border text-sm">/</span>
+        <div class="flex items-center gap-2 text-xs text-slate-400">
+          <span class="text-slate-500">STAGE:</span>
+          <span class="text-p3-cyan font-bold">DARWIN SUPERVISOR</span>
+          <span class="text-hud-border">/</span>
+          <span class="text-slate-500">TARGET:</span>
+          <span class="text-slate-200">PID 19482 (LOOPBACK)</span>
+          <span class="text-hud-border">/</span>
+          <span class="text-p3-amber font-bold">INTERCEPT HOLD ACTIVE</span>
+        </div>
+      </div>
+
+      <!-- Realtime Monotonic Status Bar -->
+      <div class="flex items-center gap-4 text-xs">
+        <div class="flex items-center gap-2">
+          <span class="text-slate-500">GATE:</span>
+          <span class="px-2 py-0.5 bg-p3-amber/10 border border-p3-amber/40 text-p3-amber font-bold tracking-wider">LOCKED</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-slate-500">UPTIME:</span>
+          <span class="text-slate-200 font-mono">14:28:09.412</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-slate-500">FRAMEBUFFER:</span>
+          <span class="text-p3-green font-mono">60.0 FPS (P3)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Persistent High-Vis Alert Escalation Banner -->
+    <div class="w-full bg-[#1A1206] border border-p3-amber/50 p-2 flex items-center justify-between text-xs">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-p3-amber text-base">warning</span>
+        <span class="text-p3-amber font-bold">ALERT TRIPPED:</span>
+        <span class="text-slate-200">Untrusted JSON-RPC execution request intercepted on internal loopback socket. Clearance required.</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="openModal('avionics-escalate-modal')" class="px-3 py-1 bg-p3-amber/20 hover:bg-p3-amber/30 text-p3-amber border border-p3-amber text-[11px] font-bold tracking-wider">
+          ESCALATE / QUARANTINE
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- TIER 2: PRIMARY INTERCEPT FLIGHT DECK (MAIN INTERLOCK CONTROLS) -->
+  <main class="w-full flex-1 grid grid-cols-12 gap-3 my-2 items-stretch">
+    
+    <!-- LEFT 7 COLS: TRAPPED TELEMETRY & FLIGHT RECORDER -->
+    <section class="col-span-7 flex flex-col gap-3">
+      
+      <!-- Primary Intercept Display -->
+      <div class="hud-box flex-1 p-4 flex flex-col justify-between">
+        <div>
+          <!-- Title & Protocol Heading -->
+          <div class="flex items-center justify-between pb-2 border-b border-hud-border">
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] text-p3-cyan uppercase tracking-widest font-bold">PRIMARY FLIGHT VECTOR:</span>
+              <span class="text-xs font-bold text-white">mcp.tools.execute</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+              <span class="text-slate-500">TTL DEADLINE:</span>
+              <span class="text-p3-amber font-bold bg-black px-2 py-0.5 border border-p3-amber/40">04:42.18s</span>
+            </div>
+          </div>
+
+          <!-- Vector Detail Summary -->
+          <div class="grid grid-cols-3 gap-2 my-3 text-[11px]">
+            <div class="p-2 bg-black border border-hud-border">
+              <span class="text-slate-500 block text-[9px]">CALLER PROVENANCE</span>
+              <span class="text-slate-200 font-bold">MCP Subprocess Bridge</span>
+            </div>
+            <div class="p-2 bg-black border border-hud-border">
+              <span class="text-slate-500 block text-[9px]">PEER IDENTITY</span>
+              <span class="text-p3-green font-bold">OS-VERIFIED (UID 501)</span>
+            </div>
+            <div class="p-2 bg-black border border-hud-border">
+              <span class="text-slate-500 block text-[9px]">CLEARANCE LEASE</span>
+              <span class="text-p3-amber font-bold">SINGLE-USE ONLY</span>
+            </div>
+          </div>
+
+          <!-- Code Hex / JSON Flight Payload -->
+          <div class="p-3 bg-black border border-hud-border text-[11px] font-mono leading-relaxed">
+            <div class="flex items-center justify-between text-[10px] text-slate-500 pb-1.5 mb-1.5 border-b border-hud-border">
+              <span>RAW BUFFER // SHA-256: 8a4f91c920bf0192e858a742819cd...</span>
+              <span class="text-p3-cyan">184 BYTES</span>
+            </div>
+            <pre class="text-slate-300"><span class="text-p3-muted">0000:</span> {"jsonrpc": "2.0", "id": "req-9042-perm", "method": "execute",
+<span class="text-p3-muted">0030:</span>  "params": {"command": <span class="text-p3-red font-bold">"/usr/bin/security find-generic-password"</span>,
+<span class="text-p3-muted">0070:</span>             "sandbox_enforced": false, "env_scrubbed": true}}</pre>
+          </div>
+        </div>
+
+        <!-- DEAD-MAN INTERLOCK CONTROLS -->
+        <div class="mt-3 pt-3 border-t border-hud-border flex items-center justify-between">
+          <!-- Hold Interlock Status -->
+          <div class="flex items-center gap-3">
+            <div class="w-32 h-2 bg-black border border-hud-border relative">
+              <div id="hold-bar" class="h-full bg-p3-green w-0 transition-all duration-75"></div>
+            </div>
+            <span id="hold-label" class="text-xs font-bold text-slate-400">HOLD [SPACE] 1.5s</span>
+          </div>
+
+          <!-- Physical Action Buttons -->
+          <div class="flex items-center gap-3">
+            <button onclick="triggerAbort()" class="px-4 py-2 bg-p3-red/10 hover:bg-p3-red/20 border-2 border-p3-red text-p3-red text-xs font-bold tracking-wider active:bg-p3-red active:text-white">
+              [ESC] EMERGENCY TRIP
+            </button>
+            <button id="btn-fire" disabled class="px-5 py-2 bg-hud-border text-slate-500 border border-slate-700 text-xs font-bold tracking-wider cursor-not-allowed">
+              [SPACE] FIRE PERMIT
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- RIGHT 5 COLS: SUBSYSTEM TELEMETRY RACK -->
+    <section class="col-span-5 flex flex-col gap-3">
+      
+      <!-- Telemetry Rack Card -->
+      <div class="hud-box flex-1 p-4 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between pb-2 border-b border-hud-border">
+            <span class="text-[10px] text-p3-cyan uppercase tracking-widest font-bold">HARDWARE INTERLOCK BUS:</span>
+            <span class="text-[10px] text-p3-green font-bold">ALL SENSORS NORMAL</span>
+          </div>
+
+          <div class="mt-3 space-y-2 text-xs">
+            <div class="p-2 bg-black border border-hud-border flex items-center justify-between">
+              <span class="text-slate-400">DARWIN SEATBELT PROFILE:</span>
+              <span class="text-p3-green font-bold">[ ENFORCED ]</span>
+            </div>
+            <div class="p-2 bg-black border border-hud-border flex items-center justify-between">
+              <span class="text-slate-400">7-KEY ENV SCRUBBER:</span>
+              <span class="text-p3-green font-bold">[ 0 LEAKS ]</span>
+            </div>
+            <div class="p-2 bg-black border border-hud-border flex items-center justify-between">
+              <span class="text-slate-400">LOOPBACK SOCKET FENCE:</span>
+              <span class="text-p3-green font-bold">[ 127.0.0.1 ONLY ]</span>
+            </div>
+            <div class="p-2 bg-black border border-hud-border flex items-center justify-between">
+              <span class="text-slate-400">AUDIO ENGINE:</span>
+              <span class="text-slate-200">REALTIME C11 (0 DROPS)</span>
+            </div>
+            <div class="p-2 bg-black border border-hud-border flex items-center justify-between">
+              <span class="text-slate-400">METAL RENDER QUEUE:</span>
+              <span class="text-p3-cyan font-bold">[ QUAD-BUFFERED ]</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deep-Link Panel Selectors -->
+        <div class="mt-3 pt-3 border-t border-hud-border">
+          <span class="text-[10px] text-slate-500 uppercase block mb-2">QUICK JUMP TO SUBSYSTEM:</span>
+          <div class="grid grid-cols-2 gap-2 text-[10px]">
+            <button onclick="selectModule('audit')" class="p-2 bg-black hover:bg-hud-border border border-hud-border text-left font-bold text-slate-300 hover:text-white">
+              → AUDIT STREAM (14k OPS)
+            </button>
+            <button onclick="selectModule('scrubber')" class="p-2 bg-black hover:bg-hud-border border border-hud-border text-left font-bold text-slate-300 hover:text-white">
+              → ENV SCRUBBER KEYS
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- TIER 3: MODULAR SUBSYSTEM DRAWER / DISPLAY RACK -->
+  <footer class="w-full hud-box p-3 z-10 flex flex-col gap-2">
+    <div class="flex items-center justify-between text-xs pb-1 border-b border-hud-border">
+      <div class="flex items-center gap-3">
+        <span class="text-[10px] text-slate-500 uppercase font-bold">REALTIME AUDIT BUS:</span>
+        <span class="text-slate-400 text-[11px]">[14:28:09.310] INTERCEPT_ENTER: req-9042 trapped at gate. Clearance lease requested.</span>
+      </div>
+      <div class="flex items-center gap-2 text-[10px] text-slate-500">
+        <span>F12 DISCONNECT</span>
+        <span>•</span>
+        <span>ESC EMERGENCY SCRAM</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ESCALATION MODAL -->
+  <div id="avionics-escalate-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-6">
+    <div class="hud-box hud-box-bright w-full max-w-xl p-5 border-2 border-p3-amber shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-hud-border">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-p3-red text-base">warning</span>
+          <span class="text-sm font-bold text-white uppercase tracking-wider">INCIDENT ESCALATION MATRIX</span>
+        </div>
+        <button onclick="closeModal('avionics-escalate-modal')" class="text-slate-400 hover:text-white text-xs font-bold">[X] CLOSE</button>
+      </div>
+
+      <div class="my-4 space-y-3 text-xs">
+        <p class="text-slate-300">Choose containment action for PID 19482 under Darwin supervisor:</p>
+        <div class="space-y-2">
+          <button onclick="alert('CONTAINMENT: Suspending threads.'); closeModal('avionics-escalate-modal');" class="w-full p-2.5 bg-black hover:bg-hud-border border border-p3-amber text-left">
+            <span class="text-p3-amber font-bold block">[ 1 ] THREAD SUSPENSION &amp; AUDIT DUMP</span>
+            <span class="text-[10px] text-slate-400">Suspends target task, preserves memory snapshot for inspection.</span>
+          </button>
+          <button onclick="alert('HARD SCRAM: Loopback connection severed.'); closeModal('avionics-escalate-modal');" class="w-full p-2.5 bg-black hover:bg-p3-red border border-p3-red text-left">
+            <span class="text-p3-red font-bold block">[ 2 ] LEVEL-0 HARD HARDWARE TRIP</span>
+            <span class="text-[10px] text-slate-400">Immediate SIGKILL, terminates loopback listener, purges state.</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let holdTimer = null;
+    let holdStart = 0;
+    let armed = false;
+    const HOLD_MS = 1500;
+    const bar = document.getElementById('hold-bar');
+    const label = document.getElementById('hold-label');
+    const btnFire = document.getElementById('btn-fire');
+
+    function startHold() {
+      if (armed) return;
+      holdStart = Date.now();
+      holdTimer = setInterval(() => {
+        const elapsed = Date.now() - holdStart;
+        const pct = Math.min(100, (elapsed / HOLD_MS) * 100);
+        bar.style.width = pct + '%';
+        label.textContent = `CHARGING... ${Math.round(pct)}%`;
+        if (elapsed >= HOLD_MS) {
+          clearInterval(holdTimer);
+          armed = true;
+          label.textContent = "READY // FIRE";
+          label.className = "text-xs font-bold text-p3-green";
+          btnFire.disabled = false;
+          btnFire.className = "px-5 py-2 bg-p3-green text-black border-2 border-p3-green text-xs font-bold tracking-wider cursor-pointer";
+        }
+      }, 30);
+    }
+
+    function cancelHold() {
+      if (armed) return;
+      clearInterval(holdTimer);
+      bar.style.width = '0%';
+      label.textContent = "HOLD [SPACE] 1.5s";
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !e.repeat) {
+        e.preventDefault();
+        if (!armed) startHold();
+        else btnFire.click();
+      } else if (e.code === 'Escape') {
+        e.preventDefault();
+        triggerAbort();
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'Space' && !armed) cancelHold();
+    });
+
+    btnFire.addEventListener('click', () => {
+      if (!armed) return;
+      alert("PERMIT DISPATCHED TO GATE INTERLOCK");
+    });
+
+    window.triggerAbort = function() {
+      alert("EMERGENCY HARD TRIP SEVERED");
+    };
+
+    window.openModal = function(id) {
+      document.getElementById(id).classList.remove('hidden');
+    };
+
+    window.closeModal = function(id) {
+      document.getElementById(id).classList.add('hidden');
+    };
+
+    window.selectModule = function(name) {
+      alert("DRILL-DOWN: Opening module [" + name + "]");
+    };
+  </script>
+</body>
+</html>

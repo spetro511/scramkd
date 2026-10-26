@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 120" width="640" height="120" fill="none">
+  <!-- Master Brand Lockup // SCRAMKD (Dark Base) -->
+  
+
+  <!-- Tactical Cartesian Grid Lines -->
+  <path d="M 0 30 L 640 30 M 0 60 L 640 60 M 0 90 L 640 90" stroke="#0B1220" stroke-width="1"/>
+  <path d="M 120 0 L 120 120 M 240 0 L 240 120 M 360 0 L 360 120 M 480 0 L 480 120" stroke="#0B1220" stroke-width="1"/>
+
+  <!-- Top Telemetry Header -->
+  <text x="28" y="20" fill="#64748B" font-family="'JetBrains Mono', 'SF Mono', monospace" font-size="8" font-weight="700" letter-spacing="1">SPEC REF: 2026.04-DARWIN // TACTICAL INTERLOCK</text>
+
+  <!-- Right Status Badge: ARMED / ZERO EGRESS -->
+  <rect x="480" y="12" width="132" height="18" fill="#061A14" stroke="#10B981" stroke-width="1"/>
+  <circle cx="492" cy="21" r="3" fill="#10B981"/>
+  <text x="502" y="24" fill="#10B981" font-family="'JetBrains Mono', 'SF Mono', monospace" font-size="8" font-weight="700" letter-spacing="1">SWIFT 6 // ZERO EGRESS</text>
+
+  <!-- Primary Logomark (64x64 matrix at x=28, y=32) -->
+  <g transform="translate(28, 32)">
+    <!-- Machined Corner Brackets -->
+    <path d="M 4 16 L 4 4 L 16 4" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="square"/>
+    <path d="M 48 4 L 60 4 L 60 16" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="square"/>
+    <path d="M 4 48 L 4 60 L 16 60" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="square"/>
+    <path d="M 48 60 L 60 60 L 60 48" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="square"/>
+    <!-- Conductive Bus Traces -->
+    <line x1="8" y1="32" x2="20" y2="32" stroke="#64748B" stroke-width="3" stroke-linecap="square"/>
+    <line x1="44" y1="32" x2="56" y2="32" stroke="#64748B" stroke-width="3" stroke-linecap="square"/>
+    <circle cx="22" cy="32" r="2.5" fill="#64748B"/>
+    <circle cx="42" cy="32" r="2.5" fill="#64748B"/>
+    <!-- 45-Degree Radical Red Circuit Sever Blade -->
+    <line x1="18" y1="46" x2="46" y2="18" stroke="#EF4444" stroke-width="4.5" stroke-linecap="square"/>
+    <!-- Central Trip Core Terminal -->
+    <circle cx="32" cy="32" r="5" fill="#EF4444" stroke="#030508" stroke-width="1.5"/>
+  </g>
+
+  <!-- Divider Vertical Hairline -->
+  <line x1="110" y1="36" x2="110" y2="96" stroke="#1E293B" stroke-width="1"/>
+
+  <!-- Brand Wordmark Typography -->
+  <g transform="translate(126, 74)">
+    <text x="0" y="0" font-family="'JetBrains Mono', 'Space Mono', 'SF Mono', -apple-system, sans-serif" font-weight="900" font-size="44" letter-spacing="1">
+      <tspan fill="#FFFFFF">SCRAM</tspan><tspan fill="#94A3B8">KD</tspan>
+    </text>
+  </g>
+
+  <!-- Subtitle & Descriptor -->
+  <text x="128" y="96" fill="#64748B" font-family="'JetBrains Mono', 'SF Mono', monospace" font-size="9" font-weight="700" letter-spacing="1.5">DARWIN SUPERVISOR DAEMON &amp; HARDWARE INTERLOCK RUNTIME</text>
+
+  <!-- Bottom Right Telemetry Metric -->
+  <text x="612" y="106" fill="#475569" font-family="'JetBrains Mono', 'SF Mono', monospace" font-size="8" font-weight="600" letter-spacing="0.5" text-anchor="end">&lt; 400 μs TRIP // POSIX STREAM GATE</text>
+</svg>

@@ -1,0 +1,1355 @@
+{
+  "title": "Hardware Interlock Flashcards",
+  "cards": [
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What are the four operational states of the HardwareInterlockGate state machine?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": ".locked, .armed, .permissiveGranted, and .emergencyAbort."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What is the default initial operational status of HardwareInterlockGate upon instantiation?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": ".locked."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which state transition occurs when arm() is called on a HardwareInterlockGate in the .locked state?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Transition to .armed (recorded with reason \"ARM_COMMAND_ACCEPTED\")."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What happens if grantPermissive() is called directly on a HardwareInterlockGate while it is in the .locked state?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "It throws HardwareInterlockError.invalidTransition(from: .locked, to: .permissiveGranted)."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "How does calling grantPermissive() affect callers suspended in requestPermissive() while the gate is .armed?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "It transitions the gate to .permissiveGranted and drains all pending waiter continuations with success."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What is the mandatory state recovery target when calling resetEmergencyAbort() on an aborted gate?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "It returns the gate strictly to the .locked state."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which error is thrown if a caller attempts a direct transition from .emergencyAbort to .armed without calling resetEmergencyAbort()?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "HardwareInterlockError.emergencyAbortActive."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What happens to callers suspended in requestPermissive() when tripEmergencyAbort() is invoked?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "All pending waiters are drained immediately and throw HardwareInterlockError.emergencyAbortActive."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Calling requestPermissive() on a HardwareInterlockGate in the .locked state throws which error?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "HardwareInterlockError.gateLocked."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What is the maximum capacity cap of the HardwareInterlockGate transition history ring buffer?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "2048 records."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "In ScramKCore, what is a PermissivePermit?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "A cryptographically identified, request-bound, single-use capability token issued for a bounded execution window."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "To which state does HardwareInterlockGate transition when issuePermissivePermit() is successfully invoked from .armed?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": ".permissiveGranted."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What state transition occurs automatically the instant consumePermissivePermit() succeeds?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "The gate atomically relocks to .locked."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What occurs if a client attempts to reuse or replay an already consumed PermissivePermit?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "The consumption attempt is rejected and throws HardwareInterlockError.gateLocked."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which error is thrown when consumePermissivePermit() is called at or after the permit's expiresAt instant?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "HardwareInterlockError.timedOut (and the active permit is cleared, relocking the gate)."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "How does consumePermissivePermit() enforce anti-hijacking between distinct tool requests?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "It verifies that the requestID argument matches the requestID stored in the gate's activePermit."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which property in PermissivePermit prevents a permit issued in a prior gate generation from being accepted after re-arming?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "issuedStateVersion (which must match the gate's current stateVersion)."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "How many concurrent callers can successfully consume a single-use PermissivePermit?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Exactly one caller; all other competing threads or tasks are rejected."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What is the primary operational purpose of the environment scrubber in MCPProcessTransport?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "To strip inherited host variables and prevent credential leakage or dynamic library injection in child processes."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which seven environment keys form the explicit allowlist enforced by MCPProcessTransport?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "PATH, HOME, USER, LOGNAME, TMPDIR, LANG, and LC_ALL."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "To which exact directory list is PATH pinned by the 7-key environment scrubber?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "/usr/bin:/bin:/usr/sbin:/sbin."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "To which specific locale string are LANG and LC_ALL set in the scrubbed subprocess environment?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "\"C\"."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Name three dynamic linker or execution variables explicitly purged by the 7-key environment scrubber."
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "DYLD_INSERT_LIBRARIES, LD_PRELOAD, and BASH_ENV (also ENV, PROMPT_COMMAND, PYTHONSTARTUP, NODE_OPTIONS)."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What is the primary function of the 1.5-second critical-read dwell guard in ScramKUI?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "It enforces a mandatory inspection dwell time on high-risk intercepts before clearance controls unlock."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What is the default criticalReadGuardDuration in ActiveHoldPolicy?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "1.5 seconds (1500 ms)."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What is the default initial approval window duration configured in ActiveHoldPolicy?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "5 seconds."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What is the hard upper limit for maxHoldDuration in ActiveHoldPolicy?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "120 seconds."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which user interface events cause an active dead-man hold to disengage and immediately relock?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Releasing the physical Space key, losing window key-focus, or deactivating the application."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "How does ConsoleStateController mark the start of a dead-man hold-to-read sequence?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "It sets isAuthorizationHoldActive = true and records holdStartedAt = ContinuousClock.now."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What happens to the remaining approval deadline if endAuthorizationHold() is called before the dwell guard completes?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "The hold terminates and the deadline is clamped without granting permissive authorization."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What are the two defined execution profiles in ContainerSecurityProfile?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": ".strictAirgap and .loopbackFramebuffer."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "How does the .strictAirgap profile enforce network isolation in Docker containers?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "By applying --network=none at the kernel namespace level."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "To which specific loopback address and port is .loopbackFramebuffer bound?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "127.0.0.1:7860."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "List three security flags enforced by ContainerSecurityProfile during container startup."
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "--read-only, --cap-drop=ALL, and --security-opt=no-new-privileges (along with --pids-limit 256 and --memory 4g)."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What target platform version and Swift language mode are mandated for building scramkd?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "macOS 14.0+ and Swift 6 language mode with complete strict concurrency (-strict-concurrency=complete)."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which framework dependencies are allowed inside the ScramKCore target?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Pure Swift and Foundation only; zero UI, audio, or virtualization dependencies are permitted."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What invariant must be observed when acquiring an OSAllocatedUnfairLock in ScramK code?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "The lock must only protect synchronous, non-suspending critical sections and MUST NEVER be held across an await point."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which isolation domain owns AppKit, SwiftUI views, view controllers, and presentation state?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "@MainActor."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Under Swift 6 complete strict concurrency, what protocol conformance is required for values sent across isolation domains?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Sendable."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Why is WKWebView prohibited in ScramKUI?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "To eliminate browser engine attack surface and enforce native SwiftUI, AppKit, and MetalKit component layouts."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "How does MCPNonblockingWriter serialize POSIX pipe I/O without blocking Swift concurrency threads?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "By writing 16 KiB F_SETNOSIGPIPE chunks through fenced write tickets."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "How does ContainerSocketBridge verify wire payload SHA-256 hex digests without timing side-channels?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "By using a constant-time byte-wise XOR accumulator comparison."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which error is thrown by ContainerSocketBridge when an inbound payload SHA-256 digest fails constant-time comparison?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "BridgeError.wrongHash."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Why does sending all request bytes into a pipe NOT constitute execution success?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Because pipe write completion does not verify remote processing or correlated response receipt."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which operations are strictly prohibited inside the CScramKAudioRealtime audio render callback?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Locks, dynamic allocations, file/network I/O, Task creation, and actor or UI calls."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What four tactical audio cues are synthesized by ScramKToneSynthesizer?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "interceptAlert, holdTick, grantConfirm, and abortSiren."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What exception permits ScramKAudio to import AVFoundation and CoreAudio?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Preserving on-device LocalVoiceCommander output without enabling microphone capture or automatic PTT."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What are the logical canvas dimensions governing the layout geometry of ScramKUI?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "$1440 \\times 900$ logical points."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which components comprise Tier 1 of the 3-Tier Progressive Disclosure HUD?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "The top 44pt interlock status banner, active profile badge, Display P3 MetalKit viewport, and primary SCRAM/Hold controls."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which components comprise Tier 2 of the 3-Tier Progressive Disclosure HUD?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "The actionable intercept summary card, risk badges (LOW/MEDIUM/HIGH/CRITICAL), intent summary, and 1.5s dwell guard."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which components comprise Tier 3 of the 3-Tier Progressive Disclosure HUD?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "The collapsible semantic JSON diff & provenance drawer, detailing raw SHA-256 digests and key-by-key diffs."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which target color space pipeline is used for presentation rendering in ScramKUI?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Display P3."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which local keycodes are monitored by scramkd for Space, Esc, and F12?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Keycode 49 (Space), Keycode 53 (Esc), and Keycode 111 (F12)."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which command is immediately executed when the operator presses the Esc key?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "tripEmergencyAbort() (Emergency SCRAM trip)."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What is displayed on the HUD control strip when F12 is pressed?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "\"F12 (NOT IMPLEMENTED)\"."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What three conditions must be met before F12 can report success in production?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Descriptor teardown, cryptographic zeroization of nonces/leases, and kernel fsync(2) log snapshot confirmation."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "How does scramkd suppress repeated command triggers when a key is held down continuously?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "By filtering out key-repeat events using an event timestamp/identifier token cache."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Do local key-monitors intercept Space/Esc key events when an AppKit text field has active focus?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "No; active text focus retains key events for text editing and navigation."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What is the executable target for the operator CLI in the scramkd repository?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "scramkctl."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What subcommands are supported by the scramkctl CLI?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "status, grant, abort (or scram/trip), and --help."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which process exit code is returned by scramkctl when given an unknown command argument?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Exit status 64."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Where is the default Unix domain control socket file path defined in com.scramk.daemon.plist?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "/var/run/scramkd/control.sock."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which loopback telemetry endpoint is configured in com.scramk.daemon.plist?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "127.0.0.1:5910."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What is the row limit for the in-memory audit log array in ConsoleStateController?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "256 rows (auditRowLimit)."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "How does ConsoleStateController alert the user when older audit log rows have been truncated?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "By prepending a persistent truncation marker row displaying the count of omitted transitions/rows."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which subsystem label is assigned to transition audit records emitted directly by HardwareInterlockGate?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "\"INTERLOCK\"."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What tag color is assigned to .emergencyAbort transitions in the console audit log?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Red (\"red\")."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which command executes complete strict concurrency compilation for scramkd release targets?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "swift build -c release -Xswiftc -strict-concurrency=complete"
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Which specific test case is skipped during standard offline CI suite execution?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "'ContainerSocketBridgeTests.testLiveContainerHandshakeUnderPermissiveGateState'"
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Does triggering an emergency SCRAM abort guarantee immediate container destruction?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "No; interlock state reflects local gate authorization, not verified Docker container destruction or VM teardown."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What role is played by ContinuationWaiter in ScramKCore?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "It uses an OSAllocatedUnfairLock to guarantee exactly-once resumption of checked continuations."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What is the maximum JSON nesting depth allowed during dispatchMCPCommand payload validation?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "32 levels (exceeding depth throws BridgeError.limitExceeded(.jsonDepth))."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What requirement governs C11 lock-free publication in CScramKAudioRealtime?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "FFI boundaries must feature lock-free atomic publication and quiescent destruction without thread suspension."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "Why is an unverified caller-supplied PID or agent identity string marked as UNKNOWN?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "To prevent prompt-injected or untrusted container processes from falsifying provenance in audit logs."
+          }
+        ]
+      }
+    },
+    {
+      "front": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "What is the maximum buffer chunk size read per step during stdio MCP process transport?"
+          }
+        ]
+      },
+      "back": {
+        "flashcardContentBlock": [
+          {
+            "type": "text",
+            "content": "16 KiB (16,384 bytes)."
+          }
+        ]
+      }
+    }
+  ]
+}

