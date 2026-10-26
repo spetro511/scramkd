@@ -19,6 +19,13 @@
 
 ---
 
+## 🗣️ Request for Comment: Open-Sourcing the A2A Workflow
+
+**Important Proposal:** We are currently evaluating whether to open-source the underlying **8-Agent Maker-Breaker Topology** that autonomously builds and audits `scramkd`. This would allow contributors to utilize our Master Orchestrator, automated Git ledgers, and Adversarial Breaker loops for their own local development.
+
+Read the full proposal and leave your feedback in the [Community Discussions](https://github.com/spetro511/scramkd/discussions) or view the raw [A2A_WORKFLOW_PROPOSAL.md](docs/A2A_WORKFLOW_PROPOSAL.md).
+
+
 ## ⚠️ Security Classification & Operational Scope
 
 > **`scramkd` (`ScramK`) is an exclusively defensive host containment supervisor and safety interlock daemon.**
